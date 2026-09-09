@@ -1,0 +1,445 @@
+#pragma once
+
+#include <cstddef>
+#include <cstdint>
+#include <string>
+
+#include "cansat/link_profile.hpp"
+#include "cansat/lora_airtime.hpp"
+#include "flight/sensor_math.hpp"
+#include "flight/sensor_timing.hpp"
+
+namespace flight {
+
+// Physical Pico GPIO assignment. Mirrors documentation/hardware/pico-gpio-map.md.
+// These are logical resource reservations; electrical validation remains a hardware task.
+struct BoardPins {
+    static constexpr int i2c_sda = 4;
+    static constexpr int i2c_scl = 5;
+    static constexpr int spi_sck = 18;
+    static constexpr int spi_mosi = 19;
+    static constexpr int spi_miso = 16;
+    static constexpr int lora_cs = 17;
+    static constexpr int lora_reset = 20;
+    static constexpr int lora_dio0 = 21;
+    static constexpr int lora_dio1 = 22;
+    static constexpr int gps_tx = 12;   // Pico TX -> GPS RX
+    static constexpr int gps_rx = 13;   // Pico RX <- GPS TX
+    static constexpr int imu_int = 7;
+    static constexpr int status_led = 14;
+    static constexpr int battery_adc = 26;  // ADC0
+    static constexpr int sd_cs = 6;
+    // Analogue microphone output. ADC1, and chosen over GP28 so the two ADC channels the
+    // vehicle uses are adjacent to the battery sense on GP26 and the third stays free.
+    static constexpr int sound_adc = 27;  // ADC1
+    // The sound module's comparator output. Digital, and separate from the analogue
+    // line above because the two LM393 board variants expose different subsets: the
+    // four-pin board has AO and DO, the three-pin board has DO alone. Wiring both
+    // costs one GPIO and makes the firmware indifferent to which arrived.
+    static constexpr int sound_gate = 15;
+};
+
+enum class RadioMode { test, official };
+
+enum class MissionState { init, self_test, ready, flight, landed, recovery, fault };
+
+enum class FaultSeverity { warning, error, critical };
+
+// Centralised radio parameters. Only the sync words are fixed by the rulebook; every
+// other LoRa parameter below is a provisional engineering default and must be confirmed
+// against the RA-02 carrier and competition guidance before flight.
+//
+// The spreading factor is NOT a free choice: a ~190-byte telemetry packet takes 943 ms of
+// airtime at SF9/125 kHz, which cannot meet the 1 Hz rulebook minimum with any margin. SF7
+// brings the same packet to 302 ms (~30 % channel occupancy at 1 Hz). `validate_config()`
+// recomputes this from `cansat/lora_airtime.hpp` and refuses an impossible combination —
+// see documentation/design/link-budget.md.
+struct RadioConfig {
+    std::uint32_t frequency_hz = cansat::link::kFrequencyHz;
+    std::int8_t tx_power_dbm = cansat::link::kTxPowerDbm;
+    std::uint8_t spreading_factor = cansat::link::kSpreadingFactor;  // 6..12
+    std::uint32_t bandwidth_hz = cansat::link::kBandwidthHz;
+    std::uint8_t coding_rate = cansat::link::kCodingRate;  // denominator 4/5..4/8 -> 5..8
+    std::uint16_t preamble_length = cansat::link::kPreambleSymbols;
+    bool enable_crc = cansat::link::kEnableCrc;
+    std::uint8_t test_sync_word = cansat::link::kTestSyncWord;
+    std::uint8_t official_sync_word = cansat::link::kOfficialSyncWord;
+};
+
+struct Configuration {
+    // ---- Identity -------------------------------------------------------------
+    // MUST be replaced with the registered team identifier before any launch or
+    // official test. "CAN-Team-XX" is rejected by the telemetry formatter on purpose.
+    std::string team_id = "CAN-Team-XX";
+
+    // ---- Scheduling (milliseconds) -----------------------------------------
+    // Radio and sensor rates are deliberately decoupled. Sensors and the state estimator
+    // run fast enough for flight dynamics; the radio runs as fast as its airtime allows.
+    //
+    // 700 ms = 1.43 Hz on the default SF7/125 kHz modem and the 199-byte packet, at 46 %
+    // channel occupancy against a 50 % policy.
+    //
+    // **The rulebook's 1 Hz is a minimum this vehicle must never be found sitting on.**
+    // `validate_config()` refuses any period above `kMaxTelemetryPeriodMs` (950 ms), so a
+    // build cannot ship at or below 1 Hz however the field is set -- and the profile
+    // itself will not compile above it. Going faster than 700 ms needs a wider bandwidth
+    // or a shorter packet; validate_config() rejects the combinations that are not
+    // physically achievable rather than letting the scheduler silently under-run.
+    std::uint32_t telemetry_period_ms = cansat::link::kTelemetryPeriodMs;  // hard cap 950
+    // 33 ms = ~30 Hz acquisition, state estimation and altitude rate. Both sensors can
+    // supply data faster than this: the barometer's configured preset runs at 83 Hz and
+    // the IMU at 200 Hz. validate_config() refuses a period the barometer cannot keep up
+    // with, because re-reading an unchanged conversion reads as zero climb rate.
+    std::uint32_t sensor_period_ms = 33;       // sensor acquisition + orientation update
+    // How long main() sleeps between poll() calls. Two independent limits bound it:
+    //
+    //  * it sets the scheduling jitter on every task above (2 ms is under 6 % of the 33 ms
+    //    sensor tick), and
+    //  * the GPS is drained once per tick from the RP2040's 32-byte UART FIFO. At 9600
+    //    baud, 8N1, that FIFO fills in 33 ms — so a tick at or above that silently loses
+    //    NMEA bytes and truncates sentences. validate_config() enforces the margin.
+    std::uint32_t loop_tick_ms = 2;
+    std::uint32_t sd_flush_period_ms = 2000;
+    std::uint32_t health_period_ms = 1000;
+    std::uint32_t battery_period_ms = 1000;
+
+    // ---- Radio -------------------------------------------------------------
+    RadioMode radio_mode = RadioMode::test;
+    RadioConfig radio;
+    std::uint32_t radio_recovery_backoff_ms = 1000;   // spacing between bounded re-init attempts
+    std::uint8_t radio_max_consecutive_failures = 5;  // TX failures before a radio fault + re-init
+
+    // Airtime budget and runtime packet cap. Defaults to the 255-byte LoRa FIFO limit,
+    // the only size a packet cannot exceed (measured: 118 bytes mandatory-only, 206 with
+    // GPS and diagnostics, 247 absolute worst case). The controller drops its optional
+    // diagnostic tags rather than exceed this, because the radio would otherwise truncate
+    // the packet silently. `max_channel_duty` is the largest fraction of the channel one
+    // packet per telemetry period may occupy — the rest is margin for radio recovery,
+    // retries and the receiver's own timing.
+    // Whether the position goes on the air as well as into the log.
+    //
+    // **The rulebook does not require it.** The mandatory packet is team, number, time,
+    // altitude, pressure, temperature, roll, pitch, yaw and the three accelerations; GPS is
+    // SEN-011, an *additional sensor* scored on evidence of data "transmitted **or**
+    // logged". The SD row carries latitude, longitude, altitude, satellites and HDOP
+    // whatever this is set to, so the five scoring points do not depend on it.
+    //
+    // What it does cost: `GP-Lat`/`GP-Lon`/`GP-Alt` are 56 bytes, and they take the
+    // worst-case packet from 199 to exactly 255 -- the LoRa FIFO limit, which is not a
+    // coincidence so much as a ceiling the format has grown into. Airtime scales with
+    // length, the telemetry period is computed from the worst case, and those 56 bytes are
+    // therefore the difference between 1.43 Hz and 1.18 Hz. The rulebook rewards rates
+    // above 1 Hz.
+    //
+    // **And what it costs if it is false: there is no live position.** The ground station
+    // never sees where the vehicle is, during descent or after landing, and the fix exists
+    // only on a card inside a vehicle you have to find first. Set this true for any flight
+    // where losing sight of it is plausible; the budget and period below must move with it,
+    // and validate_config() refuses the combination if they do not.
+    bool transmit_gps = false;
+    std::size_t worst_case_packet_bytes = cansat::link::kWorstCasePacketBytes;
+    double max_channel_duty = cansat::link::kMaxChannelDuty;
+
+    // Legacy flat aliases kept for older call sites / tests.
+    std::uint8_t test_sync_word = cansat::link::kTestSyncWord;
+    std::uint8_t official_sync_word = cansat::link::kOfficialSyncWord;
+
+    // ---- Sensor validity -------------------------------------------------------
+    std::uint32_t sensor_stale_after_ms = 2000;
+
+    // How long the vertical-speed estimate holds its value while the barometer reports an
+    // unchanged pressure. Over-sampling produces at most a sample or two of repeats — the
+    // barometer runs at 83 Hz against a 30 Hz loop — so a short hold rejects those false
+    // zeros. Beyond it, an unchanged pressure means the vehicle really is not moving
+    // vertically, and holding a stale descent rate would stop the landing detector from
+    // ever firing.
+    std::uint32_t altitude_rate_hold_ms = 200;
+
+    // ---- Barometer configuration (BMP280 datasheet section 3.8, table 14) ------
+    // osrs_t x1 + osrs_p x4 + IIR filter x16 is the datasheet's "handheld device,
+    // dynamic" preset: 83 Hz output, low noise, and fast enough that 30 Hz sampling
+    // always sees a fresh conversion. The previous x2/x16 setting produced only 26 Hz
+    // and could not have supported the acquisition rate.
+    sensors::Oversampling baro_osrs_t = sensors::Oversampling::x1;
+    sensors::Oversampling baro_osrs_p = sensors::Oversampling::x4;
+    sensors::BaroFilter baro_filter = sensors::BaroFilter::x16;
+    double baro_standby_ms = 0.5;
+
+    // ---- IMU configuration (MPU-9250 register map, registers 25, 26 and 29) ----
+    // The MPU-9250 splits the MPU-6050's single DLPF field in two: DLPF_CFG in CONFIG
+    // filters the gyroscope, A_DLPF_CFG in ACCEL_CONFIG 2 filters the accelerometer.
+    // Setting 4 on each gives a 20 Hz gyroscope / 21.2 Hz accelerometer bandwidth. At a
+    // 30 Hz sampling rate the Nyquist limit is 15 Hz, so a wider filter would alias
+    // airframe vibration into the attitude estimate; a narrower one would blur the launch
+    // transient. SMPLRT_DIV 4 leaves the internal rate at 200 Hz, well above sampling.
+    std::uint8_t imu_gyro_dlpf_cfg = 4;
+    std::uint8_t imu_accel_dlpf_cfg = 4;
+    std::uint8_t imu_sample_rate_div = 4;
+
+    // ---- Magnetometer configuration (AK8963 inside the MPU-9250) ---------------
+    // 16-bit output (0.15 uT/LSB) in continuous mode 2 (100 Hz). Mode 1 is 8 Hz, which
+    // cannot supply a fresh sample to every 30 Hz attitude update, and the 14-bit mode
+    // quantises the earth's ~50 uT field into steps four times coarser for no saving.
+    sensors::MagResolution mag_resolution = sensors::MagResolution::bits16;
+    sensors::MagMode mag_mode = sensors::MagMode::continuous_100hz;
+
+    // Hard-iron and soft-iron correction for THIS airframe, from a figure-of-eight sweep.
+    // It ships invalid on purpose. An uncalibrated magnetometer still stops yaw drifting,
+    // but the vehicle must not report an absolute magnetic heading it has not earned --
+    // the battery, the LoRa module and the wiring all bias the field by tens of
+    // microtesla, which is the same order as the field being measured.
+    //
+    // To fill this in: run the vehicle with mag_cal_in_flight true, rotate it through
+    // every attitude until the health snapshot reports coverage, then copy the resulting
+    // offsets and scales here so the flight starts already calibrated.
+    sensors::MagCalibration mag_calibration{};
+
+    // Runtime magnetometer calibration while on the pad. Off by default: it is a bench
+    // procedure, and a half-finished sweep is worse than none.
+    bool mag_cal_in_flight = false;
+    std::uint32_t mag_cal_min_samples = 200;   // before any calibration can be accepted
+    double mag_cal_min_span_ut = 30.0;         // each axis must sweep at least this
+
+    // ---- Barometric altitude ------------------------------------------------
+    double reference_pressure_pa = 101325.0;   // PROVISIONAL sea-level reference; set from field baro
+    bool altitude_relative_to_baseline = true; // report altitude above the power-on ground baseline
+    std::uint32_t baseline_samples = 20;       // barometer samples averaged while in READY
+
+    // ---- Orientation (Mahony complementary filter on the quaternion) --------
+    // Feedback gains, in (rad/s) per unit of normalised cross-product error. Yaw is
+    // corrected more gently than roll and pitch because the magnetic field is the noisier
+    // reference and yaw has no second observer to average against.
+    double orientation_kp_accel = 2.0;
+    double orientation_kp_mag = 0.6;
+    double orientation_ki_bias = 0.05;
+    double orientation_bias_limit_dps = 10.0;
+
+    // ---- Yaw cross-check against GPS course over ground ---------------------
+    // Course over ground is NOT body yaw: it is the direction the vehicle's ground track
+    // is moving, it is referenced to TRUE north rather than magnetic, and under a
+    // parachute in wind the two differ by whatever the drift is. It is therefore used for
+    // one thing only -- raising a warning when the two disagree so grossly that the
+    // magnetometer calibration should be suspected -- and never as an input to the
+    // estimator.
+    bool yaw_cog_cross_check = true;
+    double yaw_cog_min_speed_mps = 5.0;   // below this the course is noise
+    double yaw_cog_tolerance_deg = 60.0;  // generous: wind, crab and declination all live here
+    std::uint32_t yaw_cog_confirm_samples = 5;  // consecutive disagreements before warning
+    // Magnetic declination at the launch site, degrees east of true north. Applied only
+    // when comparing the magnetic heading against a true-north GPS course; the reported
+    // yaw stays magnetic. PROVISIONAL: set from a declination model for the launch site.
+    double magnetic_declination_deg = 0.0;
+
+    // ---- Startup calibration (vehicle stationary on the pad) --------------
+    // Gyro bias + accelerometer offset + barometric ground reference are estimated
+    // while in INIT/SELF_TEST/READY. A calibration that never settles still resolves
+    // (best-effort) at calib_timeout_ms so the mission is never blocked.
+    std::uint32_t calib_samples = 80;             // still IMU samples required to accept
+    std::uint32_t calib_timeout_ms = 20000;       // resolve best-effort after this
+    double calib_gyro_still_dps = 2.0;            // per-axis gyro std-dev gate for "stationary"
+    // A steady rotation has near-zero variance, so the std-dev gate alone accepts it and
+    // absorbs a real body rate into the "bias". The MPU-9250 product specification gives
+    // a gyroscope zero-rate output of +-5 deg/s over temperature, so a mean well beyond
+    // that cannot be bias: the vehicle is turning, and the calibration must be refused
+    // rather than silently cancelling the rotation for the rest of the flight. The bound
+    // is kept at five times the specified figure so a marginal part is not rejected.
+    double calib_max_gyro_bias_dps = 25.0;
+    double calib_accel_tol_mps2 = 1.5;            // |mean accel| must be within this of 1 g
+
+    // ---- Arming / launch lockout ----------------------------------------
+    std::uint32_t arming_delay_ms = 3000;         // no launch detection before this since boot
+    bool require_calibration_to_arm = true;       // wait for calibration to settle before arming
+
+    // ---- Sensor plausibility (datasheet-derived, not invented mission limits) ----
+    double baro_min_pa = 30000.0;                 // BMP280 spec floor ~300 hPa (margin)
+    double baro_max_pa = 115000.0;                // BMP280 spec ceiling ~1100 hPa (margin)
+    double baro_min_temp_c = -50.0;               // BMP280 operating range -40..+85 (margin)
+    double baro_max_temp_c = 95.0;
+    double accel_clip_mps2 = 170.0;              // MPU-9250 +-16 g full-scale ~157 m/s^2 (margin)
+    double gyro_clip_dps = 2200.0;               // MPU-9250 +-2000 dps full-scale (margin)
+    // The AK8963 saturates at +-4912 uT; anything past a few times the earth's field
+    // is a magnet, a motor or a fault, never a heading.
+    double mag_clip_ut = 500.0;
+
+    // ---- Launch / landing detection --------------------------------------
+    // PROVISIONAL: the rulebook does not fix these thresholds. Tune against test data.
+    double launch_accel_mps2 = 30.0;              // |a| above this implies boost
+    double launch_altitude_gain_m = 15.0;        // OR climb this far above the ground baseline
+    std::uint32_t launch_confirm_ms = 300;       // launch condition must hold this long
+    std::uint32_t min_flight_ms = 3000;          // suppress landing detection until this into flight
+    double landing_accel_epsilon_mps2 = 2.5;     // ||a| - g| below this implies at rest
+    double landing_altitude_rate_max_mps = 1.0;  // |vertical speed| below this implies not descending
+    std::uint32_t landing_confirm_ms = 3000;     // rest condition must hold this long
+
+    // ---- The descent gate ---------------------------------------------------
+    // A landing may not be declared until a real descent has been observed. Without this
+    // the vehicle declares a landing while **hovering under the drone that is about to
+    // release it** -- 1 g and no vertical motion is exactly what "at rest" tests for, and
+    // three seconds of hover was enough ([F-20], documentation/mission/
+    // concept-of-operations.md). min_flight_ms does not help: on a drone lift FLIGHT is
+    // entered during the ascent, so its window is spent before the hover begins.
+    //
+    // 2 m/s of descent, held for a second. Both numbers are chosen to sit in the wide gap
+    // between the two things they have to separate:
+    //
+    //   * The mission descends at up to 5 m/s (the rulebook cap), reaching terminal rate
+    //     in about half a second, and the whole descent from 30.48 m lasts 6.45 s. So the
+    //     gate opens roughly a second into the descent with five seconds to spare, and a
+    //     failed parachute -- which falls far faster -- opens it sooner still.
+    //   * A hovering drone, a gentle lift and barometric noise are all far below 2 m/s.
+    //
+    // PROVISIONAL, like every other detection threshold here: tune against real drop data.
+    double landing_descent_rate_mps = 2.0;            // descend faster than this to arm the gate
+    std::uint32_t landing_descent_confirm_ms = 1000;  // and hold it this long
+
+    // ---- Post-impact --------------------------------------------------------
+    std::uint32_t post_impact_transmission_ms = 5000;  // >= rulebook 5 s minimum after impact
+
+    // ---- Battery monitor --------------------------------------------------
+    // The resistor-divider ratio is unknown. Leave divider_ratio at 0 to report the raw
+    // ADC pin voltage unscaled; never assume a direct LiPo-to-ADC connection.
+    float battery_adc_ref_v = 3.3f;
+    std::uint16_t battery_adc_max_counts = 4095;
+    float battery_divider_ratio = 0.0f;   // (R1 + R2) / R2
+    float battery_low_voltage = 0.0f;     // 0 disables the low-battery fault
+    float battery_adc_scale = 0.0f;       // deprecated alias for battery_divider_ratio
+
+    // ---- SD logging -------------------------------------------------------
+    // The microSD breakout is a 3.3 V module (2.6 to 3.6 V, SPI) sharing SPI0 with the
+    // radio, chip-select on GP6. It is a best-effort recorder: losing the card raises a
+    // warning and stops the writes, and telemetry continues untouched.
+    std::uint8_t sd_max_failures = 10;    // consecutive write failures before SD logging is disabled
+
+    // ---- GPS ---------------------------------------------------------------
+    // Ground-to-vehicle maintenance commands. **Defaults to false, and a flight build
+    // leaves it false**: this vehicle's mission is autonomous end to end and the README
+    // says so. Enabled on the bench, it lets the ground station erase the onboard log
+    // between test runs without unplugging the vehicle and pulling the card.
+    //
+    // Even when enabled the vehicle listens only in READY with ARM-0 -- on the ground,
+    // before flight. That is the protection that matters: the command key is clear text
+    // over an unauthenticated link shared with every other team on sync word 0xF3, so
+    // nothing about the message itself can be trusted, and the window in which the
+    // vehicle will act on one is closed for the whole of the flight.
+    bool allow_ground_commands = false;
+    // The shared secret the erase command is authorised with. **Change it before you use
+    // the feature**, and do not commit the one you use: this default is in a public
+    // repository, which makes it a placeholder rather than a password.
+    //
+    // It never travels. The command carries a 64-bit digest of this string and the packet
+    // number the operator was looking at, so the wire never sees the secret and a captured
+    // frame cannot be replayed -- the vehicle refuses a packet number it has already
+    // accepted or has not yet reached.
+    //
+    // **Not cryptography.** See cansat/command.hpp. It stops accidents, stray frames and
+    // replays; it does not stop somebody who knows the string. What protects the log is
+    // that the vehicle only listens in READY with ARM-0, and only if built for it.
+    std::string command_password = "change-me";
+    // How far back a command's packet number may be before it is stale. At 1.43 Hz this is
+    // about 45 seconds -- long enough for an operator to read a number, type a password and
+    // press a button, short enough that a frame recorded during an earlier session is
+    // useless.
+    std::uint32_t command_replay_window = 64;
+    std::uint32_t gps_baud = 9600;          // NEO-6M default
+    std::uint32_t gps_uart_fifo_bytes = 32; // RP2040 UART FIFO depth
+
+    // The NMEA parser holds its last good fix indefinitely: it has no clock and cannot
+    // know the receiver stopped talking. Left alone, a GPS whose lead is pulled off at
+    // parachute deployment keeps a frozen position in every remaining packet, and the
+    // recovery team is sent to where the payload was, not where it is.
+    //
+    // The NEO-6M's default navigation rate is 1 Hz, so a live receiver refreshes its fix
+    // every 1000 ms. Three missed updates is the threshold for calling the position
+    // stale -- long enough to ride out a sentence lost to a checksum error, short enough
+    // that a frozen position never survives more than a few telemetry packets.
+    std::uint32_t gps_fix_timeout_ms = 3000;
+    // Silence on the UART itself. A receiver with no sky view still emits empty
+    // sentences continuously, so no bytes at all means the module is gone rather than
+    // merely unfixed. Used for the health report, not for rejecting a fix.
+    std::uint32_t gps_silence_after_ms = 3000;
+
+    // ---- GPS optional-field precision (rulebook unspecified) --------------
+    int gps_latlon_decimals = 6;
+    int gps_alt_decimals = 1;
+
+    // ---- Analogue microphone (additional sensor) -------------------------
+    //
+    // Sampled into the SD log and the health snapshot, and deliberately NOT transmitted:
+    // see documentation/design/telemetry-protocol.md. The rulebook makes optional sensor
+    // data optional, and every byte of the packet is airtime the mandatory fields need
+    // more.
+    //
+    // The window is a burst of ADC conversions, not a filter. 256 conversions on the
+    // RP2040's ADC at its 500 kS/s ceiling is about half a millisecond, against a 33 ms
+    // loop period -- so the cost is under 2 % of one tick, and the window is long enough
+    // to span several cycles of anything above ~2 kHz.
+    std::uint32_t sound_samples_per_window = 256;
+    // Which of the module's two outputs are actually wired. A three-pin LM393 board
+    // has no AO at all, and reading an unconnected ADC pin returns a floating level
+    // that looks exactly like a quiet room. Say what is connected rather than let the
+    // log carry a number nothing measured.
+    bool sound_analog_connected = true;   // module AO -> GP27
+    bool sound_gate_connected = true;     // module DO -> GP15
+    // Full-scale voltage and top code of the converter the microphone is read through.
+    double sound_reference_mv = 3300.0;
+    std::uint16_t sound_full_scale_counts = 4095;  // RP2040 ADC is 12-bit
+    // How long a sample may go unrefreshed before the sensor is called unhealthy. Generous,
+    // because nothing mandatory depends on it and a warning that fires in flight for a
+    // sensor nobody is scoring is noise.
+    std::uint32_t sound_stale_after_ms = 2000;
+
+    // Append non-mandatory diagnostic fields ("MODE-<state>", "FAULTS-<n>") AFTER every
+    // mandatory (and GPS) field. The official parser ignores unknown optional fields; set
+    // this false if a stricter receiver is confirmed.
+    bool append_diagnostic_fields = true;
+};
+
+inline std::uint8_t sync_word(const Configuration& config) {
+    return config.radio_mode == RadioMode::official ? config.radio.official_sync_word
+                                                    : config.radio.test_sync_word;
+}
+
+// Effective battery divider ratio, honouring the deprecated alias.
+inline float battery_divider_ratio(const Configuration& config) {
+    if (config.battery_divider_ratio > 0.0f) return config.battery_divider_ratio;
+    if (config.battery_adc_scale > 0.0f) return config.battery_adc_scale;
+    return 0.0f;
+}
+
+// Time to fill the RP2040's UART FIFO at the GPS baud rate, in milliseconds. The GPS is
+// drained once per loop tick, so the tick must stay comfortably below this or NMEA bytes
+// are lost before anything reads them.
+inline constexpr double uart_fifo_fill_ms(std::uint32_t baud, std::uint32_t fifo_bytes = 32) {
+    if (baud == 0) return 0.0;
+    // 8N1 framing: 10 bits on the wire per byte.
+    return 1000.0 * static_cast<double>(fifo_bytes) * 10.0 / static_cast<double>(baud);
+}
+
+// The configured modem, in the shared airtime model's terms.
+inline cansat::LoraModemParams modem_params(const Configuration& config) {
+    cansat::LoraModemParams p;
+    p.spreading_factor = config.radio.spreading_factor;
+    p.bandwidth_hz = config.radio.bandwidth_hz;
+    p.coding_rate = config.radio.coding_rate;
+    p.preamble_symbols = config.radio.preamble_length;
+    p.explicit_header = true;
+    p.crc_enabled = config.radio.enable_crc;
+    return p;
+}
+
+// Airtime of the longest packet this configuration can transmit, in milliseconds.
+inline double worst_case_airtime_ms(const Configuration& config) {
+    return cansat::lora_time_on_air_ms(config.worst_case_packet_bytes, modem_params(config));
+}
+
+// Fraction of the channel the telemetry schedule occupies (1.0 = continuously talking).
+inline double channel_duty(const Configuration& config) {
+    return cansat::lora_channel_duty(config.worst_case_packet_bytes, modem_params(config),
+                                     config.telemetry_period_ms);
+}
+
+// Cheap sanity check for a configuration before the mission loop starts. Returns false
+// and fills `why` when the configuration cannot produce compliant telemetry.
+bool validate_config(const Configuration& config, std::string& why);
+
+}  // namespace flight

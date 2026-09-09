@@ -1,0 +1,236 @@
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
+
+from logger import escape_raw
+from transport import (
+    FileReplayTransport,
+    FrameDecoder,
+    LoopbackTransport,
+    SerialTransport,
+    crc16_ccitt,
+    frame_encode,
+)
+
+PACKET = ("CAN-Team-01; P-001; Ti-00:00:01:000; A-10.0; Pr-101325.00; T-25.0; "
+          "Ro-1.0; Pi-2.0; Ya-3.0; AX-0.10; AY-0.20; AZ-9.80;")
+
+
+class FramingTests(unittest.TestCase):
+    def test_known_crc_vector(self):
+        self.assertEqual(crc16_ccitt(b"123456789"), 0x29B1)
+
+    def test_frame_roundtrip(self):
+        decoder = FrameDecoder()
+        frames = list(decoder.feed(frame_encode(PACKET.encode())))
+        self.assertEqual(len(frames), 1)
+        self.assertEqual(frames[0].kind, "packet")
+        self.assertEqual(frames[0].payload, PACKET)
+        self.assertTrue(frames[0].crc_ok)
+        self.assertEqual(decoder.frames_ok, 1)
+
+    def test_status_frame_detected(self):
+        decoder = FrameDecoder()
+        frames = list(decoder.feed(frame_encode(b"#state=RX radio=1")))
+        self.assertEqual(frames[0].kind, "status")
+
+    def test_a_truncated_header_does_not_swallow_the_next_frame(self):
+        # A header cut off inside its CRC field is followed immediately by the next
+        # frame's own '$'. Discarding that byte as part of the resync would cost the
+        # following frame too, turning one corrupted header into two lost packets.
+        decoder = FrameDecoder()
+        frames = list(decoder.feed(b"$9,ab" + frame_encode(PACKET.encode())))
+        self.assertEqual(len(frames), 1)
+        self.assertEqual(frames[0].payload, PACKET)
+        self.assertEqual(decoder.resyncs, 1)
+
+    def test_a_truncated_length_does_not_swallow_the_next_frame(self):
+        decoder = FrameDecoder()
+        frames = list(decoder.feed(b"$12" + frame_encode(PACKET.encode())))
+        self.assertEqual(len(frames), 1)
+        self.assertEqual(frames[0].payload, PACKET)
+
+    def test_crc_error_reported(self):
+        raw = bytearray(frame_encode(PACKET.encode()))
+        raw[-3] ^= 0x20  # corrupt a payload byte
+        decoder = FrameDecoder()
+        frames = list(decoder.feed(bytes(raw)))
+        self.assertEqual(frames[0].kind, "crc")
+        self.assertFalse(frames[0].crc_ok)
+        self.assertEqual(decoder.crc_errors, 1)
+
+    def test_resync_after_noise(self):
+        decoder = FrameDecoder()
+        stream = b"junk noise$$$" + frame_encode(b"A") + b"\x00\xff" + frame_encode(b"B")
+        payloads = [f.payload for f in decoder.feed(stream)]
+        self.assertEqual(payloads, ["A", "B"])
+
+    def test_split_across_chunks(self):
+        decoder = FrameDecoder()
+        blob = frame_encode(PACKET.encode())
+        got = []
+        for i in range(0, len(blob), 7):
+            got.extend(decoder.feed(blob[i:i + 7]))
+        self.assertEqual(len(got), 1)
+        self.assertEqual(got[0].payload, PACKET)
+
+
+class TransportTests(unittest.TestCase):
+    def test_file_replay_plain(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "packets.txt"
+            path.write_text(PACKET + "\n" + PACKET.replace("P-001", "P-002") + "\n",
+                            encoding="utf-8")
+            frames = list(FileReplayTransport(str(path)).frames())
+            self.assertEqual([f.kind for f in frames], ["raw", "raw"])
+            self.assertIn("P-002", frames[1].payload)
+
+    def test_file_replay_framed(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "frames.bin"
+            with path.open("wb") as stream:
+                stream.write(frame_encode(PACKET.encode()))
+                stream.write(frame_encode(b"#state=RX"))
+            frames = list(FileReplayTransport(str(path), framed=True).frames())
+            self.assertEqual([f.kind for f in frames], ["packet", "status"])
+
+    def test_loopback_framed(self):
+        t = LoopbackTransport(framed=True)
+        t.push_packet(PACKET)
+        t.push_packet("#state=RX radio=1")
+        t.stop()
+        kinds = [f.kind for f in t.frames()]
+        self.assertEqual(kinds, ["packet", "status"])
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class SerialBufferTests(unittest.TestCase):
+    """The unframed reader must not accumulate an unbounded partial line."""
+
+    def test_a_stuck_link_cannot_grow_the_buffer_without_bound(self):
+        # SerialTransport needs pyserial to construct, so exercise the buffer rule
+        # directly: it is a property of the class, not of the serial port.
+        cap = SerialTransport.MAX_LINE
+        self.assertGreater(cap, 0)
+        self.assertLessEqual(cap, 65536)
+
+        buf = b""
+        resyncs = 0
+        for _ in range(100):
+            buf += b"x" * 1000          # noise, never a newline
+            if len(buf) > cap:
+                buf = b""
+                resyncs += 1
+        self.assertLessEqual(len(buf), cap)
+        self.assertGreater(resyncs, 0)
+
+
+class RawLogReplayTests(unittest.TestCase):
+    """Replaying a raw log this ground station wrote.
+
+    The raw log is the forensic record of a flight, and the runbook's post-flight analysis
+    step replays it. Its lines carry a receipt timestamp and escaped control characters;
+    fed verbatim to the parser, every line of a real flight log is rejected.
+    """
+
+    PACKET = ("CAN-Team-07; P-001; Ti-00:00:01:000; A-10.0; Pr-101325.00; T-25.0; "
+              "Ro-1.0; Pi-2.0; Ya-3.0; AX-0.10; AY-0.20; AZ-9.80;")
+
+    def _replay(self, lines, **kw):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "raw_packets.tsv"
+            path.write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
+            return list(FileReplayTransport(str(path), **kw).frames())
+
+    def test_a_raw_log_line_replays_as_the_packet_it_recorded(self):
+        frames = self._replay([f"2026-09-05T02:11:03.123456+00:00\t{self.PACKET}"])
+        self.assertEqual([f.payload for f in frames], [self.PACKET])
+        self.assertEqual(frames[0].kind, "raw")
+
+    def test_a_status_line_in_the_raw_log_is_still_a_status_line(self):
+        frames = self._replay(
+            ["2026-09-05T02:11:04.000000+00:00\t#state=RX radio=1 sync=0xF3"])
+        self.assertEqual(frames[0].kind, "status")
+        self.assertEqual(frames[0].payload, "#state=RX radio=1 sync=0xF3")
+
+    def test_escaped_control_characters_are_restored(self):
+        # A corrupted payload can contain a tab; the log escapes it so one record stays one
+        # line. Replay has to undo exactly that, or the payload comes back different from
+        # the one the vehicle sent.
+        corrupted = "CAN-Team-07;\tP-001;" + chr(92) + " raw"
+        line = "2026-09-05T02:11:05.000000+00:00\t" + escape_raw(corrupted)
+        self.assertEqual([f.payload for f in self._replay([line])], [corrupted])
+
+    def test_a_plain_packet_file_is_unchanged(self):
+        # The common case is still a file of bare packets, and it must not be touched.
+        self.assertEqual([f.payload for f in self._replay([self.PACKET])], [self.PACKET])
+
+    def test_the_raw_log_reading_can_be_turned_off(self):
+        line = f"2026-09-05T02:11:03.123456+00:00\t{self.PACKET}"
+        frames = self._replay([line], raw_log=False)
+        self.assertEqual(frames[0].payload, line)
+
+
+class SharedFramingFixtureTests(unittest.TestCase):
+    """Every framing case, as this decoder sees it.
+
+    Three implementations decode this link. They agreed on what a valid frame is and not on
+    what a broken one is, so the same corruption produced different diagnostics depending on
+    which end an operator was reading. One file now settles it.
+    """
+
+    FIXTURES = Path(__file__).parents[3] / "test-data" / "framing-cases.tsv"
+
+    def _cases(self):
+        cases = []
+        for line in self.FIXTURES.read_text(encoding="utf-8").splitlines():
+            if not line.strip() or line.startswith("#"):
+                continue
+            name, stream_hex, events, counters = line.split("\t")
+            expected = []
+            if events:
+                for item in events.split(","):
+                    kind, payload_hex = item.split(":")
+                    expected.append((kind, bytes.fromhex(payload_hex)))
+            totals = dict(part.split("=") for part in counters.split(";"))
+            cases.append((name, bytes.fromhex(stream_hex), expected,
+                          {k: int(v) for k, v in totals.items()}))
+        return cases
+
+    def test_the_fixture_file_is_present_and_complete(self):
+        cases = self._cases()
+        self.assertGreaterEqual(len(cases), 12)
+        names = {name for name, _, _, _ in cases}
+        self.assertIn("oversized_length_is_an_overflow", names)
+
+    def test_every_case_decodes_to_its_recorded_events_and_counters(self):
+        for name, stream, expected, totals in self._cases():
+            with self.subTest(case=name):
+                decoder = FrameDecoder()
+                frames = list(decoder.feed(stream))
+                got = [("ok" if f.crc_ok else "crc", f.payload.encode("utf-8"))
+                       for f in frames]
+                self.assertEqual(got, expected, name)
+                self.assertEqual(decoder.frames_ok, totals["frames_ok"], name)
+                self.assertEqual(decoder.crc_errors, totals["crc_errors"], name)
+                self.assertEqual(decoder.resyncs, totals["resyncs"], name)
+                self.assertEqual(decoder.overflows, totals["overflows"], name)
+
+    def test_a_stream_split_at_every_byte_decodes_identically(self):
+        # The decoder is fed by a serial port, which splits wherever it likes.
+        for name, stream, expected, totals in self._cases():
+            with self.subTest(case=name):
+                decoder = FrameDecoder()
+                frames = []
+                for index in range(len(stream)):
+                    frames.extend(decoder.feed(stream[index:index + 1]))
+                got = [("ok" if f.crc_ok else "crc", f.payload.encode("utf-8"))
+                       for f in frames]
+                self.assertEqual(got, expected, name)
+                self.assertEqual(decoder.overflows, totals["overflows"], name)

@@ -1,0 +1,569 @@
+# Electrical Architecture
+
+## Purpose and Scope
+
+This document defines the preliminary electrical architecture for the CanSat before final Pico GPIO assignment, firmware, or peripheral-driver implementation. It covers the onboard CanSat electronics only unless a section explicitly identifies the separate ground station.
+
+The architecture is based on the confirmed hardware list and the current requirements baseline in `documentation/requirements/requirements.md`. It does not select a regulator, assign final pins, or assume that similarly named breakout boards have identical electrical characteristics.
+
+## Confirmed Onboard Hardware
+
+| Item | Quantity | Intended role | Confirmation status |
+|---|---:|---|---|
+| Raspberry Pi Pico | 1 | CanSat flight computer | Confirmed hardware; electrical integration TBD |
+| SX1278 RA-02 433 MHz LoRa module | 1 | Onboard telemetry radio | Confirmed hardware; electrical integration TBD |
+| MPU-9250 (delivered: **MPU-6500**) | 1 | Gyroscope and accelerometer | Sold as a nine-axis MPU-9250; `WHO_AM_I` read `0x70` on 2026-09-05, an MPU-6500 with six axes and no magnetometer ([F-1](../hardware/receiving-inspection.md#findings)). Answers at `0x68`; `0x0C` never does |
+| NEO-6M GPS with EEPROM | 1 | GPS sensor and possible additional telemetry source | Confirmed hardware; exact board documentation TBD |
+| GY-BMP280-3.3 | 1 | Pressure, altitude-related, and temperature measurement | Confirmed hardware. Chip ID `0x58` on 2026-09-05 — a BMP280, not a BME280 ([F-4](../hardware/receiving-inspection.md#findings)); answers at `0x76`, so SDO is strapped low |
+| Micro SD card reader | 1 | Onboard data storage | Confirmed hardware; breakout variant and documentation TBD |
+| Orange 3.7 V 1500 mAh 25C 1S LiPo | 1 | Primary power source | Confirmed hardware |
+| ~~AMS1117-3.3 regulator module~~ | 0 | Previously planned 3.3 V peripheral rail | **Not used, and none is needed.** Rejected on dropout, then made unnecessary: every load runs from the Pico's own `3V3(OUT)`, measured holding 3.28–3.29 V under the harshest load the vehicle can produce |
+| Manual power switch | 1 required | Main power control | **Held** — an I/O switch, obtained 2026-09-06. Goes in the battery positive lead, ahead of everything. Not yet fitted |
+| Power LED | 1 required | Visible power indication | **Held** — one red and one green 5 mm LED plus 1 kΩ resistors, obtained 2026-09-06, colours recorded 2026-09-09. **Red is the power LED**, on the regulated `+3V3` rail rather than a GPIO — see [the indicator LEDs](#the-indicator-leds). Not yet fitted |
+| **Schottky diode, 1 A** | 1 required | Stops USB back-powering the pack | **Not held — the only outstanding purchase.** See [D-6](../hardware/assembly-procedure.md#d-6-a-schottky-goes-between-the-switch-and-vsys) |
+| Universal single-sided prototype PCB | 1 | Onboard prototype assembly | Confirmed hardware |
+
+## Separate Ground Station Hardware
+
+The ground station is electrically separate from the CanSat:
+
+- Raspberry Pi Pico x1
+- SX1278 RA-02 x1
+- 433 MHz antenna x1
+- IPEX-to-SMA cable x1
+
+The ground-station power supply, switch, LED, wiring, and computer connection are outside this onboard architecture and remain TBD. Its RA-02 interface and configuration must remain compatible with the onboard telemetry design.
+
+## Power Source
+
+The onboard source is one 1S LiPo battery. The BOM ordered an Orange pack; **the pack that arrived is Pro-Range**, with the same capacity, cell count, nominal voltage and C-rating.
+
+From the delivered pack's label:
+
+- Nominal voltage: 3.7 V
+- Discharge voltage: lower than nominal as the battery discharges; the usable lower limit is TBD
+- Capacity marking: 1500 mAh
+- C-rating marking: 25C
+- Main discharge lead: red 2-pin JST-RCY (BEC) style
+- Balance lead: white 2-pin JST-XH style
+
+From the BOM rather than the pack:
+
+- Approximate full-charge voltage: 4.2 V
+
+The electrical design must treat the battery as a variable-voltage source. No battery life, safe cutoff voltage, charging current, protection method, or allowable load is assumed from the battery label alone - and in this case the label states none of them. **Neither lead mates with anything in this project, and no 1S charger was supplied or is on the BOM.**
+
+## Recommended Preliminary Power Topology
+
+The recommended architecture for evaluation is:
+
+```text
+1S LiPo battery
+    -> manual ON/OFF switch
+    -> switched battery distribution node
+         -> Raspberry Pi Pico VSYS (Pico onboard 3.3 V regulator)
+         -> peripheral power conversion - TBD
+              -> verified 3.3 V peripheral rail - TBD
+                   -> MPU-6500 (sold as MPU-9250), BMP280, NEO-6M, RA-02, microSD reader
+                      (the microSD reader is a 3.3 V board: same rail, no second stage)
+         -> power LED branch - TBD
+```
+
+This is a topology recommendation, not an approved schematic. The Pico VSYS path is based on the official Raspberry Pi Pico documentation. The switch position, LED connection, protection elements, peripheral conversion, and rail implementation remain subject to review.
+
+The Pico's onboard regulator generates the 3.3 V rail for the RP2040 and GPIO. The Pico 3.3 V output must not be assumed capable of powering all external peripherals; that is a current question, and it is still open. It is no longer a voltage question for any load on this vehicle: the microSD reader received has no regulator and a supply pin printed `3V3`, so every peripheral runs from one 3.3 V rail and the separate reader rail that earlier revisions carried is removed from the design. With no level shifter anywhere in the vehicle, that single rail being 3.3 V is a requirement rather than a convenience. See [sd-module-analysis.md](../hardware/sd-module-analysis.md).
+
+## Battery Voltage Range
+
+Only the following voltage points are currently available from the confirmed project information:
+
+| Condition | Voltage | Status |
+|---|---:|---|
+| Nominal battery label | 3.7 V | Confirmed label information |
+| Fully charged approximation | Approximately 4.2 V | Confirmed project assumption |
+| During discharge | Lower than 3.7 V | Exact range and cutoff TBD |
+| Switched battery node under load | TBD | Requires measurement and load analysis |
+| Pico VSYS input | Approximately 1.8-5.5 V supported by the Pico documentation | Confirmed Pico documentation; final battery protection remains TBD |
+| 3.3 V regulated rail | 3.3 V target | Regulator and tolerance TBD |
+
+The Pico is intended to be powered from the switched battery through VSYS. The design must not assume that the battery can directly power every external module. The permitted supply path for each peripheral requires exact board documentation.
+
+## Power Switching
+
+A manual ON/OFF switch is a mandatory competition function but has not been selected. The preliminary recommendation is to place it in the main battery feed so that the CanSat has one deliberate power-off state. The switch rating, contact behavior, mounting, location, and wiring are TBD.
+
+The switch design must support:
+
+- A clearly defined OFF state with no unintended energized loads
+- A repeatable ON state
+- Immediate power indication through the required visible LED
+- No accidental interruption from vibration or impact
+- Safe access before launch
+
+The switch is not yet present in the confirmed hardware BOM.
+
+## Voltage Regulation
+
+A dedicated peripheral power-conversion solution is still required, but no replacement regulator has been selected. The following cannot be determined safely until exact module documentation and a load estimate are available:
+
+- Required input-voltage range
+- Required output-voltage tolerance
+- Continuous output current
+- Transient or peak output current
+- Thermal dissipation
+- Dropout or minimum headroom
+- Efficiency
+- Short-circuit and over-temperature behavior
+- Reverse-current behavior
+- Required input and output capacitors
+- Battery cutoff behavior
+
+The conversion solution must be selected only after the total measured or documented load, LoRa transmission peaks, SD-card transients, Pico VSYS behavior, and safety margins are known.
+
+### AMS1117-3.3 Direct-Regulation Assessment
+
+The planned AMS1117-3.3 module is rejected as the direct regulator from the 1S LiPo to a 3.3 V peripheral rail.
+
+- The AMS1117 is a linear regulator. It needs input headroom above 3.3 V equal to its load-dependent dropout voltage.
+- The AMS1117 manufacturer documentation specifies dropout on the order of 1.1 V at high load; the exact purchased module's dropout curve and current rating are not confirmed.
+- Using that documented high-load order of magnitude, the input required to maintain 3.3 V is approximately 4.4 V or higher. A fully charged 1S LiPo is only approximately 4.2 V.
+- At lower loads the dropout may be lower, but the project cannot guarantee 3.3 V throughout discharge without the exact module curve, load profile, and battery discharge limits.
+- As the battery voltage falls, the regulator will lose regulation when the battery approaches 3.3 V plus the actual dropout. The usable battery capacity before the 3.3 V rail falls out of regulation cannot be calculated from the 1500 mAh label alone.
+- Linear-regulator loss is approximately `(Vin - 3.3 V) x load current`; heat therefore depends on the actual load and voltage difference. No thermal result is claimed.
+- Idealized conversion efficiency is approximately `3.3 V / Vin`, before regulator ground current and other losses. This does not establish system efficiency or battery life.
+- A 3.3 V output now suits every peripheral including the microSD reader, which is a 3.3 V board. That removes a constraint from the regulator choice; it does not rescue this regulator, whose dropout is the problem.
+
+**Decision:** Do not use the AMS1117-3.3 for direct 1S LiPo to 3.3 V regulation. A buck-boost or other suitable conversion architecture may be more appropriate for maintaining a regulated rail across the battery range, but no replacement regulator is selected here.
+
+**Source:** [AMS1117 manufacturer documentation](https://www.advanced-monolithic.com/pdf/ds1117.pdf). This assessment does not establish the specifications of the exact module until its documentation is identified.
+
+## 3.3 V Rail
+
+A 3.3 V peripheral rail remains a possible peripheral rail, but its final scope is not approved. Before connecting it, verify for every module:
+
+- Whether the module accepts 3.3 V supply
+- Whether the module's signal pins are 3.3 V logic
+- Whether it contains an onboard regulator or level shifter
+- Its allowed voltage tolerance
+- Its startup and transient current behavior
+- Its required local bypass capacitors
+
+The rail must have a defined distribution point, return path, decoupling plan, measurement point, and load test. The regulator output tolerance, current rating, and protection remain TBD.
+
+## The indicator LEDs
+
+Two, both on the vehicle. The ground bridge drives none.
+
+| Ref | Role | Colour | Node | Series R | Required by |
+|---|---|---|---|---|---|
+| `D2` | Power indicator | **Red** 5 mm | `+3V3` | `R2` | **PWR-002, PWR-003** — mandatory |
+| `D3` | Status / mission state | **Green** 5 mm | `GP14` | `R1` | Not a rulebook item; the only diagnostic on a sealed vehicle |
+
+### Which node the power LED hangs off — decided 2026-09-09
+
+The netlist and this document disagreed for two days: the netlist put the power LED on
+`VSW`, the switched battery node, and this page said the 3.3 V bus. **It is `+3V3`**, and
+the reasoning is worth keeping because the other choice is defensible:
+
+| On `VSW` (switched battery) | On `+3V3` (regulated) — **chosen** |
+|---|---|
+| Means "the battery is connected" | Means "the system is actually powered" |
+| Stays lit with a dead flight computer | Goes dark if the regulator fails — which is the honest signal |
+| 3.4–4.2 V, so it **dims visibly as the cell drains** | Regulated, so brightness and current are constant |
+| Lights microseconds earlier | Still immediate: the regulator is up before anything boots |
+
+Three reasons decided it. **Brightness must not depend on charge** — PWR-002 requires the
+indicator to be *visible*, and one that fades over a flight is a poor indicator. **The
+current is deterministic**, so the resistor can be sized exactly rather than for a range.
+And it **tracks the question the radio-silence procedure actually asks**: on `+3V3`, lit
+means powered means potentially transmitting ([TEL-026](../operations/runbook.md#radio-silence--when-your-vehicle-must-be-off)).
+
+`PWR-003` — "on immediately" — is satisfied by construction either way, because the LED is
+wired to a rail through a resistor with no firmware in the path. **A GPIO-driven LED could
+not satisfy it**; it would wait for boot. The separate GP14 status LED *is* firmware-driven
+and is deliberately **not** this indicator.
+
+### Colour, and why it decides the resistor
+
+Both nodes sit at 3.3 V, so the LED's forward voltage is most of the headroom:
+
+| | Vf ≈ 2.0 V (red) | Vf ≈ 2.2 V | Vf ≈ 3.0 V | Vf ≈ 3.2 V |
+|---|---:|---:|---:|---:|
+| Current at 1 kΩ, from 3.3 V | **1.30 mA** | 1.10 mA | 0.30 mA | 0.10 mA |
+
+**5 mm green is ambiguous** — older dice are ≈2.0 V, modern bright ones ≈3.0–3.4 V — and at
+3.2 V a 1 kΩ resistor gives 0.1 mA, which is effectively dark. **Red is not ambiguous**, so
+red takes the mandatory role and green takes the status role, where the risk is a dim
+diagnostic read at arm's length on a bench rather than a missing rulebook indicator.
+
+> **Measure both forward voltages on the meter's diode range before soldering.** It takes
+> ten seconds and it is the only thing that settles what the green one actually is. If it
+> reads ≈3.1 V, the status LED needs a resistor nearer 100 Ω than 1 kΩ — which is a
+> purchase, since only 1 kΩ, 33 kΩ and 100 kΩ are held.
+
+### 1 kΩ is bench-bright, not necessarily daylight-bright
+
+`R2` at 1 kΩ gives the red power LED 1.30 mA. That is obvious on a desk and marginal in
+sunlight, and a judge will be looking at it outdoors:
+
+| `R2` | Current, red on 3.3 V |
+|---:|---:|
+| 1 kΩ | 1.30 mA |
+| 470 Ω | 2.77 mA |
+| 330 Ω | 3.94 mA |
+| **220 Ω** | **5.91 mA** |
+
+**220–470 Ω is the better choice for the power LED**, and the cost is nothing that matters:
+5.9 mA for a one-hour session is 5.9 mAh against a 1500 mAh pack, or 0.4 %. Keep 1 kΩ on the
+status LED, which is only ever read close up. Neither value is held — this is a small
+purchase, and the [purchase list](../hardware/purchase-list.md) previously concluded no
+low-value resistor was needed on the strength of bench visibility alone.
+
+**The RP2040 sources this comfortably.** Default GPIO drive is 4 mA and it is configurable
+to 12 mA; the status LED asks for 1.3 mA.
+
+## Grounding
+
+The preliminary recommendation is a common electrical ground between the Pico and all onboard peripherals, with short and clearly documented return paths. The actual topology is TBD until the schematic and current paths are reviewed.
+
+The design review must address:
+
+- Battery return and regulator return
+- Pico ground connection
+- Sensor grounds
+- RA-02 high-current return path
+- SD-reader return path
+- GPS return path
+- Ground continuity across the prototype PCB
+- Connector and cable return conductors
+- Separation of sensitive sensor wiring from noisy or pulsed loads
+
+No isolated ground, star ground, plane, or other specific layout is claimed at this stage.
+
+## Decoupling
+
+Every load on this vehicle sits at the end of a wire from one 3.3 V pin, and
+[F-10](../testing/bring-up-record.md#findings) is what that costs when the wire is not good
+enough: a long jumper made **every** microSD write fail while every read passed, and the same
+fault on the RA-02's supply jumper made a healthy radio fail eight transmits in a row. Both
+were fixed by shortening the wire. Neither would have happened with a capacitor at the
+module.
+
+That is the argument for this section. A capacitor at a module's own supply pins supplies the
+current the wire cannot deliver fast enough, and it only works if it is **at the pins** - one
+five centimetres away, through the same jumper, does very little.
+
+### What to fit, and where
+
+| Where | Value | Type | What it is for |
+|---|---|---|---|
+| **microSD reader, across its own `3V3` and `GND` pins** | **470 µF** | Electrolytic, ≥ 6.3 V (10 or 16 V is what shops stock), low-ESR if offered | The write spike. ~100 mA for a few ms, once per telemetry second, and it must not reach the regulator or it stacks on the radio's peak |
+| Same module, same pins | **100 nF** | Ceramic, marked `104` | The fast edges the electrolytic is too slow for. Electrolytics are poor above a few hundred kHz; the ceramic covers what they miss |
+| **RA-02, across its `3.3V` and `GND`** | **10 µF** | Ceramic X5R/X7R ≥ 10 V, or electrolytic | PA key-up. 1.5 mA standby to 87 mA in microseconds, 45 times a minute |
+| Same module, same pins | **100 nF** | Ceramic `104` | As above |
+| ~~MPU-6500, BMP280, NEO-6M~~ | — | — | **Omitted at the bench, 2026-09-07.** The IMU carries its own 10 µF tantalum, the barometer draws ~1 mA on a 400 kHz bus, and the GPS has its own onboard regulator and a load that is essentially DC — which a 100 nF does not address. Deliberate, and the first thing to eliminate if any of the three misbehaves. See [D-8](../hardware/assembly-procedure.md#d-8-three-104s-are-deliberately-omitted) |
+| **Pico `VSYS`, near the battery input** | **100 µF** | Electrolytic ≥ 10 V | The battery leads have inductance and the LiPo is at the end of them. Optional; fit it if the rail looks noisy under load |
+| ~~`GP26`, the divider tap~~ | — | — | **Deferred, not fitted.** Proposed as a charge reservoir for the ADC's sample-and-hold, then withdrawn: on any plausible sample capacitance a 16.5 kΩ source settles well inside the window, and the battery is read once per second. Step 14 measures the divider against the pack and decides. See [D-7](../hardware/assembly-procedure.md#d-7-the-100-nf-at-gp26-is-deferred-not-fitted) |
+
+The Pico's own 3.3 V rail is already decoupled on the Pico. Nothing needs adding there.
+
+### Practical notes
+
+- **Electrolytics are polarised.** The stripe down one side marks the **negative** leg, which
+  goes to GND. Backwards, they heat and can vent. Ceramics have no polarity.
+- **Voltage rating is a minimum, not a target.** A 16 V part on a 3.3 V rail is fine and
+  usually cheaper than a 6.3 V one.
+- **Short legs.** The capacitor's own leads are part of the path it is trying to shorten.
+- 470 µF is small enough not to trouble the Pico's regulator at switch-on. Do not scale it up
+  "for margin" without checking inrush.
+
+### How much bulk is actually needed
+
+The 470 µF above is generous rather than calculated, and it is worth knowing what the number
+rests on, because it decides whether an electrolytic is required at all.
+
+A bulk capacitor is **not** asked to supply the whole write. The regulator does that, and it
+has been measured doing it: the rail held **3.28–3.30 V through ten seconds of continuous
+writing** at 100 % duty (row 6.3b). What the capacitor covers is the **step** — the first tens
+of microseconds, before the regulator's control loop responds, and the inductance of the wire
+between them.
+
+For a 100 mA step held for 50 µs with 100 mV of droop allowed:
+
+```
+C  =  I × Δt / ΔV  =  0.1 A × 50 µs / 0.1 V  =  50 µF
+```
+
+So **50 µF is the engineering requirement and anything from 100 µF up is comfortable.** 470 µF
+is four times the margin, chosen because a 470 µF aluminium electrolytic costs ₹10 and there
+was no reason to be clever.
+
+### If you would rather not use an electrolytic
+
+There are good reasons not to want one. They are polarised, they are tall, and a tall part on
+long leads is a mechanical liability in a vehicle that is going to hit the ground.
+
+| Instead of the 470 µF | Verdict |
+|---|---|
+| **2 × 100 µF ceramic** (MLCC, X5R or X7R, ≥ 10 V) | **Works, and is the answer if you want no electrolytic.** But **derate for DC bias**: an MLCC loses much of its rated value under an applied voltage — a 6.3 V-rated part at 3.3 V can deliver under half its marking. Two 100 µF nominal lands somewhere near 60–100 µF effective, which clears the 50 µF requirement. Buy ≥ 10 V rated, not 6.3 V, precisely because the derating is gentler further from the rating |
+| **1 × 100 µF ceramic** | Marginal after derating — perhaps 40 µF effective. It would probably work; it has no margin |
+| **Tantalum** | Available at these values, but they **fail short and can burn** if reverse-fitted or stressed. Not worth it here |
+| **Polymer aluminium / OS-CON** | Genuinely better than all of the above — low ESR, no drying out. Harder to find locally and several times the price |
+| **Nothing at all** | The failure it prevents is [F-10](../testing/bring-up-record.md#findings), which was intermittent across five bench runs. A clean bench test would not tell you it was absent |
+
+Two notes that apply whichever is chosen:
+
+- **The 100 nF ceramics are unaffected by this question** and are not optional. Bulk capacitors
+  of every type are too slow for fast edges; the `104` is what covers them.
+- **If an electrolytic is used, mount it lying flat**, leads as short as they will go, and
+  secure the body with a zip tie or a bead of hot glue. Upright on 10 mm legs it is a lever
+  arm on two solder joints, and this vehicle lands hard.
+
+### What is still unverified
+
+No module's own board documentation has been read for its existing bypass capacitors. The
+microSD reader is known to carry two ([F-3](../hardware/receiving-inspection.md#findings));
+what they are is not known. These values are chosen from the measured load profile in the
+[power budget](#power-budget), not from a module datasheet, and the rail has not been
+measured with both the radio and the card active at once.
+
+## Power Distribution
+
+The preliminary distribution order is:
+
+1. Battery connector and battery protection/charging interface, all TBD.
+2. Manual ON/OFF switch.
+3. Switched battery distribution node.
+4. Peripheral power-conversion solution, model and circuit TBD.
+5. Verified 3.3 V peripheral distribution to only compatible loads.
+6. Power LED branch with any required current-limiting element, value TBD.
+
+The final schematic must show fuse or protection decisions, connectors, polarity, test points, return paths, and all loads. No fuse, resistor, capacitor, connector type, or wire gauge is selected here.
+
+## Power Monitoring
+
+No power-monitoring hardware is confirmed. The following are therefore TBD:
+
+- Battery-voltage measurement
+- 3.3 V rail measurement
+- Current measurement
+- ADC connection and scaling
+- Thresholds and warnings
+- Logging and telemetry of power status
+
+Power monitoring is recommended for mission diagnostics, but it must not be implemented with guessed divider values or unverified input limits.
+
+## Brownout Considerations
+
+Potential brownouts must be treated as a mission risk. Likely stress cases include LoRa transmission, SD-card writes, startup, battery voltage sag, connector resistance, and impact-related wiring disturbance. No current or voltage margin is claimed.
+
+The architecture must define and test:
+
+- Minimum acceptable battery voltage
+- Regulator dropout behavior
+- 3.3 V rail behavior during radio transmission
+- SD-card write transients
+- Pico reset behavior
+- Recovery after a brownout
+- Whether data is corrupted by interrupted writes
+- Whether telemetry restarts automatically after reset
+- Whether the power LED reflects the actual switched state
+
+## Module Power and Interface Verification
+
+The exact board or breakout documentation must be obtained before schematic approval. The team must record the document revision, board marking, or other identifier used for each verification.
+
+| Module | Supply voltage to verify | Logic voltage to verify | Maximum current to verify | Interface to verify | Pull-ups to verify | Capacitors to verify | Pin functions to verify |
+|---|---|---|---|---|---|---|---|
+| Raspberry Pi Pico | Board input options and limits - TBD | GPIO levels and limits - TBD | Board and USB/regulator current - TBD | Programming and peripheral connections - TBD | GPIO-specific requirements - TBD | Board requirements - TBD | Power, ground, GPIO, and reset functions - TBD |
+| SX1278 RA-02 | Module supply range - TBD | Signal levels - TBD | Transmit peak and idle current - TBD | SPI or other supported control interface - TBD | Required control-line pull-ups - TBD | Local bypass requirements - TBD | Power, ground, antenna, control, and interrupt pins - TBD |
+| MPU-9250 board | Board supply range - TBD | Signal levels - TBD | Operating and peak current - TBD | I2C, SPI, or supported alternatives - TBD | Bus pull-ups and values - TBD | Local bypass requirements - TBD | Power, ground, bus, interrupt, and configuration pins - TBD |
+| NEO-6M board | Board supply range - TBD | UART signal levels - TBD | Acquisition and tracking current - TBD | UART or other available interface - TBD | Required pull-ups - TBD | Local bypass requirements - TBD | Power, ground, TX, RX, and control pins - TBD |
+| GY-BMP280-3.3 board | Board supply range - TBD | Signal levels - TBD | Operating and peak current - TBD | I2C, SPI, or supported alternatives - TBD | Bus pull-ups and values - TBD | Local bypass requirements - TBD | Power, ground, bus, address, and control pins - TBD |
+| Micro SD card reader | Reader-board input range - TBD | Card and host signal levels - TBD | Initialization, read/write, and peak current - TBD | SPI, SDIO, or other interface - TBD | Required bus pull-ups - TBD | Reader and card bypass requirements - TBD | Power, ground, chip select, clock, data, and control pins - TBD |
+| Manual power switch | Rated voltage and current - TBD | Not applicable | Contact and switching current - TBD | Series power connection - TBD | Not applicable | Contact suppression requirements - TBD | Pole, throw, and terminal functions - TBD |
+| Power LED | LED and branch voltage - TBD | Not applicable | LED current - TBD | Switched power indicator branch - TBD | Current-limiting requirement - TBD | Not applicable | Anode, cathode, and indicator wiring - TBD |
+
+## Preliminary Interface Architecture
+
+The project expects to use I2C, SPI, and UART somewhere in the system, but the exact interfaces must be confirmed from the exact module documentation. The table below therefore records candidate roles without assigning a bus or GPIO.
+
+| Device | Interface | Pico Pins | Supply | Logic Level | Interrupt/Control | Status |
+|---|---|---|---|---|---|---|
+| SX1278 RA-02 | TBD; candidate control interface requires module verification | TBD | TBD; planned 3.3 V rail only after verification | TBD | Interrupt/control pins TBD | Requires datasheet and exact board verification |
+| MPU-9250 | TBD; I2C/SPI availability and board wiring require verification | TBD | TBD | TBD | Interrupt and configuration pins TBD | Requires datasheet and exact board verification |
+| NEO-6M GPS | TBD; UART availability and board levels require verification | TBD | TBD | TBD | Enable/reset/control pins TBD | Requires datasheet and exact board verification |
+| GY-BMP280-3.3 | TBD; I2C/SPI availability and board wiring require verification | TBD | TBD | TBD | Address/control pins TBD | Requires datasheet and exact board verification |
+| Micro SD card reader | TBD; SPI/SDIO/other interface must be identified from the breakout documentation | TBD | TBD | TBD | Chip-select and other control pins TBD | High risk; breakout variation must be resolved first |
+| Power LED | Switched power indicator connection TBD | TBD | TBD | Not applicable | Manual switch relationship TBD | Required hardware not selected |
+| Manual power switch | Series battery connection TBD | TBD | Not applicable | Not applicable | Main power control | Required hardware not selected |
+
+No final GPIO assignments are made in this document. Bus sharing, chip-select allocation, interrupt routing, pull-up ownership, and cable lengths are all deferred until the exact interfaces are documented.
+
+## Power Budget
+
+Every load in this vehicle runs from the Pico's `3V3(OUT)` pin. The binding constraint is
+therefore not the battery and not a regulator selection - it is what that pin is allowed to
+supply, and the design sits close enough to that limit that the number matters.
+
+**Raspberry Pi's guidance for `3V3(OUT)` is 300 mA**, and the RP2040 and the rest of the
+Pico board draw from the same RT6150 buck-boost. The RP2040 at 125 MHz with peripherals
+running is roughly 35 mA, so **about 250 mA is available to everything else.**
+
+### Per-device worst case
+
+Datasheet figures are the chip manufacturer's; the carrier boards add pull-ups, an LED or a
+regulator that these do not include, so they are floors rather than ceilings. Where this
+project has measured something, the measurement is named.
+
+| Device | Worst-case draw | Condition | Duty in flight | Source |
+|---|---:|---|---|---|
+| **SX1278 / RA-02** | **87 mA** | TX, +17 dBm on PA_BOOST | **33 %** — 333.7 ms of every 1000 ms (row 5.2) | SX1276/78 datasheet, Table 10. +20 dBm would be 120 mA; this vehicle transmits at +17 |
+| | 12 mA | RX continuous | the other 67 % | Same |
+| | 1.5 mA | standby | — | Same |
+| **microSD card + reader** | **~100 mA** | block write | **~1 %** — 2 writes ≈ 10 ms per telemetry second | SD Physical Layer spec permits 100 mA in default speed. The HP mx310 has no published figure. **Sub-millisecond spikes run higher** |
+| | ~1.3 mA | the reader's four 10 kΩ pull-ups | continuous | [F-3](../hardware/receiving-inspection.md#findings) — 3.3 V board, no regulator, two capacitors |
+| **NEO-6M module** | **~70 mA** | acquisition, cold start | **startup only** | u-blox NEO-6 datasheet, ~67 mA peak at 3.0 V; the carrier adds an LED |
+| | ~45 mA | tracking | continuous once fixed | Same |
+| **MPU-6500** | **~4 mA** | gyro + accel active | continuous | MPU-6500 datasheet: 3.2 mA gyro, 450 µA accel |
+| **BMP280** | **~1 mA** | 83 Hz, high oversampling (row 3.5) | continuous | BMP280 datasheet, 720 µA at maximum rate |
+| **Analogue microphone** | **~5 mA** | continuous | continuous | Electret capsule plus an LM393 comparator and its two indicator LEDs. The capsule itself is under 0.5 mA; almost all of this is the board around it. **Measure it — this is the least certain figure in the table** |
+| **Status LED, 1 kΩ** | **~1.3 mA** | lit | ≤ 50 % duty, it blinks | (3.3 − 2.0) / 1000. **330 Ω was budgeted and none arrived** — 1 kΩ is dimmer and cheaper in current, which is the right direction |
+| **Power LED, 1 kΩ** | **~1.3 mA** | lit | **continuous** — it must light on power-on, so it hangs off the 3.3 V rail and not a GPIO | Same arithmetic |
+| **Battery divider, GP26** | ~64 µA | continuous | continuous | 33 kΩ / 33 kΩ from 4.2 V. Draws from the **battery**, not this rail |
+
+### What that totals
+
+| Case | Peripherals | + RP2040 | Against the 300 mA pin guidance |
+|---|---:|---:|---|
+| **Everything at once** — TX, SD write, GPS acquiring, all sensors, both LEDs | **271 mA** | **306 mA** | **over** |
+| **GPS tracking rather than acquiring** — otherwise the same | **246 mA** | **281 mA** | under, with 19 mA to spare |
+| **Steady state** — TX at 33 % duty, RX otherwise, GPS tracking | **95 mA** | **130 mA** | comfortable |
+
+Both columns are given because both get quoted. The peripheral column is what leaves the
+`3V3(OUT)` pin; the second adds the RP2040's own draw, which shares the regulator, and is the
+one to compare against Raspberry Pi's 300 mA figure.
+
+> **The microphone added 5 mA to every row above**, and it is a continuous load rather than a duty-cycled one: it draws whether or not anything is listening. Against that, **the LED resistors came back as 1 kΩ rather than the 330 Ω budgeted** — no 330 Ω was delivered — which drops each LED from 4 mA to 1.3 and hands back most of what the microphone took, even with the power LED now counted as its own continuous load.
+>
+> The net is 19 mA of margin in the realistic case, against 23 before either change. **Nothing further may join this rail without re-running this table.**
+>
+> **An earlier revision of this tally read 316 mA.** The difference is almost entirely the
+> radio: **120 mA is the SX1278's +20 dBm figure and this vehicle transmits at +17 dBm, which
+> is 87 mA** — 33 mA less. Against that, the RP2040 estimate rose from 25 to 35 mA, and the
+> status LED and the reader's pull-ups were missing from the old tally altogether. Net −14 mA,
+> and the conclusion did not change: the all-at-once case exceeds what the pin is rated to
+> supply, either way.
+
+The first row is not hypothetical: a telemetry append writes two blocks immediately around a
+transmit, so radio TX and an SD write genuinely coincide once a second. What makes it
+survivable is that GPS acquisition is a startup condition and the SD spike lasts
+milliseconds.
+
+### What this requires of the board
+
+1. **The 470 µF bulk capacitor across the microSD module's own 3V3 and GND.** Its job is to
+   supply the write spike locally so it never reaches the Pico's regulator and never adds to
+   the radio's peak. [F-10](../testing/bring-up-record.md#findings) is the evidence that this
+   module's supply path is the weak point: a long jumper was enough to make every write fail
+   while every read passed.
+2. **A local capacitor at the RA-02's supply pins too** - 100 nF plus 10 µF. The same fault
+   killed the radio, on the same kind of wire.
+3. **Short, direct supply tracks to both.** Not a design nicety: it cost five bench runs.
+4. **Do not add a load to this rail without re-doing this table.** There is no headroom left
+   for one. The microphone was added this way and cost 5 mA of the 23 that were spare.
+5. **The microphone's `AO` line is analogue and high-impedance.** Keep it short, off the
+   SPI0 bundle and away from the antenna lead. That is a signal-integrity rule rather than a
+   power one, but it is decided at the same moment as the layout.
+6. **The battery divider is two 33 kΩ 1 % parts**, not the 100 kΩ 5 % ones that also
+   arrived. Same 2:1 ratio and the same 2.1 V at `GP26` on a full cell, but a fifth of
+   the tolerance on the one measurement nothing else can cross-check. 64 µA off the
+   battery is nothing.
+
+### What has been measured
+
+| Measurement | Result | Row |
+|---|---|---|
+| Rail under 100 % radio TX duty | **3.26–3.27 V**, from 3.30 V idle | 5.4a |
+| Rail under 100 % microSD write duty | **3.28–3.30 V** | 6.3b |
+| Both together | **not taken** | Gate 2 |
+
+Each load has been shown to be carried alone, at a duty far harsher than the mission's. The
+combined case is the one still open, and it is the one the table says is tight. A current
+figure has never been taken for any device - only rail voltage - because the series
+connection would not hold on a breadboard. **Take it on the soldered board**, where a meter
+can sit in the supply track.
+
+## Electrical Risks
+
+| Risk | Concern | Required control |
+|---|---|---|
+| LiPo voltage variation | The battery ranges from approximately 4.2 V when full to a lower discharge voltage. | Verify every load's allowable supply and define cutoff behavior. |
+| 3.3 V rail stability | An unsuitable or undersized regulator could reset sensors, the Pico, or the radio. | Determine documented and measured continuous/peak load before selection and test the rail under load. |
+| LoRa transmission peaks | Radio transmission may create a transient load. | Obtain exact peak current and measure rail behavior during transmission. |
+| SD-card current spikes | Reader boards and cards vary, especially during writes. | Identify the breakout, verify voltage/logic, measure write transients, and provide documented decoupling. |
+| Brownouts | Battery sag or load transients may reset the flight computer or corrupt logging. | Test startup, transmission, SD writes, low-voltage conditions, and reset recovery. |
+| Logic-level incompatibility | Module boards may expose different signal levels or include different level shifting. | Verify exact boards before connecting signals. |
+| Grounding problems | Shared returns and pulsed loads can disturb sensor readings or radio operation. | Review return paths and test the integrated system. |
+| Connector and wiring problems | Incorrect IPEX/SMA, loose connections, polarity errors, or vibration can interrupt power or RF. | Verify connector compatibility, polarity, strain relief, and retention. |
+| **USB back-powering the battery** | With the pack wired straight to `VSYS`, plugging in USB puts ~4.7 V on a ~3.9 V cell and charges it with no CC/CV, no termination and no current limit. The pack carries no visible protection ([D.4](../hardware/receiving-inspection.md#d4--battery)), and the Pico datasheet §4.5 exists to prevent exactly this. | Fit a Schottky between the switch and `VSYS` ([D-6](../hardware/assembly-procedure.md#d-6-a-schottky-goes-between-the-switch-and-vsys)). Until then, battery OFF whenever USB is connected. |
+| **GPS desense from the onboard transmitter** | A 433 MHz PA at **+17 dBm** sits on the same 100 mm board as a GPS receiver working near **−130 dBm** behind an active patch antenna. 433 MHz has no low-order harmonic on L1 (1575.42 MHz; 3rd = 1299, 4th = 1732), so the mechanism is **front-end overload** rather than in-band interference — the LNA driven toward compression, costing sensitivity. **Nothing in this repository had recorded this until 2026-09-07.** | Measure it: bring-up rows 4.5 and 4.5a. Mitigations are physical and free — maximum separation between the two antennas, patch skyward and the LoRa antenna perpendicular, pigtail routed away from the GPS. **Decide the placement before the structure is designed around it.** |
+| Power loss during impact | Impact can open a switch, connector, solder joint, or battery connection. | Secure the power path and perform impact and post-impact telemetry tests. |
+| Unverified SD breakout | A module label does not establish its input voltage, signal levels, or interface. | Obtain exact documentation and test the reader independently. |
+| Inadequate Pico supply path | The Pico is intended to use VSYS, but battery protection and the switched path remain unresolved. | Verify VSYS implementation, protection, startup, and brownout behavior. |
+
+## Required Hardware Before Prototype
+
+The parts themselves are listed, costed and explained in
+[purchase-list.md](../hardware/purchase-list.md). This section records the decisions each one
+settles.
+
+The following items or decisions are required before assembling the onboard electrical prototype:
+
+- ~~3.3 V voltage regulator~~ — **resolved: none needed.** Every load runs from the Pico's `3V3(OUT)`, and both the radio and the microSD have been measured holding that rail alone at 100 % duty (rows 5.4a, 6.3b). The [power budget](#power-budget) records how little headroom that leaves.
+- ~~Manual power switch~~ — **held**, an I/O switch obtained 2026-09-06; fitted at step 15.
+- ~~Visible power LED~~ — **held and designed**: 3.3 V bus → 1 kΩ → LED → GND, ~1.3 mA, lit whenever the switch is closed and before any firmware runs.
+- ~~Required resistors and capacitors~~ — **selected**, from the measured load profile rather than from module documentation, which has still not been read. See [Decoupling](#decoupling).
+- ~~Connectors~~ — **resolved**: JST-RCY for the battery, male header strips for the four jumpered modules, u.FL to SMA for the antenna. All mate; the RF chain was confirmed with no adapter.
+- Wiring and suitable strain relief for power, signals, and antenna connections; sizes and types TBD.
+- LiPo charging and protection solution appropriate for the confirmed battery; exact solution TBD.
+- Any required level-shifting or signal-protection components after logic-level review; hardware TBD.
+- ~~Test points~~ — **resolved**: a 2-pin test link in the 3.3 V feed, so a meter can sit in series for the current figure that has never been taken. Soldered shut once read.
+
+The egg, parachute, and mechanical hardware are required by the competition but are outside this electrical prototype list. They still affect packaging, wiring, antenna placement, and impact survivability.
+
+## Electrical Architecture Decision
+
+### Confirmed
+
+- One Raspberry Pi Pico is intended as the onboard flight computer.
+- One SX1278 RA-02, one 433 MHz antenna, and one IPEX-to-SMA cable are intended for the CanSat.
+- The MPU-9250, NEO-6M, GY-BMP280-3.3, Micro SD reader, 1S LiPo, and one prototype PCB are onboard hardware.
+- The battery is a 3.7 V nominal 1S LiPo and is approximately 4.2 V when fully charged.
+- A dedicated regulated 3.3 V peripheral rail is planned.
+- Manual power switching and a visible power LED are required by the competition, but the hardware is not selected.
+- Final Pico GPIO pins are not assigned.
+
+### Recommended
+
+- Evaluate a switched-battery distribution node feeding a separately regulated 3.3 V peripheral rail.
+- Power the Pico from the switched LiPo through VSYS, subject to battery protection and brownout review.
+- Use one documented common ground with deliberate return paths and local module decoupling.
+- Measure startup and transient loads before selecting the regulator.
+- Treat the Micro SD breakout as an unknown electrical device until its exact documentation and behavior are verified.
+- Add battery and rail measurement access before prototype testing.
+
+### TBD
+
+- Regulator model, current rating, efficiency, protection, capacitor requirements, and circuit.
+- Battery protection, VSYS implementation, and allowable input behavior under load.
+- Battery charging, protection, cutoff, and switching details.
+- Manual switch and power LED part selection and wiring.
+- Grounding, decoupling, connectors, wiring, test points, and mechanical retention.
+- Exact interface, logic level, pull-ups, capacitors, pin functions, and power requirements for every module.
+- All GPIO assignments, bus sharing, chip selects, and interrupt/control lines.
+- Complete power budget and brownout margins.
+
+### Requires Datasheet Verification
+
+Before Gate 2 can be considered complete, the team must identify the exact board/module variants and obtain documentation for the Pico, RA-02, MPU-9250 board, NEO-6M board, BMP280 board, and Micro SD reader. Two of those are now settled by measurement rather than by the label on the bag: the IMU is an **MPU-6500** (`WHO_AM_I` `0x70`, no magnetometer), and the microSD reader is a 3.3 V board with no level shifter. Both are recorded in [receiving-inspection.md](../hardware/receiving-inspection.md#findings). The documentation review must record supply voltage, logic levels, maximum current, interface, pull-ups, capacitor requirements, and pin functions for each device. Until then, this document is a preliminary architecture and not an approved build schematic.
