@@ -12,12 +12,12 @@ A decision is recorded when it fixes something that would be expensive to change
 |---|---|---|---|---|
 | 1 | One non-blocking 2 ms loop | RTOS tasks; interrupt-driven | Bounded worst case, trivially analysable, no preemption hazards, and a single scheduler that is fully host-testable | Scheduler tests; no blocking call exists in the loop |
 | 2 | Flight core with no hardware dependency, six abstract interfaces | Direct SDK calls throughout | Mission logic testable on a laptop against mocks, including failure cases that cannot be produced safely on hardware | 5,485 C++ assertions; compile-checked Pico layer |
-| 3 | Autonomous launch/landing detection; no manual trigger | Arming button; ground command | A human cannot be inside a loop a drone closes in seconds; no operator-sized failure mode | Flight 1 reported `FLIGHT` for the carry and the descent |
+| 3 | Autonomous launch/landing detection; no manual trigger | Arming button; ground command | A human cannot be inside a loop that closes in seconds, whether it is a drone release or a throw; no operator-sized failure mode | Flight 1 reported `FLIGHT` for the carry and the descent |
 | 4 | Telemetry never stops, in any state | Silence on `FAULT` | Telemetry is what every other judgement depends on | State-machine and fault tests |
 | 5 | Packet suppressed when a mandatory field is invalid; number not consumed | Send last-good value; send with a flag | Wrong data is worse than no data; sequential numbers make gaps mean radio loss | Controller tests |
 | 6 | 30 Hz acquisition, 3 Hz telemetry | Acquire at the radio rate | The radio is limited by airtime, the sensors are not: decoupling avoids aliasing the vertical-rate estimate | Sensor-rate analysis; barometer 83 Hz measured |
 | 7 | Vertical rate = EWMA 0.7/0.3, updated only on a fresh conversion | Raw difference; Kalman filter | Smooths 0.1 m barometer noise without lag that would delay landing detection; no state beyond one float | State-machine and sensor-timing tests |
-| 8 | Launch: armed AND (boost OR 15 m climb), 300 ms | Altitude only; accelerometer only | A drone lift has no boost; a throw has no 15 m climb; either must work | Launch-guard tests; Flight 1 |
+| 8 | Launch: armed AND (boost OR 15 m climb), 300 ms | Altitude only; accelerometer only | A drone lift or a carry up a building has no boost; a throw has a boost but no 15 m climb of its own; either must work | Launch-guard tests; Flight 1 (climb met in the carry, 5.2 g at the throw) |
 | 9 | Landing: descent gate, then rest 3 s | At-rest alone | A hover is at rest too (D-4) | Hover reproduction test; Flight 1 |
 | 10 | 5 s post-impact window, enforced at build time | Fixed by convention | A value below the rulebook's 5 s will not compile | `validate_config()` |
 | 11 | Pad calibration: 80 samples, σ < 2 °/s, \|a\| within 1.5 m/s² of 1 g; best-effort after 20 s | Fixed offsets; blocking calibration | Bias is measured where the vehicle sits; a failed window never blocks the mission | Post-landing session: calibrated in 5.5 s |
@@ -59,7 +59,7 @@ A decision is recorded when it fixes something that would be expensive to change
 | 33 | BMP280 on I²C | Analogue pressure sensor | The rulebook's named sensor; one chip for P, T, altitude | σ 1.15 Pa = 0.10 m |
 | 34 | Altitude relative to a ground baseline | Absolute ISA altitude | Rulebook asks 0 m on the pad whatever the weather | Rest ±0.2 m; F1/F2 baselines |
 | 35 | NEO-6M GPS with quality gate | Raw fixes | A reported fix is not a holdable fix (D-6) | Rest scatter 2.3 m RMS |
-| 36 | Microphone (LM393 module) as the additional sensor | Humidity, air quality, UV | Flight-proven descent instrument; cheap; impulsive events | Release is the loudest packet |
+| 36 | Microphone (LM393 module) as the additional sensor | Humidity, air quality, UV | Flight-proven descent instrument; cheap; impulsive events | The throw is the loudest packet |
 | 37 | microSD raw log | Flash on the Pico | Removable, large, survives a vehicle fault | 100/100 writes; 300/s |
 | 38 | No external regulator | AMS1117 | Dropout at full cell; Pico rail measured 3.28 V | Rail measurements |
 | 39 | Power LED on the 3.3 V rail | On a GPIO; on the battery | Lights immediately; goes dark if the system is dead | Design review |
@@ -68,8 +68,8 @@ A decision is recorded when it fixes something that would be expensive to change
 | 42 | Sided-box frame 118.5 × 115 × 110 mm | Cylinder | Board fits flat; organizers confirmed a 12 cm sided box | CAD read from STEP |
 | 43 | Open frame with arched faces | Closed shell | Load path, ambient pressure for the barometer, access | Safety factor ≥ 7.6 derated |
 | 44 | White PETG, printed on its base | PLA, ABS | Tough, prints without an enclosure, deforms before it breaks; orientation fixed in advance | Structural studies |
-| 45 | Canopy sized for 550 g at 35 °C, vented | Size at 500 g | Area is linear in mass; the hot heavy case is the worst | Flights: 2.27 and 1.88 m/s |
-| 46 | Canopy external / semi-exposed | Packed inside | Deploys on release | Opened 1.0 s after release |
+| 45 | Model minimum 80 cm for 550 g at 35 °C (vented); **6 ft canopy flown** | Fly the minimum | The floor guarantees the cap only at the edge of the model; 5.2× its area adds margin against Cd and mass uncertainty and a harder hand-thrown start, and gives a ~1 J arrival | Model 1.9–2.2 m/s; flights 2.27 and 1.88 m/s |
+| 46 | Canopy external / semi-exposed | Packed inside | Deploys as soon as the vehicle is launched | Opened about 1 s after the apex of the throw |
 | 47 | Egg chamber inside the +7 cm allowance | Separate pod | Meets the envelope; part of one printed model | 128.7 g including the chamber |
 
 ## 16.5 Decisions about how the work was done

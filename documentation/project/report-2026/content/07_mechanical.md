@@ -64,7 +64,7 @@ The rulebook permits any outer material and offers a bonus for sustainable or un
 | **Electronics, all-up** | **151.299 g** | Sum |
 | **Printed structure + egg chamber** | **≈ 128.7 g** | By difference: 280 − 151.299 |
 | **Assembled vehicle, no canopy** | **280 g** | Weighed 12 Sep |
-| Canopy, lines, harness | 30 – 55 g | Fitted after that reading |
+| 6 ft canopy, lines, harness | 30 – 55 g (estimate) | Fitted after that reading |
 | Switch, power LED, divider | 5 – 10 g | Fitted after that reading |
 | Egg payload / trim mass | to the band | Added to bring the vehicle into 450 – 550 g |
 | **Flight mass** | **450 – 550 g** | Within the rulebook's 500 g ± 10 % |
@@ -84,7 +84,7 @@ Infill is the whole of it: the 193 g assumed no infill saving; a real slice of a
 ## 7.4 Egg chamber and recovery hardware
 
 * **Egg chamber.** A cushioned, secure chamber is part of the printed structure and sits inside the +7 cm allowance the rulebook gives it; it holds the egg against the descent and landing loads and is included in the 128.7 g printed mass.
-* **Parachute placement.** The rulebook requires the canopy to deploy instantly on release and forbids burying it tightly inside the structure. The canopy is therefore carried external / semi-exposed, attached through the frame's harness slots, so the first moments of free fall pull it open (Flight 1: canopy fully loaded 1.0 s after release).
+* **Parachute placement.** The rulebook requires the canopy to deploy instantly on launch and forbids burying it tightly inside the structure. The canopy is therefore carried external / semi-exposed, attached through the frame's harness slots, so the first moments of free fall pull it open (Flight 1: canopy fully loaded 1.0 s after the apex of the throw).
 * **Antenna and power hardware.** The pigtail's panel nut clamps through the frame wall; the switch and its two LED holes are in the upper face cut-out, reachable on the pad without opening the vehicle.
 
 ## 7.5 Fabrication

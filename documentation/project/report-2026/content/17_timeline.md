@@ -18,7 +18,7 @@
 | **10 – 11 Sep** | The first range test; the sync word moves to `0xA5` on both ends; packet budget cut to 200 B; GPS and sound go on the air; `MAX_RATE` measured at 3.11 Hz |
 | **12 Sep** | The structure is printed; the vehicle becomes a physical object: 280 g on a scale |
 | **13 – 14 Sep** | Canopy, switch and power LED fitted; mass trimmed into the 450–550 g band; vehicle and report submitted |
-| **30 Sep** | **Two flights** from 29–30 m. Both descents at 38–45 % of the 5 m/s limit; the analysis in Chapter 14 |
+| **30 Sep** | **Two flights**, hand-thrown from a building terrace at 29–30 m under the 6 ft canopy. Both descents at 38–45 % of the 5 m/s limit; the analysis in Chapter 14 |
 
 ## 17.2 The flight-day analysis was ready before the flights
 
