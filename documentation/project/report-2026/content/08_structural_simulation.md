@@ -59,3 +59,15 @@ The 100 N touchdown assumption can now be set against the flights. From the meas
 Under every load the studies applied, the stress is a small fraction of yield, and the real flight loads are a fraction of the studied loads. The frame has margin in the studied directions by a factor of 7.6 to 40.9, and the measured landing momentum is below half of what the impact study assumed.
 
 </div>
+
+## 8.4 The Fusion 360 results
+
+The three figures below are the result plots exported by Fusion 360 itself (the full HTML reports are in `mechanical/simulation/`): von Mises stress, the deformed shape drawn magnified, the safety-factor plot, and the constraint and load set-up. In every study one face is held fixed (blue) and the load acts on the opposite structure.
+
+@@fig f-fusion1 | photos/fusion-study-1.jpg | **Study 1 — horizontal force, 30 N on +Z.** The stress concentrates around the arched cut-outs and where the central spine meets the top rail, peaking at 2.885 MPa; the safety-factor plot shows no region below the study target (the frame is left uncoloured). | 100%@@
+
+@@fig f-fusion2 | photos/fusion-study-2.jpg | **Study 2 — tearing force, 30 N on −X.** The lowest stresses of the three studies (peak 1.330 MPa) and a peak displacement of only 0.026 mm: the frame is very stiff against a pull on the harness points. | 100%@@
+
+@@fig f-fusion3 | photos/fusion-study-3.jpg | **Study 3 — impact force, 100 N on −X.** The loaded panel bows (drawn magnified; the true peak displacement is 0.209 mm) and the stress spreads into the base and the neighbouring rails, peaking at 2.345 MPa, 4 % of the 54.4 MPa yield strength used in the study. The safety-factor plot is blue — above the study target — over the whole frame. | 100%@@
+
+**How to read them.** In the stress plots the colour scale runs from blue (zero) to red (the peak) and the peak is a few megapascals against a yield strength of tens — so even the "red" regions are at a few per cent of yield. In the safety-factor plots Fusion colours only what falls in or below the target band the study was set up with (2 to 4): in studies 1 and 2 nothing does, so the frame is left uncoloured, and in study 3 the whole frame is shown blue, *above target*. In none of the three load cases does any part of the frame enter the band. The deformation plots show where the structure moves — the loaded panel and the free rails — and the numbers are fractions of a millimetre.
