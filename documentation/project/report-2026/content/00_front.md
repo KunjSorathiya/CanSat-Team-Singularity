@@ -4,7 +4,7 @@
 <div class="title">
 <div class="kicker">Final Project Report</div>
 <h1>Team <em>Singularity</em><br/>CAN-Team-25</h1>
-<div class="sub">Design, simulation, flight software, verification and flight analysis of a LoRa-telemetry CanSat that is launched from a height of about 100&nbsp;ft and brought back to the ground under a 6&nbsp;ft parachute — two terrace-launched flights flown on 30&nbsp;September 2026.</div>
+<div class="sub">Design, simulation, flight software, verification and flight analysis of a LoRa-telemetry CanSat that is launched from a height of about 100&nbsp;ft and brought back to the ground under a 6&nbsp;ft parachute — two terrace-launched flights flown at the competition on 30&nbsp;September 2026.</div>
 </div>
 <img class="render" src="figures/photos/cansat-d1-render-1.png"/>
 <div class="tiles">

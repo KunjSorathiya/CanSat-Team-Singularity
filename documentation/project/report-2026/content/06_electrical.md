@@ -102,6 +102,8 @@ Why the card gets the largest capacitor: on the breadboard a long 3.3 V jumper l
 
 ## 6.7 Why a hand-assembled universal board
 
+@@fig f-pcb | photos/pcb-top.jpg | **The vehicle board, component side.** 10 × 10 cm universal board with the microphone module (top left), RA-02 radio (top), microSD reader (right edge), Raspberry Pi Pico (centre), GPS module (lower right), IMU (lower centre) and BMP280 (lower left), laid out to keep the radio and card close to the Pico and the sensors on short I²C runs. | 70%@@
+
 A 10 × 10 cm single-sided universal board carries the electronics, with every module's pins soldered directly (no sockets). The choice was deliberate:
 
 * **The pin map was frozen and hardware-verified before the board was built**, so the wiring is known rather than discovered; the build followed a sixteen-step gated assembly plan, each step with a measurement.

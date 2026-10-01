@@ -1,8 +1,8 @@
-@@chapter 1 | Executive summary | One page of answers: what the CanSat is, what it did on 30 September, and the five ideas that shaped it.@@
+@@chapter 1 | Executive summary | One page of answers: what the CanSat is, what it did at the competition launch on 30 September, and the five ideas that shaped it.@@
 
 ## 1.1 The vehicle in one page
 
-<p class="lead">The CanSat is a can-sized satellite built around a Raspberry Pi Pico. It is launched from 100&nbsp;ft (30.48&nbsp;m) — by drone in the competition, and from a building terrace in the two flights flown on 30&nbsp;September — deploys a 6&nbsp;ft parachute, descends well under the 5&nbsp;m/s limit, and streams rulebook-format telemetry over 433&nbsp;MHz LoRa from the moment it is switched on until well after it lands. Everything it senses is also written to an onboard microSD card.</p>
+<p class="lead">The CanSat is a can-sized satellite built around a Raspberry Pi Pico. It is launched from 100&nbsp;ft (30.48&nbsp;m) — the rulebook plans a drone release, and at the competition launch on 30&nbsp;September the height was a building terrace and the vehicle was thrown by hand — deploys a 6&nbsp;ft parachute, descends well under the 5&nbsp;m/s limit, and streams rulebook-format telemetry over 433&nbsp;MHz LoRa from the moment it is switched on until well after it lands. Everything it senses is also written to an onboard microSD card.</p>
 
 <div class="kpis">
 <div class="kpi f1"><b>29.4<small>m</small></b><span>launch height above the ground-floor pad, Flight 1 — 96 ft; the arc of the throw peaks at 100.8 ft</span></div>
@@ -24,9 +24,9 @@ The system has four parts that were designed together:
 
 @@fig f-arch | d01_architecture.png | The whole system: the vehicle, the radio link, and the team's ground station beside the organizers' official stations. | 60%@@
 
-## 1.2 What flew on 30 September 2026
+## 1.2 The competition launch, 30 September 2026
 
-Both flights were launched by hand from a building terrace at about 30&nbsp;m — the height the rulebook equates to an eight-storey building — rather than from a drone. The organizers' ground station recorded the two descents, plus two shorter captures. All four are analysed in Chapter 14.
+Both competition flights were launched by hand from a building terrace at about 30&nbsp;m — the height the rulebook equates to an eight-storey building — rather than from a drone. The organizers' ground station recorded the two descents, plus two shorter captures. All four are analysed in Chapter 14.
 
 @@tab t-sessions | The four captures in the organizers' log@@
 

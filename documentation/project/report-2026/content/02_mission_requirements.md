@@ -2,7 +2,7 @@
 
 ## 2.1 The mission
 
-The CanSat is powered on at ground level and begins transmitting at once. It is lifted to **100 ft (30.48 m) — in the competition by a drone, which releases it** — and launched. It deploys a parachute, descends at **no more than 5 m/s**, transmits throughout, keeps transmitting for **at least five seconds after impact**, and is then recovered.
+The CanSat is powered on at ground level and begins transmitting at once. It is lifted to **100 ft (30.48 m) — the rulebook plans a drone, which releases it; at the competition launch the height was a building terrace and the vehicle was thrown by hand** — and launched. It deploys a parachute, descends at **no more than 5 m/s**, transmits throughout, keeps transmitting for **at least five seconds after impact**, and is then recovered.
 
 Flight is **fully autonomous.** There is no launch command, no arming button and no manual trigger anywhere in the firmware: the vehicle powers on, calibrates itself, arms itself, detects its own launch and its own landing, and keeps talking through every failure it can survive. The reason is simple — an operator cannot be inside a loop that closes in under fifteen seconds, whether the launch is a drone release or a throw, and a design with a human trigger has a human-sized failure mode.
 
@@ -54,7 +54,7 @@ Thirty requirements were extracted from the rulebook; each has a design response
 | **MIS-004** Telemetry reflects the lift | Altitude in every packet, from the same compensated reading the flight core uses | Flight 1: 27.6–27.9 m reported while held at the terrace edge |
 | **MIS-005** Parachute deployment | 6 ft (1.83 m) canopy, external / semi-exposed so it opens as soon as the vehicle is launched | Flight 1: 7 m/s transient → 2.3 m/s in about 1 s, 2.1 g opening load |
 | **PAY-002** Egg chamber | Cushioned chamber designed into the frame within the +7 cm allowance | CAD; 128.7 g printed structure including the chamber |
-| **PWR-001/002** Switch and LED | Switch in the battery lead; power LED on the regulated 3.3 V rail, not a GPIO | Fitted in the structure's switch cut-out |
+| **PWR-001/002** Switch and LED | Switch in the battery lead; power LED on the regulated 3.3 V rail, not a GPIO | Rocker switch on short leads outside the frame, reachable without opening the vehicle (Figure @@ref f-built@@) |
 | **PWR-004** Auto-transmit on power-up | No arming step anywhere between power and the first packet | Telemetry runs from mission time 0 (post-landing session: P-001 at `Ti-00:00:00:000`) |
 | **TEL-001…004** Continuous telemetry | Scheduler independent of mission state; `FAULT` does not stop transmission | Flight 1: 41 packets received; after landing 41 |
 | **TEL-005** ≥ 1 Hz | 700 ms period (1.43 Hz); 3-slot pattern (3.11 Hz) after the command window | Measured 1.43 Hz and 3.09 Hz in the flights |

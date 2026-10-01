@@ -27,7 +27,7 @@ It is an **open box frame**: two solid side panels, two faces opened out with la
 
 * **Material goes where the load path is.** The solid side panels and central spine carry load; everything else is air. The three structural studies (Chapter 8) confirm the load path with a safety factor of 7.6 or more even after worst-case derating.
 * **The barometer must breathe.** A sealed body would lag the vehicle's true pressure during a fast descent; open arched faces keep the BMP280 in moving ambient air and keep the altitude channel honest.
-* **Access.** The board is reached from two sides without disassembly; the antenna, GPS patch and switch are on the outside faces.
+* **Access.** The board is reached from two sides without disassembly; the antenna and GPS patch are on the outside faces and the switch is on leads outside the frame.
 * **Mass.** The printed frame weighs ≈ 128.7 g including the egg chamber — light enough that the vehicle is trimmed up to the mass band rather than fighting its upper edge.
 * **A prismatic form is the most efficient way to carry a flat board.** The 100 × 100 mm board fits flat inside the 115 × 110 mm section, with 15 and 10 mm to spare for walls and standoffs.
 
@@ -85,8 +85,12 @@ Infill is the whole of it: the 193 g assumed no infill saving; a real slice of a
 
 * **Egg chamber.** A cushioned, secure chamber is part of the printed structure and sits inside the +7 cm allowance the rulebook gives it; it holds the egg against the descent and landing loads and is included in the 128.7 g printed mass.
 * **Parachute placement.** The rulebook requires the canopy to deploy instantly on launch and forbids burying it tightly inside the structure. The canopy is therefore carried external / semi-exposed, attached through the frame's harness slots, so the first moments of free fall pull it open (Flight 1: canopy fully loaded 1.0 s after the apex of the throw).
-* **Antenna and power hardware.** The pigtail's panel nut clamps through the frame wall; the switch and its two LED holes are in the upper face cut-out, reachable on the pad without opening the vehicle.
+* **Antenna and power hardware.** The pigtail's panel nut clamps through the frame wall; the rocker switch sits on short leads outside the frame, and the LED positions are in the upper face; both are reachable on the pad without opening the vehicle.
 
-## 7.5 Fabrication
+## 7.5 The built vehicle
 
-The structure is original work printed from the team's own CAD model — not an off-the-shelf enclosure. The frame, the egg chamber, the harness points, the switch cut-out and the antenna clamp are all features of the one model, so nothing is bolted on afterwards that was not planned. The vehicle was printed, assembled with the electronics and egg chamber, and weighed on 12 September 2026; the canopy, switch and LED were fitted and the mass trimmed into the band on 13–14 September.
+@@fig f-built | photos/cansat-assembled.jpg | **The assembled CanSat.** The white PETG frame carries the universal board with the GPS module, microphone module, radio and sensor modules; the 433 MHz antenna stands up through the frame; the rocker ON/OFF switch is on short leads outside, and the USB lead (right) is used for programming and bench work only. | 52%@@
+
+## 7.6 Fabrication
+
+The structure is original work printed from the team's own CAD model — not an off-the-shelf enclosure. The frame, the egg chamber, the harness points, the switch and LED positions and the antenna clamp are all features of the one model, so nothing is bolted on afterwards that was not planned. The vehicle was printed, assembled with the electronics and egg chamber, and weighed on 12 September 2026; the canopy, switch and LED were fitted and the mass trimmed into the band on 13–14 September.

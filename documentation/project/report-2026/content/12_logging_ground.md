@@ -48,3 +48,15 @@ The bridge firmware is a pure bridge: the SX1278 sits in continuous receive and 
 The validator checks team identity, sequence continuity, duplicates, timestamp monotonicity and GPS plausibility; link health is a 5 s sliding window of rate, loss percentage and staleness, and it reports whether the rate that *arrived* cleared 1 Hz — a different question from what the vehicle transmitted.
 
 **The vehicle-restart case is handled by design:** when the packet counter restarts at `P-001` the ground station recognises a vehicle restart and keeps counting cleanly — the case that appears in Flight 1's logs.
+
+## 12.3 The web console at the competition
+
+The single-file web console ran live at the competition launch. Its panels — flight profile, attitude, GPS, sound and a raw packet monitor — are driven by the same parser and validator as the Python pipeline.
+
+@@fig f-gs-profile | photos/gs-flight-profile.jpg | **Flight profile panel, live.** Altitude above ground (and vertical speed), pressure, temperature and specific force against time, with the pad period shaded, the apogee and peak-g markers, a 30 s / 60 s / all window, a data-table view and an inspect slider that scrubs back through the record. Here the vehicle sits on the pad at 0 m, is carried up the building to about 27 m, and is held at height before the throw. | 100%@@
+
+@@fig f-gs-att | photos/gs-attitude-gps.jpg | **Attitude and GPS panels.** An artificial horizon and compass show roll 131.7°, pitch −15.0° and relative yaw 156.7° (the vehicle held on its side at the terrace edge), with the spin rate; the GPS panel shows the fix, the position relative to the pad (38.2 m at 154°), latitude 21.15995°, longitude 72.78817°, GPS altitude 39 m and the microphone level of 14.5 mV p-p. | 100%@@
+
+@@fig f-gs-3d | photos/gs-track-3d.jpg | **Three-dimensional track.** The climb up the building (vertical line), the walk along the terrace (orange: faster segments, blue: slower) and the vehicle's current position, built from altitude, GPS and attitude. | 100%@@
+
+The console shows exactly what the flight analysis of Chapter 14 later confirmed: the carry up the building, the hold at the terrace edge with the vehicle on its side, and a live link throughout.
