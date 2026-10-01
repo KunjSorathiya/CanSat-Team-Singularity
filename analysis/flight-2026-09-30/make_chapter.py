@@ -16,7 +16,7 @@ txt = f'''@@chapter 14 | Flight results and data analysis | Two descents, 102 di
 
 ## 14.1 What the ground station recorded
 
-On 30 September 2026 the organizers' ground station recorded the vehicle's packets and exported them as `Team-25.xlsx`: **{R["rows_in_workbook"]} rows from {R["source_files"]} exported files.** Before any number is quoted, the log has to be made into what it should have been.
+At the competition launch on 30 September 2026 the organizers' ground station recorded the vehicle's packets and exported them as `Team-25.xlsx`: **{R["rows_in_workbook"]} rows from {R["source_files"]} exported files.** Before any number is quoted, the log has to be made into what it should have been.
 
 @@tab t-clean | From the export to the analysis dataset@@
 
@@ -94,6 +94,8 @@ Flight 1 was launched from a building terrace — the vehicle was powered on at 
 The accelerometer tells the whole story of the flight. **While held, |a| = 1.0 g with the gravity vector on the vehicle's Y axis — the vehicle is held on its side.** At the throw the three axes swing together to −27, −13 and −41 m/s², a {F1["release"]["a_g"]:.1f} g impulse; then |a| collapses to 0.5 g (ballistic flight), recovers through 0.7 and 1.2 g as the canopy fills, and peaks at {F1["canopy_opening"]["a_g"]:.1f} g at the opening. From there the vehicle sits upright — AZ ≈ +9.8 m/s² on average ({F1["attitude"]["az_mean"]:.1f} ± {F1["attitude"]["az_sd"]:.1f}) — and swings about it.
 
 @@fig f-f1-all | 27_flight1_all_channels.png | **Flight 1 on one clock.** Height, specific force, roll and pitch, RSSI and acoustic level — the throw and the canopy opening marked. The same instant shows up in every channel: the acceleration spike, the roll swinging from 110° (on its side) to upright, the radio signal improving by 14 dB, and the loudest microphone packet. | 96%@@
+
+The live view at the competition (Figure @@ref f-gs-profile@@ in Chapter 12) shows the part of the record that comes *before* the packets in the shared log — the vehicle on the pad, the climb, and the hold: the altitude trace climbs to about 27 m as the vehicle is carried up the building and then holds, pressure falls from about 101,200 Pa to 100,890 Pa, and temperature stays near 31 °C. The attitude panel at the same moment reads roll 131.7°, pitch −15.0° — the vehicle held on its side, as the accelerometer in the shared log shows.
 
 ## 14.4 Flight 2
 

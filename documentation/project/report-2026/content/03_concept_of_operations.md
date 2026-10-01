@@ -63,7 +63,7 @@ t= 23034 ms  alt=  30.0 m  rate= +0.0 m/s   LANDED -> RECOVERY   <-- 12 s before
 
 The fix is physical rather than tuned: **a vehicle cannot land without descending first.** The state machine latches `descent_observed_` once the vertical rate has been below −2 m/s for one second, and refuses `FLIGHT → LANDED` until it is set. The latch belongs to one `FLIGHT` and clears on any state change; `validate_config()` refuses a descent threshold at or below the at-rest threshold. No hover, however long or gentle, can satisfy it.
 
-<div class="callout why"><div class="ct">Why this matters on 30 September</div>
+<div class="callout why"><div class="ct">Why this mattered at the competition</div>
 
 Flight 1 was held still at the terrace edge, at 29.4 m, for at least 4.3 s before the throw (the first 14 recorded packets) — exactly the condition of a vehicle hovering under a drone: 1 g and no vertical motion. The log shows the vehicle reporting `FLIGHT` throughout the hold and the descent — it never mistook the hold for a landing. The gate is not a theoretical nicety: it is the reason the state field is correct for the whole of Flight 1.
 
@@ -75,16 +75,16 @@ Flight 1 was held still at the terrace edge, at 29.4 m, for at least 4.3 s befor
 |---|---|---|---|
 | 1 | Close the power switch on the ground floor | LED lights at once; telemetry begins; pad calibration | Power LED; packets on the ground station |
 | 2 | Wait for the command window to close (or send `MAX_RATE`) | Re-calibrates on the pad, then arms | `ST-R11x`; rate rises to ≈ 3.1 Hz |
-| 3 | Hand over to the drone (competition) or carry the vehicle up the building (30 Sep) | Telemetry continues; altitude tracks the lift | Altitude rising in every packet |
-| 4 | Drone releases at 100 ft (competition) / thrown from the terrace (30 Sep) | `READY → FLIGHT` (during the lift); canopy deploys | Altitude peak, acceleration spike, descent rate |
+| 3 | Hand over to the drone (rulebook plan) or carry the vehicle up the building (competition launch) | Telemetry continues; altitude tracks the lift | Altitude rising in every packet |
+| 4 | Drone releases at 100 ft (rulebook plan) / thrown from the terrace (competition launch) | `READY → FLIGHT` (during the lift); canopy deploys | Altitude peak, acceleration spike, descent rate |
 | 5 | Vehicle lands | Descent gate opens; 3 s at rest → `LANDED`; 5 s window; `RECOVERY` | Altitude flat at the ground; packets keep arriving |
 | 6 | Recover the vehicle; read the card | The SD log holds every packet and the full-precision GPS | `tools/read_flight_log.py` |
 
 **Operating rule: never connect USB while the battery is connected.** USB and the battery are alternative sources for the same Pico supply input, so the vehicle is programmed and bench-tested on USB with the battery disconnected, and flown on the battery alone.
 
-## 3.5 How the 30 September flights were launched
+## 3.5 How the competition flights were launched
 
-The competition launch is a drone release; for the two flights of 30 September the same 100 ft was obtained from a building terrace, and the vehicle was **thrown by hand like a projectile**, parachute deploying behind it. The procedure was the same as in Section 3.4 with the lift and the release replaced by a staircase and a throw:
+The rulebook plans a drone release; at the competition launch on 30 September the same 100 ft was obtained from a building terrace, and the vehicle was **thrown by hand like a projectile**, parachute deploying behind it. The procedure was the same as in Section 3.4 with the lift and the release replaced by a staircase and a throw:
 
 | Flight | Power-on | Carried / held | Launch |
 |---|---|---|---|
