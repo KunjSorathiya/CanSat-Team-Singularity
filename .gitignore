@@ -24,3 +24,6 @@ Hardwarepics/
 
 # The ground-command password. Never committed; see firmware/flight-computer/include/flight/local_secrets.example.hpp.
 firmware/flight-computer/include/flight/local_secrets.hpp
+documentation/project/report-2026/report.html
+documentation/project/report-2026/pass1.pdf
+__pycache__/
