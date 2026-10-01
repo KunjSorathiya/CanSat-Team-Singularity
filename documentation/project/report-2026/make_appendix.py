@@ -49,6 +49,8 @@ From `firmware/flight-computer/src/pico/main.cpp` and `config.hpp`. Every value 
 
 ## A.2 Repository map
 
+**Repository:** [github.com/KunjSorathiya/CanSat-Team-Singularity](https://github.com/KunjSorathiya/CanSat-Team-Singularity)
+
 ```text
 firmware/
   common/              shared telemetry format + SX1278 driver     (cansat::)

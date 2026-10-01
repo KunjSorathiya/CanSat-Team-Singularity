@@ -139,3 +139,8 @@ pre code { background: none; padding: 0; font-size: inherit; color: #0f172a; }
 .datatab table { font-size: 5.7pt; line-height: 1.25; }
 .datatab th { font-size: 5.6pt; padding: 1mm 0.8mm; text-align: right; } .datatab th:first-child, .datatab th:nth-child(15) { text-align: left; }
 .datatab td { padding: 0.55mm 0.8mm; font-family: Mono, monospace; font-size: 5.4pt; }
+
+.repobox { display: flex; gap: 5mm; align-items: center; border: 0.8pt solid var(--line); border-left: 3pt solid var(--blue); border-radius: 2mm; padding: 3mm 4mm; margin: 3mm 0 4mm; background: #f8fafc; break-inside: avoid; }
+.repobox img { width: 24mm; height: 24mm; }
+.repobox b { color: var(--navy); font-size: 10pt; }
+.repobox a { font: 600 8.6pt Mono; }

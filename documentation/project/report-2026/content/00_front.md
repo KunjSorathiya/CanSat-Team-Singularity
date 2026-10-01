@@ -13,7 +13,7 @@
 <div class="tile"><b>3.09<small>Hz</small></b><span>telemetry rate in flight, 41 packets received</span></div>
 <div class="tile"><b>6,131<small>checks</small></b><span>automated tests, all passing</span></div>
 </div>
-<div class="foot"><span>github.com/KunjSorathiya/CanSat-Team-Singularity</span><span>October 2026</span></div>
+<div class="foot"><a href="https://github.com/KunjSorathiya/CanSat-Team-Singularity" style="color:#94a3b8;text-decoration:none">github.com/KunjSorathiya/CanSat-Team-Singularity</a><span>October 2026</span></div>
 </section>
 
 <section class="frontpage" style="break-before: page" markdown="1">
@@ -29,6 +29,8 @@
 ## About this report
 
 This is the complete record of the CanSat built by **Team Singularity** (packet identity **CAN-Team-25**) for the SVNIT Physics Club CanSat Competition 2026. It covers the vehicle from the first requirement to the last flight packet: what was built, why every important decision was taken the way it was, how the software thinks, what the simulations predicted, what was measured on the bench, and what the vehicle did on 30 September 2026.
+
+<div class="repobox"><img src="figures/repo-qr.png"/><div><b>Everything in one repository</b><br/>Firmware, ground station, CAD, structural studies, simulations, the flight log and its analysis, and this report's source:<br/><a href="https://github.com/KunjSorathiya/CanSat-Team-Singularity">https://github.com/KunjSorathiya/CanSat-Team-Singularity</a></div></div>
 
 <div class="kpis k3">
 <div class="kpi tl"><b>Design</b><span>Requirements, architecture, components, electrical, mechanical, structural and descent simulation — each with the reasoning behind it.</span></div>
@@ -50,7 +52,7 @@ This is the complete record of the CanSat built by **Team Singularity** (packet 
 * **Times** in the flight chapter are IST (UTC + 5:30); the ground station logged UTC. **Mission time** is the vehicle's own clock, which restarts at every power-up.
 * **Altitude** is the vehicle's transmitted `A-` field unless stated otherwise: pressure altitude relative to the ground baseline the vehicle sets itself at calibration. Where a corrected height is used (hypsometric, from the measured pressure and temperature) it is labelled.
 * **Figures** with a blue frame and a title are drawn from the flight log by `analysis/flight-2026-09-30/launch_analysis.py`; every number in the flight chapter is in `results.json` beside it.
-* The CanSat, its firmware, the ground station, the simulations, the CAD model and this report's source are all in one repository: **github.com/KunjSorathiya/CanSat-Team-Singularity**.
+* The CanSat, its firmware, the ground station, the simulations, the CAD model and this report's source are all in one repository: [**github.com/KunjSorathiya/CanSat-Team-Singularity**](https://github.com/KunjSorathiya/CanSat-Team-Singularity).
 
 ### Data sources for the flight chapter
 
