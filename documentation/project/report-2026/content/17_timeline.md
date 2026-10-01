@@ -12,7 +12,7 @@
 | **4 – 5 Sep** | Parts arrive and are photographed and identified one board at a time; the microSD reader turns out to be a 3.3 V board, closing the power-design question |
 | **5 Sep** | Breadboard bring-up. The radio answers and transmits, the card initialises and writes, and **two intermittents both turn out to be one long supply jumper** |
 | **6 Sep** | The board is *designed* rather than assembled: floorplan to scale, coupling analysis, decoupling sized against a failure that actually happened, sixteen gated build steps |
-| **7 Sep** | The board is built and gates 3–7 pass on it. **The first radio link closes** — 66 packets, no gaps. Running the flight image finds the chip-select ordering defect |
+| **7 Sep** | The board is built and gates 3–7 pass on it. **The first radio link closes** — 66 packets received. Running the flight image finds the chip-select ordering defect |
 | **8 Sep** | Telemetry to 1.43 Hz; an authorised erase command; GPS gated on satellite count and HDOP; the first mission analysis, which finds the hover problem |
 | **9 Sep** | The mechanical design: `Cansat_D1` modelled, 12 cm sided box confirmed, PETG chosen, three stress studies, electronics weighed at 151.299 g |
 | **10 – 11 Sep** | The first range test; the sync word moves to `0xA5` on both ends; packet budget cut to 200 B; GPS and sound go on the air; `MAX_RATE` measured at 3.11 Hz |

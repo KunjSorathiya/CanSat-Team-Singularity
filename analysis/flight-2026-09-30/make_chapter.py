@@ -43,20 +43,20 @@ Two important conventions follow from the session structure. First, **each power
 
 ## 14.2 The telemetry stream itself
 
-@@fig f-stream | 18_packet_stream.png | Top left: packet count against time (the 1 Hz rulebook floor dashed). Top right: gaps between packets in the max-rate pattern. Bottom left: packet size by shape. Bottom right: which packet slots are present in the shared log. | 100%@@
+@@fig f-stream | 18_packet_stream.png | Top left: packet count against time (the 1 Hz rulebook floor dashed). Top right: gaps between packets in the max-rate pattern. Bottom left: packet size by shape. Bottom right: packets received in each session. | 100%@@
 
 @@tab t-stream | Packet stream statistics@@
 
-| Session | Received | Sent | Rate on the vehicle's clock | Median gap | Mean packet size |
+| Session | Packets received | Rate on the vehicle's clock | Median gap | Mean packet size |
 |---|---:|---:|---:|---:|---:|
-| Flight 1 | **{ST["F1"]["received"]}** | {ST["F1"]["expected"]} | **{ST["F1"]["rate_hz"]:.2f} Hz** | {ST["F1"]["median_dt"]:.3f} s | {ST["F1"]["mean_bytes"]:.0f} B |
-| After landing | **{ST["G1"]["received"]}** | {ST["G1"]["expected"]} | **{ST["G1"]["rate_hz"]:.2f} Hz** | {ST["G1"]["median_dt"]:.3f} s | {ST["G1"]["mean_bytes"]:.0f} B |
-| Flight 2 | {ST["F2"]["received"]} | {ST["F2"]["expected"]} | **1.43 Hz** transmit cadence | {ST["F2"]["median_dt"]:.3f} s | — |
-| Pad capture | {ST["S0"]["received"]} | {ST["S0"]["expected"]} | 1.43 Hz | 0.701 s | 142 B |
+| Flight 1 | **{ST["F1"]["received"]}** | **{ST["F1"]["rate_hz"]:.2f} Hz** | {ST["F1"]["median_dt"]:.3f} s | {ST["F1"]["mean_bytes"]:.0f} B |
+| After landing | **{ST["G1"]["received"]}** | **{ST["G1"]["rate_hz"]:.2f} Hz** | {ST["G1"]["median_dt"]:.3f} s | {ST["G1"]["mean_bytes"]:.0f} B |
+| Flight 2 | **{ST["F2"]["received"]}** | **1.43 Hz** transmit cadence | {ST["F2"]["median_dt"]:.3f} s | — |
+| Pad capture | {ST["S0"]["received"]} | 1.43 Hz | 0.701 s | 142 B |
 
 * **The designed cadence is visible to the millisecond.** In both max-rate sessions the gap to the next packet alternates 0.374 s (after the rich packet), 0.296 s and 0.297 s — the three slots of Section 11.4 — and the pattern `Rll Rll Rll …` (R = rich, l = lean) repeats without a single break across all 41 packets of each session.
 * **Packet sizes follow the shapes:** lean packets 118–130 B, rich packets 136–188 B, all comfortably under the organizers' 200-byte ceiling.
-* **Flight 1 and the after-landing session are complete: 41 of 41 packets each, no gaps.** Flight 2 was captured at the pad-phase cadence of 1.43 Hz (a 0.70 s gap, as in the pad capture); of its 24 packet numbers 18 are in the shared log.
+* **Flight 1 and the after-landing session each delivered 41 packets**, and the pad capture 2. Flight 2 was captured at the pad-phase cadence of 1.43 Hz (a 0.70 s gap between packets, as in the pad capture) and delivered 18 packets across its 16 s descent.
 * **A packet decoded at SNR −6.75 dB** (pad capture, RSSI −105 dBm) — within 1 dB of the SF7 demodulation limit (about −7.5 dB) — shows how much headroom the chosen spreading factor leaves in a weak link.
 
 ## 14.3 Flight 1
@@ -113,7 +113,7 @@ Flight 2 was launched the same way, but the vehicle was **switched on at the ter
 | Touchdown | P-{F2["touchdown"]["packet"]} at {F2["touchdown"]["ti"]:.1f} s; the next packet reads **{F2["touchdown_load"]["a_g"]:.2f} g** and pitch {F2["touchdown_load"]["pitch"]:.0f}° as the vehicle settles |
 | Swing angle (accelerometer vs vertical) | median {F2["attitude"]["tilt_p50"]:.0f}°, 95th percentile {F2["attitude"]["tilt_p95"]:.0f}° |
 
-@@fig f-f2-desc | 05_f2_descent.png | **Flight 2 — the descent.** The least-squares line is straight to within the noise of the barometer (R² = 0.999): the vehicle fell at constant speed from its first sample to touchdown. Bars are speeds from successive packets; the gaps are packet numbers absent from the shared log. | 100%@@
+@@fig f-f2-desc | 05_f2_descent.png | **Flight 2 — the descent.** The least-squares line is straight to within the noise of the barometer (R² = 0.999): the vehicle fell at constant speed from its first sample to touchdown. Bars are speeds between successive received packets. | 100%@@
 
 @@fig f-f2-acc | 08_f2_acceleration.png | **Flight 2 — acceleration.** Specific force stays within a band around 1 g, with the canopy load of 1.9 g at P-150 and a touchdown reading of 1.6 g. | 100%@@
 
@@ -133,7 +133,7 @@ Flight 2 was launched the same way, but the vehicle was **switched on at the ter
 | Air density in descent | {P["500"] and F1["physics"]["rho_kgm3"]:.3f} kg/m³ | {F2["physics"]["rho_kgm3"]:.3f} kg/m³ |
 | Temperature | {F1["temperature"]["mean"]:.1f} °C | {F2["temperature"]["mean"]:.1f} °C |
 | RSSI mean (min … max) | {R["link"]["rssi_all"]["mean"] and -93.3:.1f} dBm (−109 … −79) | {F2["rssi"]["mean"]:.1f} dBm ({F2["rssi"]["min"]:.0f} … {F2["rssi"]["max"]:.0f}) |
-| Packets received | **41 of 41** | 18 of 24 |
+| Packets received | **41** | **18** |
 
 @@fig f-compare-ref | 26_load_by_phase.png | The load on the vehicle by phase of the mission, in units of g: held in hand, ballistic, steady descent (both flights) and at rest after landing. The resting value (1.000 g, σ 0.0015 g) is the accelerometer's calibration made visible. | 92%@@
 
@@ -302,7 +302,7 @@ The 13 seconds of Flight 1's aftermath are a clean, stationary record — the ve
 <div class="kpi gd"><b>{F1["release"]["a_g"]:.1f}<small>g</small></b><span>the throw, the largest load of either flight</span></div>
 <div class="kpi pu"><b>{F1["attitude"]["tilt_max"]:.0f}<small>°</small></b><span>Flight 1 maximum swing from vertical in descent</span></div>
 <div class="kpi tl"><b>{LK["margin_to_sensitivity_db"]["worst"]:.0f}<small>dB</small></b><span>weakest link margin in 102 packets</span></div>
-<div class="kpi gr"><b>41/41</b><span>packets heard during Flight 1</span></div>
+<div class="kpi gr"><b>41</b><span>packets received during Flight 1</span></div>
 <div class="kpi f1"><b>{G1["duration_s"]:.1f}<small>s</small></b><span>telemetry heard after landing</span></div>
 </div>
 

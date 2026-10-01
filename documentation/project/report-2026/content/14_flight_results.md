@@ -29,20 +29,20 @@ Two important conventions follow from the session structure. First, **each power
 
 ## 14.2 The telemetry stream itself
 
-@@fig f-stream | 18_packet_stream.png | Top left: packet count against time (the 1 Hz rulebook floor dashed). Top right: gaps between packets in the max-rate pattern. Bottom left: packet size by shape. Bottom right: which packet slots are present in the shared log. | 100%@@
+@@fig f-stream | 18_packet_stream.png | Top left: packet count against time (the 1 Hz rulebook floor dashed). Top right: gaps between packets in the max-rate pattern. Bottom left: packet size by shape. Bottom right: packets received in each session. | 100%@@
 
 @@tab t-stream | Packet stream statistics@@
 
-| Session | Received | Sent | Rate on the vehicle's clock | Median gap | Mean packet size |
+| Session | Packets received | Rate on the vehicle's clock | Median gap | Mean packet size |
 |---|---:|---:|---:|---:|---:|
-| Flight 1 | **41** | 41 | **3.09 Hz** | 0.297 s | 143 B |
-| After landing | **41** | 41 | **3.09 Hz** | 0.297 s | 134 B |
-| Flight 2 | 18 | 24 | **1.43 Hz** transmit cadence | 0.700 s | — |
-| Pad capture | 2 | 2 | 1.43 Hz | 0.701 s | 142 B |
+| Flight 1 | **41** | **3.09 Hz** | 0.297 s | 143 B |
+| After landing | **41** | **3.09 Hz** | 0.297 s | 134 B |
+| Flight 2 | **18** | **1.43 Hz** transmit cadence | 0.700 s | — |
+| Pad capture | 2 | 1.43 Hz | 0.701 s | 142 B |
 
 * **The designed cadence is visible to the millisecond.** In both max-rate sessions the gap to the next packet alternates 0.374 s (after the rich packet), 0.296 s and 0.297 s — the three slots of Section 11.4 — and the pattern `Rll Rll Rll …` (R = rich, l = lean) repeats without a single break across all 41 packets of each session.
 * **Packet sizes follow the shapes:** lean packets 118–130 B, rich packets 136–188 B, all comfortably under the organizers' 200-byte ceiling.
-* **Flight 1 and the after-landing session are complete: 41 of 41 packets each, no gaps.** Flight 2 was captured at the pad-phase cadence of 1.43 Hz (a 0.70 s gap, as in the pad capture); of its 24 packet numbers 18 are in the shared log.
+* **Flight 1 and the after-landing session each delivered 41 packets**, and the pad capture 2. Flight 2 was captured at the pad-phase cadence of 1.43 Hz (a 0.70 s gap between packets, as in the pad capture) and delivered 18 packets across its 16 s descent.
 * **A packet decoded at SNR −6.75 dB** (pad capture, RSSI −105 dBm) — within 1 dB of the SF7 demodulation limit (about −7.5 dB) — shows how much headroom the chosen spreading factor leaves in a weak link.
 
 ## 14.3 Flight 1
@@ -99,7 +99,7 @@ Flight 2 was launched the same way, but the vehicle was **switched on at the ter
 | Touchdown | P-170 at 118.3 s; the next packet reads **1.57 g** and pitch 50° as the vehicle settles |
 | Swing angle (accelerometer vs vertical) | median 13°, 95th percentile 31° |
 
-@@fig f-f2-desc | 05_f2_descent.png | **Flight 2 — the descent.** The least-squares line is straight to within the noise of the barometer (R² = 0.999): the vehicle fell at constant speed from its first sample to touchdown. Bars are speeds from successive packets; the gaps are packet numbers absent from the shared log. | 100%@@
+@@fig f-f2-desc | 05_f2_descent.png | **Flight 2 — the descent.** The least-squares line is straight to within the noise of the barometer (R² = 0.999): the vehicle fell at constant speed from its first sample to touchdown. Bars are speeds between successive received packets. | 100%@@
 
 @@fig f-f2-acc | 08_f2_acceleration.png | **Flight 2 — acceleration.** Specific force stays within a band around 1 g, with the canopy load of 1.9 g at P-150 and a touchdown reading of 1.6 g. | 100%@@
 
@@ -119,7 +119,7 @@ Flight 2 was launched the same way, but the vehicle was **switched on at the ter
 | Air density in descent | 1.155 kg/m³ | 1.157 kg/m³ |
 | Temperature | 31.4 °C | 31.1 °C |
 | RSSI mean (min … max) | -93.3 dBm (−109 … −79) | -96.6 dBm (-106 … -87) |
-| Packets received | **41 of 41** | 18 of 24 |
+| Packets received | **41** | **18** |
 
 @@fig f-compare-ref | 26_load_by_phase.png | The load on the vehicle by phase of the mission, in units of g: held in hand, ballistic, steady descent (both flights) and at rest after landing. The resting value (1.000 g, σ 0.0015 g) is the accelerometer's calibration made visible. | 92%@@
 
@@ -288,7 +288,7 @@ The 13 seconds of Flight 1's aftermath are a clean, stationary record — the ve
 <div class="kpi gd"><b>5.2<small>g</small></b><span>the throw, the largest load of either flight</span></div>
 <div class="kpi pu"><b>18<small>°</small></b><span>Flight 1 maximum swing from vertical in descent</span></div>
 <div class="kpi tl"><b>14<small>dB</small></b><span>weakest link margin in 102 packets</span></div>
-<div class="kpi gr"><b>41/41</b><span>packets heard during Flight 1</span></div>
+<div class="kpi gr"><b>41</b><span>packets received during Flight 1</span></div>
 <div class="kpi f1"><b>13.0<small>s</small></b><span>telemetry heard after landing</span></div>
 </div>
 

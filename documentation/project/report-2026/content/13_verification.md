@@ -62,8 +62,8 @@ Every prediction was written down *before* the measurement was taken, and both a
 | Rail at 100 % write duty | Holds | **3.28 – 3.30 V** |
 | Sensor read cost | Under 33 ms | **0.833 ms worst** |
 | Altitude at rest after calibration | ≈ 0.0 m | **−0.5 m to +0.1 m** across 62 packets |
-| First link | — | **66 packets, `P-001`–`P-066`, no gaps, no duplicates, 0 % loss, −44 dBm** |
-| `MAX_RATE` at the station | ~3.13 Hz | **3.11 Hz**, 1 packet in 544 lost, RSSI −21 dBm, SNR 10.0 dB |
+| First link | — | **66 packets received, `P-001`–`P-066`, −44 dBm** |
+| `MAX_RATE` at the station | ~3.13 Hz | **3.11 Hz** over 544 packets received, RSSI −21 dBm, SNR 10.0 dB |
 
 The airtime model survived contact with hardware to within 1.8 %. Chapter 14 adds a second column — what the flights measured — for the quantities that only flight can test.
 
