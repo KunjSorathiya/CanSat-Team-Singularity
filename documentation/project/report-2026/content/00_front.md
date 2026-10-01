@@ -10,7 +10,7 @@
 <div class="tiles">
 <div class="tile"><b>2<small>flights</small></b><span>flown and analysed</span></div>
 <div class="tile"><b>1.9–2.3<small>m/s</small></b><span>steady descent rate, limit 5&nbsp;m/s</span></div>
-<div class="tile"><b>3.09<small>Hz</small></b><span>telemetry rate in flight, 41 / 41 packets heard</span></div>
+<div class="tile"><b>3.09<small>Hz</small></b><span>telemetry rate in flight, 41 packets received</span></div>
 <div class="tile"><b>6,131<small>checks</small></b><span>automated tests, all passing</span></div>
 </div>
 <div class="foot"><span>github.com/KunjSorathiya/CanSat-Team-Singularity</span><span>October 2026</span></div>

@@ -56,10 +56,10 @@ Thirty requirements were extracted from the rulebook; each has a design response
 | **PAY-002** Egg chamber | Cushioned chamber designed into the frame within the +7 cm allowance | CAD; 128.7 g printed structure including the chamber |
 | **PWR-001/002** Switch and LED | Switch in the battery lead; power LED on the regulated 3.3 V rail, not a GPIO | Fitted in the structure's switch cut-out |
 | **PWR-004** Auto-transmit on power-up | No arming step anywhere between power and the first packet | Telemetry runs from mission time 0 (post-landing session: P-001 at `Ti-00:00:00:000`) |
-| **TEL-001…004** Continuous telemetry | Scheduler independent of mission state; `FAULT` does not stop transmission | Flight 1: 41/41 packets; after landing 41/41 |
+| **TEL-001…004** Continuous telemetry | Scheduler independent of mission state; `FAULT` does not stop transmission | Flight 1: 41 packets received; after landing 41 |
 | **TEL-005** ≥ 1 Hz | 700 ms period (1.43 Hz); 3-slot pattern (3.11 Hz) after the command window | Measured 1.43 Hz and 3.09 Hz in the flights |
 | **TEL-006/010** Team identity | Identity is configuration; the placeholder `CAN-Team-XX` is refused at start-up | 180 / 180 rows carry `CAN-Team-25` |
-| **TEL-007/008** `P-001` start, sequential | Counter starts at 1; suppression does not consume a number | G1 session starts at P-001; contiguous 1…41 |
+| **TEL-007/008** `P-001` start, sequential | Counter starts at 1; suppression does not consume a number | G1 session starts at P-001 |
 | **TEL-009…020** Field order and precision | Byte-exact formatter; C++, Python and JavaScript parsers held to one fixture file | 180 / 180 rows parse under the strict parser |
 | **TEL-021** No corrupted mandatory fields | Per-field validity flags; an incomplete set yields no packet | Test suite; no invalid packet in the log |
 | **TEL-023/024** Sync words | `0xA5` for launch; both Picos fly it always | Organizers' station received the flights |

@@ -10,7 +10,7 @@
 <div class="kpi f1"><b>2.27<small>m/s</small></b><span>steady descent rate, Flight 1 (± 0.05) — 2.2× inside the 5&nbsp;m/s limit</span></div>
 <div class="kpi f2"><b>1.88<small>m/s</small></b><span>steady descent rate, Flight 2 (± 0.02) — 2.7× inside the limit</span></div>
 <div class="kpi tl"><b>3.09<small>Hz</small></b><span>telemetry rate in the armed flight configuration; 1.43&nbsp;Hz in the pre-arm configuration; rulebook floor 1&nbsp;Hz</span></div>
-<div class="kpi tl"><b>41/41</b><span>packets heard by the organizers' station across Flight 1 and 41/41 after landing</span></div>
+<div class="kpi tl"><b>41</b><span>packets received by the organizers' station during Flight 1, and 41 more after landing</span></div>
 <div class="kpi gd"><b>≥ 14<small>dB</small></b><span>weakest link margin over receiver sensitivity (RSSI −109 … −79&nbsp;dBm)</span></div>
 <div class="kpi pu"><b>12.95<small>s</small></b><span>of telemetry heard after landing — 2.6× the 5&nbsp;s requirement</span></div>
 </div>
@@ -32,9 +32,9 @@ Both flights were launched by hand from a building terrace at about 30&nbsp;m �
 
 | Capture | Packets | What it shows |
 |---|---:|---|
-| **Flight 1** — 18:25 IST | 41 (P-1585 … P-1625) | Powered on at the ground floor, carried up the building, held at the terrace edge at 29 m, **thrown**, canopy opening, steady descent to within a few metres of the landing surface. The vehicle reports `FLIGHT` throughout. **41 of 41 packets received** |
+| **Flight 1** — 18:25 IST | 41 (P-1585 … P-1625) | Powered on at the ground floor, carried up the building, held at the terrace edge at 29 m, **thrown**, canopy opening, steady descent to within a few metres of the landing surface. The vehicle reports `FLIGHT` throughout. **41 packets received** |
 | **Flight 1, after landing** | 41 (P-001 … P-041) | 13 s on the ground after landing: the flight computer re-initialised itself, resumed telemetry at the max rate within about 2 s, re-calibrated in 5.5 s and re-armed |
-| **Flight 2** — 18:46 IST | 18 received of 24 sent (P-148 … P-171) | Powered on at the terrace, thrown, and a 29.6 m descent, 15.4 s long, from the first packet to touchdown |
+| **Flight 2** — 18:46 IST | 18 received (P-148 … P-171) | Powered on at the terrace, thrown, and a 29.6 m descent, 15.4 s long, from the first packet to touchdown |
 | **Pad capture** — 17:55 IST | 2 (P-420, P-421) | Two packets from a vehicle standing on the ground at 0 m |
 
 @@fig f-compare | 06_flight_comparison.png | The two descents on one axis, with the 5 m/s limit drawn as a reference line, and the steady rates. | 92%@@

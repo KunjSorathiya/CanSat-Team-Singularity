@@ -17,7 +17,7 @@ The onboard log writes into **raw 512-byte blocks with no filesystem**, rewritin
 
 </div>
 
-The SD log is the complete record: it holds every packet the radio sent with none lost to the link, and every column the packet leaves out. The post-flight analysis reads it with `tools/read_flight_log.py`, which splits it by power cycle and stops exactly where the data stops.
+The SD log is the complete record: it holds every packet the radio sent, and every column the packet leaves out. The post-flight analysis reads it with `tools/read_flight_log.py`, which splits it by power cycle and stops exactly where the data stops.
 
 ## 12.2 Ground station
 

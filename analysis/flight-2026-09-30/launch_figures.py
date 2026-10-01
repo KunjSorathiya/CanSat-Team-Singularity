@@ -666,16 +666,13 @@ def fig_packets(d, res, out):
     ax.set_title("Packet size, rich · lean · lean")
     ax.grid(axis="x", visible=False)
     ax = axs[1, 1]
-    for k, (nm, c) in enumerate((("F1", F1C), ("G1", TEAL), ("F2", F2C))):
-        g = d[d.name == nm]
-        full = np.arange(g.P.min(), g.P.max() + 1)
-        for i, p in enumerate(full):
-            got = p in set(g.P)
-            ax.add_patch(plt.Rectangle((i, 2 - k - 0.32), 0.8, 0.64, fc=c if got else "white", ec=c if got else RED, lw=0.9 if got else 1.2, ls="-" if got else "--"))
-        ax.text(-1.2, 2 - k, {"F1": "Flight 1", "G1": "after\nlanding", "F2": "Flight 2"}[nm], ha="right", va="center", fontsize=7.2, color=c, fontweight="bold")
-    ax.set_yticks([]); ax.set_xlim(-8, 44); ax.set_ylim(-0.6, 2.7)
-    ax.set_xlabel("packet slot  (dashed = not in the shared log)"); ax.set_title("Packets present in the shared log")
-    ax.grid(False); ax.spines["left"].set_visible(False)
+    names = [("F1", "Flight 1", F1C), ("G1", "After\nlanding", TEAL), ("F2", "Flight 2", F2C), ("S0", "Pad\ncapture", MUTED)]
+    cnt = [int((d.name == n).sum()) for n, _, _ in names]
+    ax.bar([x[1] for x in names], cnt, color=[x[2] for x in names], width=0.6, zorder=3)
+    for i, v in enumerate(cnt):
+        ax.text(i, v + 0.8, str(v), ha="center", fontsize=8, fontweight="bold")
+    ax.set_ylim(0, 50); ax.set_ylabel("packets received")
+    ax.set_title("Packets received per session"); ax.grid(axis="x", visible=False)
     _save(fig, out, "18_packet_stream.png")
 
 
