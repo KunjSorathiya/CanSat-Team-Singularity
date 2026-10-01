@@ -20,7 +20,7 @@ Every module was bought individually, photographed on arrival, and identified fr
 | Power | 1S LiPo, 3.7 V, 1500 mAh, 25C | 1 | Primary power |
 | Power | ON/OFF switch; red power LED + 1 kΩ; green status LED + 1 kΩ | 1 each | Mandatory switch and indicator; mission-state blink |
 | Structure | `Cansat_D1`, white PETG, 3D printed, with egg chamber | 1 | Airframe |
-| Recovery | Sewn canopy, lines and harness | 1 | Descent at ≤ 5 m/s |
+| Recovery | **6 ft (1.83 m) diameter** sewn canopy, lines and harness | 1 | Descent at ≤ 5 m/s |
 | Integration | 10 × 10 cm universal prototype board, 2.54 mm pitch | 2 | One built, one spare |
 | Passives | 470 µF + 100 nF (microSD), 10 µF + 100 nF (radio), 33 kΩ/33 kΩ divider | — | Decoupling and battery sensing |
 
@@ -91,7 +91,7 @@ lm393-sound-front.jpg | LM393 sound module: electret capsule, comparator and gai
 <div class="callout why"><div class="ct">Why a six-axis IMU, and why these ranges</div>
 
 * **The rulebook's reference IMU is the six-axis MPU-6050.** The MPU-6500 is its successor in the same family — same measurements, same register style, lower noise — so it meets the "gyroscope + accelerometer" requirement exactly.
-* **±16 g and ±2000 °/s.** The loads in this mission are a release jolt (measured 5.2 g in Flight 1), a canopy opening (2.1 g) and a touchdown (1.6 g). ±16 g leaves a factor of three of headroom over the worst of them; ±2000 °/s covers a vehicle tumbling at several revolutions per second without saturating the integrator.
+* **±16 g and ±2000 °/s.** The loads in this mission are the throw (measured 5.2 g in Flight 1), a canopy opening (2.1 g) and a touchdown (1.6 g). ±16 g leaves a factor of three of headroom over the worst of them; ±2000 °/s covers a vehicle tumbling at several revolutions per second without saturating the integrator.
 * **A 20 Hz filter against a 30 Hz sample rate.** The filter bandwidth is set so that the loop's 30 Hz sampling does not alias vibration into the attitude estimate.
 * **Yaw is a relative angle.** Roll and pitch are referenced to gravity through the accelerometer and are absolute. Yaw is integrated from the gyro and zeroed at calibration; the telemetry declares it as such. Firmware for a magnetometer-referenced yaw is also present and tested against simulated fields for a nine-axis part.
 * **Bias is measured, not assumed.** Gyro bias per axis was measured on the bench at X −3.30, Y +0.86, Z −0.06 °/s; at every power-up the pad calibration re-measures it, which is why the post-landing session in Chapter 14 shows yaw frozen to ±0.1° after calibration.
@@ -130,7 +130,7 @@ An electret capsule with an LM393 comparator and gain trimmer; the analogue outp
 
 <div class="callout why"><div class="ct">Why a microphone</div>
 
-**A microphone on a descending probe is a flight-proven atmospheric instrument.** Mars 2020 *Perseverance* carried one dedicated to entry, descent and landing; the *Huygens* probe carried an acoustic sensor through Titan's atmosphere in 2005; *Venera 13* and *14* recorded wind noise on Venus. Acoustics is one of the cheapest ways to instrument a descent. In order of usefulness it measures: **impulsive events** (the release jolt is the loudest packet of Flight 1 — 36.3 mV p-p), **flow noise** against descent speed, and canopy dynamics. Two channels are recorded deliberately — *how loud* and *what fraction of the time* — because a sharp crack and a steady roar can reach the same peak and mean opposite things. The level is a relative envelope in millivolts, comparable within a flight at one gain setting.
+**A microphone on a descending probe is a flight-proven atmospheric instrument.** Mars 2020 *Perseverance* carried one dedicated to entry, descent and landing; the *Huygens* probe carried an acoustic sensor through Titan's atmosphere in 2005; *Venera 13* and *14* recorded wind noise on Venus. Acoustics is one of the cheapest ways to instrument a descent. In order of usefulness it measures: **impulsive events** (the throw is the loudest packet of Flight 1 — 36.3 mV p-p), **flow noise** against descent speed, and canopy dynamics. Two channels are recorded deliberately — *how loud* and *what fraction of the time* — because a sharp crack and a steady roar can reach the same peak and mean opposite things. The level is a relative envelope in millivolts, comparable within a flight at one gain setting.
 
 </div>
 

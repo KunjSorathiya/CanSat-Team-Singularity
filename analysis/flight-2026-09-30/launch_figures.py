@@ -109,7 +109,7 @@ def fig_sessions(d, res, out):
         ax.text(-0.015, i + 0.1, lab, ha="right", va="center", fontsize=8.8, fontweight="bold", color=c, transform=ax.get_yaxis_transform())
         ax.text(-0.015, i - 0.22, f"{len(g)} packets · P-{g.P.min():03d}…P-{g.P.max():03d}", ha="right", va="center", fontsize=6.9, color=MUTED, transform=ax.get_yaxis_transform())
         ax.text(x0, i + 0.3, f"power-on {boot.strftime('%H:%M:%S')}", fontsize=6.6, color=c, ha="left", va="bottom")
-    ax.annotate("release ≈ 18:25:51", xy=(mins(pd.Timestamp("2026-09-30 18:25:51")), 2), xytext=(mins(pd.Timestamp("2026-09-30 18:25:51")) - 12, 2.55),
+    ax.annotate("throw ≈ 18:25:51", xy=(mins(pd.Timestamp("2026-09-30 18:25:51")), 2), xytext=(mins(pd.Timestamp("2026-09-30 18:25:51")) - 12, 2.55),
                 fontsize=7, color=RED, arrowprops=dict(arrowstyle="-", color=RED, lw=0.8), ha="right")
     ax.set_yticks([]); ax.set_ylim(-0.6, 3.8)
     ax.set_xlim(0, 65)
@@ -160,9 +160,9 @@ def fig_f1_mandatory(d, res, out):
 
     def ev(ax):
         ax.axvspan(r["hover"]["t0"], 677.3, color=SKY, alpha=0.18, lw=0)
-        ax.text(675.0, 0.06, "carried at height", transform=ax.get_xaxis_transform(), ha="center", fontsize=7.2, color=MUTED)
+        ax.text(675.0, 0.06, "held at the terrace edge", transform=ax.get_xaxis_transform(), ha="center", fontsize=7.2, color=MUTED)
         ax.axvline(r["release"]["ti"], color=RED, lw=0.9, ls=":")
-        ax.text(r["release"]["ti"] - 0.1, 0.55, "release", rotation=90, transform=ax.get_xaxis_transform(), ha="right", va="center", fontsize=7.2, color=RED)
+        ax.text(r["release"]["ti"] - 0.1, 0.55, "throw", rotation=90, transform=ax.get_xaxis_transform(), ha="right", va="center", fontsize=7.2, color=RED)
         ax.axvline(r["canopy_opening"]["ti"], color=GREEN, lw=0.9, ls=":")
         ax.text(r["canopy_opening"]["ti"] + 0.1, 0.55, "canopy opens", rotation=90, transform=ax.get_xaxis_transform(), ha="left", va="center", fontsize=7.2, color=GREEN)
         ax.text(683.4, 0.40, "steady descent", transform=ax.get_xaxis_transform(), ha="center", fontsize=7.2, color=F1C)
@@ -212,7 +212,7 @@ def _descent(d, res, out, nm, color, fname, title, t_rel, steady_window, notes):
     ax.axhline(-fit[0], color=NAVY, lw=1.0, ls=":")
     ax.text(t.min() + 0.05, -fit[0] + 0.15, f"steady rate {-fit[0]:.2f} m/s", fontsize=7.5, color=NAVY, va="bottom")
     ax.set_ylabel("descent speed (m/s)")
-    ax.set_xlabel("time since release (s)" if nm == "F1" else "time since first packet of the record (s)")
+    ax.set_xlabel("time since the apex of the throw (s)" if nm == "F1" else "time since first packet of the record (s)")
     ax.set_ylim(min(0, v[np.isfinite(v)].min() - 0.3), max(8, np.nanmax(v) + 0.8))
     _save(fig, out, fname)
 
@@ -223,15 +223,15 @@ def fig_f1_descent(d, res, out):
 
     def n1(ax, t0):
         ax.axvline(0, color=RED, lw=0.9, ls=":")
-        ax.text(0.04, 0.04, "peak · 30.7 m", transform=ax.get_xaxis_transform(), color=RED, fontsize=7.2, ha="left")
+        ax.text(0.04, 0.04, "apex of the throw · 30.7 m", transform=ax.get_xaxis_transform(), color=RED, fontsize=7.2, ha="left")
         ax.axvline(r["canopy_opening"]["ti"] - t0, color=GREEN, lw=0.9, ls=":")
         ax.text(r["canopy_opening"]["ti"] - t0 + 0.05, 0.93, "canopy opens", transform=ax.get_xaxis_transform(), color=GREEN, fontsize=7.2, ha="left", va="top")
         ax.axvspan(0, r["canopy_opening"]["ti"] - t0, color=GOLD, alpha=0.15, lw=0)
-        ax.text((r["canopy_opening"]["ti"] - t0) / 2, 0.2, "free\nfall", transform=ax.get_xaxis_transform(), color="#9A6B00", fontsize=7, ha="center")
+        ax.text((r["canopy_opening"]["ti"] - t0) / 2, 0.2, "falling,\ncanopy\nloading", transform=ax.get_xaxis_transform(), color="#9A6B00", fontsize=7, ha="center")
     # use samples from the peak on
     d1 = d.copy()
     _descent(d1[(d1.name != "F1") | (d1.ti >= 677.3)], res, out, "F1", F1C, "04_f1_descent.png",
-             "Flight 1 · height and descent speed from release", t_rel, (679.111, 684.92), [n1])
+             "Flight 1 · height and descent speed from the apex of the throw", t_rel, (679.111, 684.92), [n1])
 
 
 def fig_f2_descent(d, res, out):
@@ -314,16 +314,16 @@ def fig_f1_accel(d, res, out):
 
     def mk(axs):
         ax = axs[1]
-        ax.annotate(f"release jolt\n{r['release']['a_g']:.1f} g", xy=(r["release"]["ti"], r["release"]["a_g"]),
+        ax.annotate(f"the throw\n{r['release']['a_g']:.1f} g", xy=(r["release"]["ti"], r["release"]["a_g"]),
                     xytext=(r["release"]["ti"] - 2.6, r["release"]["a_g"] - 0.8), fontsize=7.5, color=RED,
                     arrowprops=dict(arrowstyle="->", color=RED, lw=0.9))
         ax.annotate(f"canopy opening\n{r['canopy_opening']['a_g']:.1f} g", xy=(r["canopy_opening"]["ti"], r["canopy_opening"]["a_g"]),
                     xytext=(r["canopy_opening"]["ti"] + 1.1, r["canopy_opening"]["a_g"] + 1.6), fontsize=7.5, color=GREEN,
                     arrowprops=dict(arrowstyle="->", color=GREEN, lw=0.9))
-        ax.text(675.0, 1.55, "carried: ≈ 1 g,\nvehicle on its side", ha="center", fontsize=7.2, color=MUTED)
+        ax.text(675.0, 1.55, "held in hand: ≈ 1 g,\nvehicle on its side", ha="center", fontsize=7.2, color=MUTED)
         ax.text(683.0, 3.0, "descent: ≈ 1 g\nwith canopy swing", ha="center", fontsize=7.2, color=F1C)
         axs[0].axvspan(677.9, 678.8, color=GOLD, alpha=0.18, lw=0)
-        axs[0].text(678.35, 0.04, "free fall", transform=axs[0].get_xaxis_transform(), ha="center", fontsize=7, color="#9A6B00")
+        axs[0].text(678.35, 0.04, "falling", transform=axs[0].get_xaxis_transform(), ha="center", fontsize=7, color="#9A6B00")
     _accel(d, res, out, "F1", F1C, "07_f1_acceleration.png", "Flight 1 · accelerometer, three axes and magnitude", [mk])
 
 
@@ -449,10 +449,10 @@ def fig_sound(d, res, out):
     ax = fig.add_subplot(gs[0])
     f1 = d[(d.name == "F1") & d.SN.notna()]
     f2 = d[(d.name == "F2") & d.SN.notna()]
-    ax.plot(f1.ti - 677.768, f1.SN, color=F1C, lw=1.6, marker="o", ms=4, label="Flight 1 (t = 0 at the release peak)")
+    ax.plot(f1.ti - 677.768, f1.SN, color=F1C, lw=1.6, marker="o", ms=4, label="Flight 1 (t = 0 at the apex of the throw)")
     ax.plot(f2.ti - f2.ti.iloc[0], f2.SN, color=F2C, lw=1.6, marker="o", ms=4, label="Flight 2 (t = 0 at first packet)")
     ax.axvline(0, color=RED, lw=0.8, ls=":")
-    ax.annotate("release", xy=(0, 36.3), xytext=(0.8, 40), fontsize=7.2, color=RED, arrowprops=dict(arrowstyle="-", color=RED, lw=0.7))
+    ax.annotate("throw", xy=(0, 36.3), xytext=(0.8, 40), fontsize=7.2, color=RED, arrowprops=dict(arrowstyle="-", color=RED, lw=0.7))
     ax.set_xlabel("time (s)"); ax.set_ylabel("microphone level (mV peak-to-peak)")
     ax.set_ylim(0, 44)
     ax.set_title("Acoustic level")
@@ -719,22 +719,26 @@ def fig_gps(d, res, out):
 
 def fig_physics(d, res, out):
     fig, axs = plt.subplots(1, 3, figsize=(7.6, 2.95), gridspec_kw=dict(wspace=0.42))
+    S = res["F1"]["physics"]["canopy_area_m2"]
     ax = axs[0]
     m = np.linspace(0.40, 0.60, 30)
     for nm, c in (("F1", F1C), ("F2", F2C)):
         r = res[nm]["physics"]
         v = r["rate_mps"]; rho = r["rho_kgm3"]
         ax.plot(m * 1000, 2 * m * G0 / (rho * v ** 2), color=c, lw=2, label=f"Flight {nm[1]}  ({v:.2f} m/s)")
+    ax.axhline(0.75 * S, color=MUTED, lw=1, ls="--"); ax.text(402, 0.75 * S + 0.04, "model: Cd 0.75 × 6 ft canopy", fontsize=6.4, color=MUTED)
     ax.axvspan(450, 550, color=GOLD, alpha=0.14, lw=0)
     ax.set_xlabel("vehicle mass (g)"); ax.set_ylabel("drag area  Cd·S  (m²)")
     ax.set_title("Drag area"); ax.legend(loc="upper left", fontsize=6.6)
     ax = axs[1]
-    cd = np.linspace(0.6, 1.6, 40)
     for nm, c in (("F1", F1C), ("F2", F2C)):
-        cds = res[nm]["physics"]["by_mass"]["500"]["cds_m2"]
-        ax.plot(cd, 100 * 2 * np.sqrt(cds / cd / np.pi), color=c, lw=2, label=f"Flight {nm[1]} (500 g)")
-    ax.set_xlabel("canopy drag coefficient Cd"); ax.set_ylabel("equivalent flat diameter (cm)")
-    ax.set_title("Canopy size"); ax.legend(loc="upper right", fontsize=6.6)
+        r = res[nm]["physics"]
+        ax.plot(m * 1000, 2 * m * G0 / (r["rho_kgm3"] * r["rate_mps"] ** 2) / S, color=c, lw=2, label=f"Flight {nm[1]}")
+    ax.axhspan(0.75, 0.85, color=GREEN, alpha=0.18, lw=0); ax.text(402, 0.865, "vented / flat circular\n0.75 – 0.85", fontsize=6.2, color="#15803d", va="bottom")
+    ax.axvspan(450, 550, color=GOLD, alpha=0.14, lw=0)
+    ax.set_xlabel("vehicle mass (g)"); ax.set_ylabel("canopy drag coefficient Cd")
+    ax.set_title("Cd of the 6 ft canopy"); ax.legend(loc="lower right", fontsize=6.6)
+    ax.set_ylim(0.45, 1.15)
     ax = axs[2]
     tst = np.linspace(5, 60, 100)
     for nm, c in (("F1", F1C), ("F2", F2C)):
@@ -845,8 +849,8 @@ def fig_load_dist(d, res, out):
     fig, ax = plt.subplots(figsize=(7.2, 3.1))
     groups = []
     f1 = d[d.name == "F1"]
-    groups.append(("Carried\n(F1)", f1[f1.ti < 677.3].a_mag / G0, SKY))
-    groups.append(("Free fall\n(F1)", f1[(f1.ti >= 677.7) & (f1.ti < 678.5)].a_mag / G0, GOLD))
+    groups.append(("Held in hand\n(F1)", f1[f1.ti < 677.3].a_mag / G0, SKY))
+    groups.append(("Ballistic\n(F1)", f1[(f1.ti >= 677.7) & (f1.ti < 678.5)].a_mag / G0, GOLD))
     groups.append(("Steady\ndescent (F1)", f1[(f1.ti >= 679.0) & (f1.ti <= 684.95)].a_mag / G0, F1C))
     f2 = d[d.name == "F2"]
     groups.append(("Steady\ndescent (F2)", f2[f2.ti <= 118.0].a_mag / G0, F2C))
@@ -884,7 +888,7 @@ def fig_deck(d, res, out):
     for ax in axs:
         ax.axvline(677.472, color=RED, lw=0.9, ls=":")
         ax.axvline(678.735, color=GREEN, lw=0.9, ls=":")
-    axs[0].text(677.42, 0.55, "release", rotation=90, transform=axs[0].get_xaxis_transform(), ha="right", va="center", fontsize=7, color=RED)
+    axs[0].text(677.42, 0.55, "throw", rotation=90, transform=axs[0].get_xaxis_transform(), ha="right", va="center", fontsize=7, color=RED)
     axs[0].text(678.8, 0.55, "canopy", rotation=90, transform=axs[0].get_xaxis_transform(), ha="left", va="center", fontsize=7, color=GREEN)
     _save(fig, out, "27_flight1_all_channels.png")
 

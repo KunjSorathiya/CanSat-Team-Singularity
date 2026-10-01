@@ -2,11 +2,11 @@
 
 ## 1.1 The vehicle in one page
 
-<p class="lead">The CanSat is a can-sized satellite built around a Raspberry Pi Pico. A drone lifts it to 100&nbsp;ft (30.48&nbsp;m) and releases it; it deploys a parachute, descends well under the 5&nbsp;m/s limit, and streams rulebook-format telemetry over 433&nbsp;MHz LoRa from the moment it is switched on until well after it lands. Everything it senses is also written to an onboard microSD card.</p>
+<p class="lead">The CanSat is a can-sized satellite built around a Raspberry Pi Pico. It is launched from 100&nbsp;ft (30.48&nbsp;m) — by drone in the competition, and from a building terrace in the two flights flown on 30&nbsp;September — deploys a 6&nbsp;ft parachute, descends well under the 5&nbsp;m/s limit, and streams rulebook-format telemetry over 433&nbsp;MHz LoRa from the moment it is switched on until well after it lands. Everything it senses is also written to an onboard microSD card.</p>
 
 <div class="kpis">
-<div class="kpi f1"><b>29.4<small>m</small></b><span>release height above the pad, Flight 1 — 96 ft (corrected height; the pressure peak at release is 100.8 ft)</span></div>
-<div class="kpi f2"><b>29.6<small>m</small></b><span>drop height, Flight 2 — 97 ft</span></div>
+<div class="kpi f1"><b>29.4<small>m</small></b><span>launch height above the ground-floor pad, Flight 1 — 96 ft; the arc of the throw peaks at 100.8 ft</span></div>
+<div class="kpi f2"><b>29.6<small>m</small></b><span>launch height above the landing point, Flight 2 — 97 ft</span></div>
 <div class="kpi f1"><b>2.27<small>m/s</small></b><span>steady descent rate, Flight 1 (± 0.05) — 2.2× inside the 5&nbsp;m/s limit</span></div>
 <div class="kpi f2"><b>1.88<small>m/s</small></b><span>steady descent rate, Flight 2 (± 0.02) — 2.7× inside the limit</span></div>
 <div class="kpi tl"><b>3.09<small>Hz</small></b><span>telemetry rate in the armed flight configuration; 1.43&nbsp;Hz in the pre-arm configuration; rulebook floor 1&nbsp;Hz</span></div>
@@ -19,29 +19,29 @@ The system has four parts that were designed together:
 
 1. **A flight computer** — one RP2040, running a single non-blocking loop that reads an MPU-6500 IMU, a BMP280 barometer, a NEO-6M GPS and a microphone, calibrates itself on the pad, detects its own launch and landing, and transmits a rulebook packet every 0.97&nbsp;s (three packets) or 0.70&nbsp;s.
 2. **A radio link** — an SX1278 (RA-02) LoRa module at 433&nbsp;MHz, SF7 / 125&nbsp;kHz, with the official launch sync word, shared by the vehicle and by the team's own ground bridge.
-3. **A structure and recovery system** — a 3D-printed PETG frame with an egg chamber, a sewn canopy sized by a closed-form descent model, a manual switch and a power LED.
+3. **A structure and recovery system** — a 3D-printed PETG frame with an egg chamber, a 6&nbsp;ft (1.83&nbsp;m) sewn canopy, sized by a closed-form descent model, a manual switch and a power LED.
 4. **A ground station and an analysis pipeline** — a bridge Pico, a CRC-framed USB link, a parsing/validating Python pipeline, a single-file web console, and the post-flight analysis that produced Chapter 14.
 
 @@fig f-arch | d01_architecture.png | The whole system: the vehicle, the radio link, and the team's ground station beside the organizers' official stations. | 60%@@
 
 ## 1.2 What flew on 30 September 2026
 
-Two descents were recorded by the organizers' ground station, plus two shorter captures. All four are analysed in Chapter 14.
+Both flights were launched by hand from a building terrace at about 30&nbsp;m — the height the rulebook equates to an eight-storey building — rather than from a drone. The organizers' ground station recorded the two descents, plus two shorter captures. All four are analysed in Chapter 14.
 
 @@tab t-sessions | The four captures in the organizers' log@@
 
 | Capture | Packets | What it shows |
 |---|---:|---|
-| **Flight 1** — 18:25 IST | 41 (P-1585 … P-1625) | The vehicle in `FLIGHT` state, carried at 29 m, released, free fall, canopy opening, steady descent to within a few metres of the ground. **41 of 41 packets received** |
+| **Flight 1** — 18:25 IST | 41 (P-1585 … P-1625) | Powered on at the ground floor, carried up the building, held at the terrace edge at 29 m, **thrown**, canopy opening, steady descent to within a few metres of the landing surface. The vehicle reports `FLIGHT` throughout. **41 of 41 packets received** |
 | **Flight 1, after landing** | 41 (P-001 … P-041) | 13 s on the ground after landing: the flight computer re-initialised itself, resumed telemetry at the max rate within about 2 s, re-calibrated in 5.5 s and re-armed |
-| **Flight 2** — 18:46 IST | 18 received of 24 sent (P-148 … P-171) | A 29.6 m descent, 15.4 s long, from the first packet to touchdown |
+| **Flight 2** — 18:46 IST | 18 received of 24 sent (P-148 … P-171) | Powered on at the terrace, thrown, and a 29.6 m descent, 15.4 s long, from the first packet to touchdown |
 | **Pad capture** — 17:55 IST | 2 (P-420, P-421) | Two packets from a vehicle standing on the ground at 0 m |
 
 @@fig f-compare | 06_flight_comparison.png | The two descents on one axis, with the 5 m/s limit drawn as a reference line, and the steady rates. | 92%@@
 
 <div class="callout result"><div class="ct">The headline</div>
 
-**Both flights descended at roughly 38–45 % of the permitted rate.** Flight 1 settled at 2.27&nbsp;m/s within 1.2 s of release and held it to the end of the record; Flight 2 held 1.88&nbsp;m/s from its first sample to touchdown. The slower descent buys a longer, gentler flight — 15.4&nbsp;s for the 29.6&nbsp;m of Flight 2 — and a landing equivalent to a fall of only 18–26&nbsp;cm.
+**Both flights descended at roughly 38–45 % of the permitted rate.** Flight 1 settled at 2.27&nbsp;m/s about 1.3 s after the apex of the throw and held it to the end of the record; Flight 2 held 1.88&nbsp;m/s from its first sample to touchdown. The slower descent buys a longer, gentler flight — 15.4&nbsp;s for the 29.6&nbsp;m of Flight 2 — and a landing equivalent to a fall of only 18–26&nbsp;cm.
 
 </div>
 

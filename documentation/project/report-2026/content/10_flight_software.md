@@ -99,7 +99,7 @@ case MissionState::flight: {
 
 | Constant | Value | Reason |
 |---|---:|---|
-| `launch_altitude_gain_m` | 15 m | Half the 30 m drone lift: far above barometric noise (0.1 m) and anything a hand carries the vehicle through, yet reached with a full 15 m of the lift still ahead |
+| `launch_altitude_gain_m` | 15 m | Half the 30 m launch height: far above barometric noise (0.1 m) and anything a hand carries the vehicle through, yet reached with a full 15 m of the climb still ahead — whether the climb is a drone lift or a staircase |
 | `launch_accel_mps2` | 30 m/s² | 3 g — above any handling, below any real throw or launch |
 | `launch_confirm_ms` | 300 ms | Longer than a knock, shorter than any launch |
 | `arming_delay_ms` | 3000 ms | Start-up transients (supply settling, filter convergence) are over |

@@ -46,6 +46,8 @@ IST = pd.Timedelta(hours=5, minutes=30)
 TEAM = "CAN-Team-25"
 LORA_SENSITIVITY_DBM = -123.0   # SX127x typical, SF7 / 125 kHz (Semtech datasheet)
 RULEBOOK_MAX_DESCENT = 5.0
+CANOPY_DIAMETER_M = 6 * 0.3048          # the flown canopy: 6 ft flat diameter
+CANOPY_AREA_M2 = np.pi * (CANOPY_DIAMETER_M / 2) ** 2
 
 
 # ------------------------------------------------------------------------------------------
@@ -282,6 +284,11 @@ def analyse_flight1(f1: pd.DataFrame, d: pd.DataFrame) -> dict:
     kp = int(f1.h_base.idxmax())
     r["peak"] = dict(packet=int(f1.loc[kp, "P"]), ti=float(f1.loc[kp, "ti"]),
                      reported_m=float(f1.loc[kp, "A"]), corrected_m=float(f1.loc[kp, "h_base"]))
+    # the throw: the vehicle rises above its hold height before it falls -- a projectile arc
+    rise = float(f1.loc[kp, "h_base"] - hover.h_base.mean())
+    r["throw"] = dict(rise_m=rise, v0_mps=float(np.sqrt(2 * G0 * rise)), t_to_apex_s=float(np.sqrt(2 * G0 * rise) / G0),
+                      observed_t_s=float(f1.loc[kp, "ti"] - hover.ti.iloc[-1]),
+                      hold_s=float(hover.ti.iloc[-1] - hover.ti.iloc[0]))
     # canopy opening: the largest specific force after the peak
     after = f1[f1.index > kp]
     kc = int(after.a_mag.iloc[:6].idxmax())
@@ -363,12 +370,14 @@ def tilt_deg(g: pd.DataFrame) -> np.ndarray:
 
 def physics(v: float, rho: float) -> dict:
     """What a steady descent rate implies, for each mass in the 450-550 g band."""
-    res = {"rho_kgm3": rho, "rate_mps": v, "by_mass": {}}
+    res = {"rho_kgm3": rho, "rate_mps": v, "canopy_area_m2": CANOPY_AREA_M2, "canopy_diameter_m": CANOPY_DIAMETER_M, "by_mass": {}}
+    # what the descent model predicts for this canopy (vented flat, Cd 0.75) at this air density
+    res["model_rate_by_mass"] = {f"{int(m*1000)}": float(np.sqrt(2 * m * G0 / (rho * 0.75 * CANOPY_AREA_M2))) for m in (0.45, 0.50, 0.55)}
     for m in (0.45, 0.50, 0.55):
         cds = 2 * m * G0 / (rho * v ** 2)
         ke = 0.5 * m * v ** 2
         res["by_mass"][f"{int(m*1000)}"] = dict(
-            cds_m2=cds, ke_J=ke, momentum_Ns=m * v,
+            cds_m2=cds, cd_6ft=cds / CANOPY_AREA_M2, ke_J=ke, momentum_Ns=m * v,
             equiv_fall_height_m=v ** 2 / (2 * G0),
             force_25ms_N=m * v / 0.025, force_10ms_N=m * v / 0.010,
             d_cd075_cm=100 * 2 * np.sqrt(cds / 0.75 / np.pi),

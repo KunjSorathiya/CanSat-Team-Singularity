@@ -331,7 +331,7 @@ def mission_profile():
     ax.plot(t[3:], h[3:], color=NAVY, lw=2.2)
     ax.axhline(30.48, color=RED, lw=1.0, ls="--")
     ax.text(0.2, 31.2, "100 ft = 30.48 m", color=RED, fontsize=7.4)
-    marks = [(1, 1.2, "1  power on\\ntelemetry begins"), (5, 14, "2  lifted by drone\\naltitude tracked"), (12.1, 33, "3  release"),
+    marks = [(1, 1.2, "1  power on\\ntelemetry begins"), (3.4, 14, "2  carried up the building\\naltitude tracked"), (11.4, 33, "3  thrown from the terrace"),
              (13.5, 33.0, ""), (14.0, 22.5, "4  canopy opens"), (18, 14, "5  steady descent\\n≈ 2 m/s"), (22.5, 4, "6  landing"),
              (25, 8.0, "7  post-impact\\ntelemetry · recovery")]
     for x, y, s in marks:
@@ -391,18 +391,21 @@ def airtime_cycle():
 
 def descent_model():
     fig, axs = plt.subplots(1, 2, figsize=(7.4, 3.2), gridspec_kw=dict(wspace=0.8))
-    D = np.linspace(0.5, 1.2, 60)
+    D = np.linspace(0.5, 2.3, 90)
     ax = axs[0]
     for m, c in ((0.45, F1C), (0.50, TEAL), (0.55, F2C)):
         for T_c, ls in ((15, "-"), (35, "--")):
             rho = descent.air_density(101325.0, T_c)
             v = [descent.terminal_velocity(m, descent.circular_area(d), 0.75, rho) for d in D]
             ax.plot(D * 100, v, color=c, ls=ls, lw=1.8, label=f"{int(m*1000)} g, {T_c} °C" if True else None)
-    ax.axhline(5, color=RED, lw=1.1, ls="--"); ax.text(51, 5.1, "5 m/s limit", color=RED, fontsize=7.4)
-    ax.axvline(80, color=GREEN, lw=1.1); ax.text(81, 2.0, "80 cm design floor", color=GREEN, fontsize=7.2)
+    ax.axhline(5, color=RED, lw=1.1, ls="--"); ax.text(100, 5.15, "5 m/s limit", color=RED, fontsize=7.4)
+    ax.axvline(80, color=MUTED, lw=1.0, ls=":"); ax.text(81, 8.6, "80 cm\nsizing floor", color=MUTED, fontsize=6.8, va="top")
+    ax.axvline(182.9, color=GREEN, lw=1.4); ax.text(180, 8.6, "6 ft canopy\nflown", color=GREEN, fontsize=7.2, va="top", ha="right", fontweight="bold")
+    ax.scatter([182.9, 182.9], [2.27, 1.88], color=[F1C, F2C], s=60, zorder=5, edgecolor="white")
+    ax.text(190, 3.0, "Flight 1\n2.27 m/s", fontsize=6.6, color=F1C, va="center"); ax.text(190, 1.0, "Flight 2\n1.88 m/s", fontsize=6.6, color=F2C, va="center"); ax.set_xlim(45, 260)
     ax.set_xlabel("flat canopy diameter (cm)"); ax.set_ylabel("terminal descent rate (m/s)")
-    ax.set_title("Vented flat canopy, Cd = 0.75"); ax.legend(fontsize=6.0, ncol=2, loc="upper right", bbox_to_anchor=(1.0, 0.98))
-    ax.set_ylim(0, 11)
+    ax.set_title("Model (vented flat, Cd 0.75) and the flights"); ax.legend(fontsize=5.6, ncol=2, loc="upper center", bbox_to_anchor=(0.62, 0.78))
+    ax.set_ylim(0, 9)
     ax = axs[1]
     cds = {"Cruciform 0.85": 0.85, "Flat circular 0.80": 0.80, "Vented flat 0.75": 0.75, "Hemisph. 1.40": 1.40}
     rho = descent.air_density(101325.0, 15)

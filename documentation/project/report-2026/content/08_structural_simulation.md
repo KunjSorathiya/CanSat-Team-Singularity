@@ -50,7 +50,7 @@ The 100 N touchdown assumption can now be set against the flights. From the meas
 | **Flight 1, measured** | 450 – 550 g | 2.27 m/s | 1.02 – 1.25 N·s | **41 – 50 N** | 102 – 125 N |
 | **Flight 2, measured** | 450 – 550 g | 1.88 m/s | 0.85 – 1.03 N·s | **34 – 41 N** | 85 – 103 N |
 
-@@fig f-touchdown-load | 20_descent_physics.png | Left: drag area (Cd·S) implied by each flight's steady rate against vehicle mass. Centre: the equivalent flat canopy diameter against its drag coefficient. Right: mean touchdown force against stopping time, with the 100 N study load. | 100%@@
+@@fig f-touchdown-load | 20_descent_physics.png | Left: drag area (Cd·S) implied by each flight's steady rate against vehicle mass, with the model's value for the 6 ft canopy. Centre: the drag coefficient of the 6 ft canopy that each flight implies. Right: mean touchdown force against stopping time, with the 100 N study load. | 100%@@
 
 **The flights landed with 40–50 % of the momentum the structure was analysed for.** The accelerometer agrees: Flight 2's touchdown packet read 1.57 g and the steady-descent swing peaks stayed below 2 g in both flights. Even in the unlikely case of a 10 ms stop the force (≈ 85 – 125 N) is the same order as the 100 N the study covers — against an isotropic safety factor of 23.
 
