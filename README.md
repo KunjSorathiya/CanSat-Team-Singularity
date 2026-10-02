@@ -103,9 +103,9 @@ on record (reported by the team as in the 450–550 g band).
 
 ## Contents
 
+- [Flight results](#flight-results)
 - [Mission](#mission)
 - [System architecture](#system-architecture)
-- [Flight results](#flight-results)
 - [Quick start](#quick-start)
 - [How the flight software works](#how-the-flight-software-works)
 - [Telemetry protocol](#telemetry-protocol)
@@ -142,9 +142,11 @@ build without a local secrets header has no uplink at all; the flight image enab
 deliberately.
 
 > [!WARNING]
-> **The drone must not lift off until the vehicle has armed.** Launch detection is disabled
-> for the whole command window, so a lift that starts inside it is never detected and the
-> vehicle stays in `READY`. Wait for the status field to read armed — `ST-R11…` — and the
+> **The drone must not lift off until the vehicle has armed.** (At the 2026-09-30 launch the
+> vehicle was carried up a building instead; Flight 1 was armed before the climb, and Flight 2,
+> powered at the terrace, was thrown still inside its command window.) Launch detection is
+> disabled for the whole command window, so a lift that starts inside it is never detected and
+> the vehicle stays in `READY`. Wait for the status field to read armed — `ST-R11…` — and the
 > station's rate to rise to about 3.1 Hz. See the [runbook](documentation/operations/runbook.md).
 
 Once armed there is no launch command, no manual trigger and no way to change the rate: the
@@ -159,7 +161,8 @@ up [F-20](documentation/testing/bring-up-record.md#findings): the vehicle **decl
 while hovering under the drone**, three seconds into any hover and up to twelve seconds before
 release, because 1 g with no vertical motion describes a hover exactly as well as it describes
 a landing. **Fixed by a descent gate** — a landing may not be declared until a real descent
-has been observed — and the same reproduction now lands three seconds after touchdown.
+has been observed — and the same reproduction now lands three seconds after touchdown. (On 2026-09-30 the same
+logic met a terrace throw: standing still at the edge is the hover condition, and the gate held.)
 
 ---
 
@@ -443,17 +446,17 @@ receipt time and the reason.
 | Telemetry | 10 cm IPEX-to-SMA RG1.13 cable | 2 | Radio to antenna | 🟢 Fitted |
 | Sensors | Sold as MPU-9250; **delivered an MPU-6500** — accelerometer + gyroscope, no magnetometer | 1 | Acceleration and angular rate | 🟠 **Working, but it is the wrong part:** `WHO_AM_I` `0x70`, and `0x0C` never answers ([F-1](documentation/hardware/receiving-inspection.md#findings)). Bias and noise measured |
 | Sensors | GY-BMP280-3.3 | 1 | Pressure, altitude, temperature | 🟢 **Verified on the bus at `0x76`**, 83.0 Hz output as predicted |
-| Sensors | NEO-6M GPS with EEPROM | 1 | Position and timing | 🟠 **Talking** — all six NMEA sentences, 0 checksum errors. **No fix acquired yet** |
+| Sensors | NEO-6M GPS with EEPROM | 1 | Position and timing | 🟢 **Talking** — all six NMEA sentences, 0 checksum errors. **Fixes in every rich packet in flight** (2026-09-30) |
 | Sensors | LM393 sound module, 4-pin | 1 | Additional sensor — acoustic level | 🟢 **Fitted, logged and transmitted.** [F-15](documentation/testing/bring-up-record.md#findings) is closed: the level reaches the SD log as `sound_mv_pp` and the air as `SN-`, which is what the organizers' ruling on extra-sensor points requires |
 | Storage | microSD card reader | 1 | Onboard logging | 🟠 **Writes 100/100 and sustains ~300 writes/s.** Still carries [F-12](documentation/testing/bring-up-record.md#findings), an unexplained intermittent |
 | Structure | `Cansat_D1`, white PETG, 3D printed | 1 | Airframe and egg chamber | 🟢 **Printed, assembled and weighed 2026-09-12.** ≈ 128.7 g with the egg chamber, inside a 280 g vehicle |
-| Power | Orange 3.7 V 1500 mAh 25C 1S LiPo | 1 | Primary power | 🟢 Behind the fitted ON/OFF switch. **No Schottky**, so never connect USB with the battery in |
-| Power | Manual ON/OFF switch + power LED | 1 each | PWR-001, PWR-002 | 🟢 **Fitted** (reported by the team, 2026-09-14) |
-| Recovery | 80 cm flat canopy | 1 | Descent at ≤ 5 m/s | 🟢 **Sewn and fitted** (reported by the team, 2026-09-14). Never deployed or dropped |
+| Power | Orange 3.7 V 1500 mAh 25C 1S LiPo | 1 | Primary power | 🟢 Behind the fitted rocker ON/OFF switch. **No Schottky**, so never connect USB with the battery in |
+| Power | Manual ON/OFF switch + power LED | 1 each | PWR-001, PWR-002 | 🟢 **Fitted** (reported by the team, 2026-09-14): rocker switch on short leads outside the frame, not in the CAD cut-out |
+| Recovery | **6 ft (1.83 m) sewn canopy** | 1 | Descent at ≤ 5 m/s | 🟢 **Flown twice, 2026-09-30:** 2.27 and 1.88 m/s. (80 cm is only the model's guaranteed floor.) |
 | Power | ~~3.3 V regulated supply~~ | — | ~~Peripheral rail~~ | 🟢 **Not needed.** The Pico's own rail carries every load, measured |
 | Prototyping | 10 × 10 cm universal PCB | 2 | Electronics mounting | 🟢 One built, one spare. **Note it does not fit a 12 cm section laid flat** |
 
-**Built and submitted.** The only part of the design never fitted is the **Schottky
+**Built, submitted and flown.** The only part of the design never fitted is the **Schottky
 diode**. See [mechanical/README.md](mechanical/README.md) and
 [avionics/power](avionics/power/README.md).
 </details>
@@ -501,18 +504,18 @@ fact that they did.
    MPU-6500 ([receiving-inspection.md](documentation/hardware/receiving-inspection.md)).
    That is precisely the risk this blocker existed to catch.
 
-### What was left at submission
+### What was left at submission, and what the flight answered
 
-Nothing is blocking now: the vehicle is submitted. These are the things that were not done, kept
-visible because the launch will be the first test of each.
+Nothing is blocking now: the vehicle is submitted and has flown. These are the things that were
+not done at submission; the right-hand column records what the 2026-09-30 launch settled.
 
-| Not done | Consequence |
+| Not done | Consequence — updated 2026-10-02 |
 |---|---|
-| **No drop test** | The descent rate and the drag coefficient are modelled only. The launch is the first descent the canopy has made |
+| **No drop test** | **Answered by the flight:** 2.27 ± 0.05 and 1.88 ± 0.02 m/s measured, Cd 0.57–1.00 implied. The launch was the canopy's first descent |
 | **Schottky diode not fitted** | USB back-powers the LiPo. **Never connect a USB cable while the battery is connected** |
-| **Final mass not recorded** | Ballasted into the band, but no number is on record, so the flight's descent rate cannot be checked against the model without weighing it |
-| **No build photographs in the repository** | Mandatory media, and section D's build-quality points are judged from them |
-| **The official stations never tested end to end** | The organizers' receiver code was read and designed against, not run against |
+| **Final mass not recorded** | Still not on record (reported by the team as in the 450–550 g band); the model is compared across the whole band, 450–550 g |
+| **No build photographs in the repository** | **Now present:** assembled vehicle, board and ground-station captures under [`documentation/project/report-2026/figures/photos/`](documentation/project/report-2026/figures/photos/) |
+| **The official stations never tested end to end** | **Answered by the flight:** the organizers' ground station received 102 distinct packets at sync word `0xA5` |
 
 ---
 
@@ -535,7 +538,7 @@ bash tools/build_host.sh
 | Python (simulations) | Descent model: canopy sizing, the closed-form fall against both its own limits, ISA air density, the mass-tolerance argument | ✅ **40 / 40** |
 | Python (post-flight analysis) | Recovers a synthetic flight's known descent rate, drag coefficient, spin, drift and lost packet; the notebook runs cell by cell | ✅ **37 / 37** |
 | Web console (Node) | Framing, parser, validator, link health and bridge status, extracted from `index.html` | ✅ **71 / 71** |
-| Documented claims | Numbers in the documentation checked against the source that defines them — test counts, the generated netlist, and the descent model's canopy diameter included | ✅ **306 / 306** |
+| Documented claims | Numbers in the documentation checked against the source that defines them — test counts, the generated netlist, and the descent model's canopy diameter included | ✅ **307 / 307** |
 | Pico syntax | 11 translation units against SDK stubs | ✅ All OK |
 
 Highlights of what is actually proven: the emitted packet matches the rulebook format byte
@@ -544,11 +547,11 @@ arming cannot trigger a launch; invalid mandatory data suppresses a packet witho
 consuming its number; `crc16_ccitt("123456789") == 0x29B1`; and the vehicle and the bridge
 are proven to configure the same radio modem.
 
-**What is not covered:** the mechanical system, a real descent, and any of it in flight.
-Everything above runs without hardware. The sensors, the radio link, the card and the power
-rail are no longer in this list — they have been measured, and the numbers are in
-[bring-up-record.md](documentation/testing/bring-up-record.md) — but a bench is not a flight,
-and none of this is evidence that the vehicle flies.
+**What the suites do not cover:** the mechanical system and a real descent. Everything above
+runs without hardware (6,132 automated checks in all, the 307 documented claims included). The
+sensors, the radio link, the card and the power rail were measured on the bench
+([bring-up-record.md](documentation/testing/bring-up-record.md)), and the vehicle then flew:
+the flight evidence is [`analysis/flight-2026-09-30/`](analysis/flight-2026-09-30/), not this table.
 **Details:** [test-plan.md](documentation/testing/test-plan.md)
 
 ---
@@ -559,34 +562,35 @@ and none of this is evidence that the vehicle flies.
 <summary><b>Full requirements table (30 items)</b></summary>
 
 `Implemented` means the software exists and is tested on the host. It never means the
-requirement is satisfied in flight.
+requirement is satisfied in flight; where the 2026-09-30 launch measured something, the row
+says so and points to the [flight analysis](analysis/flight-2026-09-30/).
 
 | Requirement | Our implementation | Status |
 |---|---|---|
 | Team of 3–5 students | Team information not recorded | ⬜ TBD |
-| Self-built, no prefabricated kit | Board hand-built, structure printed from the team's own CAD, canopy sewn | 🟢 Built; photographs not in the repository |
+| Self-built, no prefabricated kit | Board hand-built, structure printed from the team's own CAD, canopy sewn | 🟢 Built; photographs now in the final report |
 | Egg payload and cushioned chamber | **Chamber printed and fitted.** The team elected not to fly an egg, so PAY-001 is forgone by choice and PAY-002 is built | 🟢 Chamber built, no egg |
-| Descent system such as a parachute | **80 cm canopy sewn and fitted**, sized by [`simulations/descent.py`](simulations/descent.py) | 🟢 Built; never deployed |
-| Altitude, pressure, temperature | BMP280 driver + Bosch compensation, tested against the datasheet vector | 🟡 Implemented, hardware unverified |
+| Descent system such as a parachute | **6 ft (1.83 m) canopy sewn and fitted**; the model in [`simulations/descent.py`](simulations/descent.py) guarantees ≤ 5 m/s down to an 80 cm floor | 🟢 **Flown twice** |
+| Altitude, pressure, temperature | BMP280 driver + Bosch compensation, tested against the datasheet vector | 🟢 **Flown:** altitude read to ±0.03 m of its own formula; 29.5 m drop recorded |
 | Gyroscope and accelerometer | MPU-9250-family driver + datasheet scaling, tested | 🟢 **Read on hardware:** bias, noise and acquisition rate recorded |
 | Roll, pitch, yaw, X/Y/Z acceleration fields | Mahony quaternion filter over accelerometer, gyroscope and magnetometer; yaw is magnetic once calibrated and labelled `YR-M`/`YR-G` either way | 🟠 Implemented; **the delivered IMU has no magnetometer**, so yaw is gyro-integrated and drifts. Roll and pitch are still absolutely referenced by gravity |
-| Continuous telemetry, power-on to recovery | Automatic; continues in every state including `FAULT` | 🟡 Implemented, unverified |
+| Continuous telemetry, power-on to recovery | Automatic; continues in every state including `FAULT` | 🟢 **Flown:** 102 distinct packets received; telemetry restarted by itself after the watchdog reset |
 | At least one packet per second | **1.43 Hz** (700 ms), sized from *measured* airtime rather than the model, which reads 1.8 % low. **The rulebook figure is a floor this vehicle cannot be configured onto:** `validate_config()` refuses any period above 950 ms and a `static_assert` refuses to compile one, so a build physically cannot ship at or below 1 Hz. The ground station reports whether what arrived cleared it | 🟢 **Rate demonstrated on a closed link**, at the 1 Hz configuration it then carried |
 | Correct team identifier in every packet | Formatter enforces it; `CAN-Team-XX` is rejected | 🟢 Implemented and enforced |
 | Required packet format, numbering from `P-001` | Byte-exact formatter, tested against the rulebook example | 🟢 Implemented and tested |
-| Sync words `0xA5` launch, `0xF3` test | Both images fly `0xA5`, which the organizers' station listens on; `RadioMode` can still select `0xF3` | 🟡 Implemented, link unverified |
+| Sync words `0xA5` launch, `0xF3` test | Both images fly `0xA5`, which the organizers' station listens on; `RadioMode` can still select `0xF3` | 🟢 **Received** by the organizers' station at `0xA5` |
 | Others powered off during another team's launch | Runbook procedure, executed with the fitted switch and confirmed by the dark power LED | 🟡 Documented and equipped |
 | Manual ON/OFF switch and visible power LED | **Both fitted** (reported by the team, 2026-09-14). The power LED was designed onto the rail so it lights the instant the switch closes | 🟢 Fitted; immediate-on not observed on record |
-| Automatic telemetry at power-on | No manual trigger anywhere in the firmware | 🟡 Implemented, unverified |
-| Descent rate ≤ 5 m/s | 80 cm canopy fitted. Across the 450–550 g band the model gives **4.37–5.00 m/s over 6.45–7.28 s** | 🟡 Computed; no drop test |
-| Stable descent, intact after landing | Structure and canopy built; **never dropped** | 🟡 Built, untested |
-| ≥ 5 s of telemetry after impact | `LANDED` holds 5 s; config validation refuses less | 🟡 Implemented and tested |
+| Automatic telemetry at power-on | No manual trigger anywhere in the firmware | 🟢 **Flown:** both flights began transmitting at power-on |
+| Descent rate ≤ 5 m/s | 6 ft canopy flown: **2.27 ± 0.05 m/s** (Flight 1) and **1.88 ± 0.02 m/s** (Flight 2). The model's 80 cm floor gave 4.37–5.00 m/s over 6.45–7.28 s; for the 6 ft canopy it gives 1.97–2.18 m/s | 🟢 **Measured**, well inside the limit |
+| Stable descent, intact after landing | Swing ≤ 18° (F1) and ≤ 46° (F2); touchdown ≈ 0.8–1.4 J; the vehicle kept transmitting after Flight 1 | 🟢 Flown; intact (the vehicle restarted itself and was heard again) |
+| ≥ 5 s of telemetry after impact | `LANDED` holds 5 s; config validation refuses less | 🟢 **Heard for 12.95 s / 41 packets** after Flight 1 |
 | Size and mass limits | **Size:** 118.5 × 115.0 × 110.0 mm against 21 cm × a 12 cm sided box, confirmed with the organizers. **Mass:** 280 g assembled without a parachute on 2026-09-12, then **ballasted into the 450–550 g band** before submission (reported by the team, 2026-09-14) | 🟢 Both inside the limits; final mass not on record |
 | Dual-ground-station evaluation | Bridge firmware implemented | 🟡 Implemented, compatibility unverified |
-| Four hours for post-launch analysis | CSV export + documented workflow; graphs not produced | 🟡 Partial |
-| Preliminary and final reports | **Final report submitted 2026-09-14** — [`documentation/project/final-report.md`](documentation/project/final-report.md), with `.docx` and `.pdf` beside it | 🟢 Submitted; results await the launch |
+| Four hours for post-launch analysis | CSV export + documented workflow; the mandatory graphs, descent rates and link statistics are in [`analysis/flight-2026-09-30/`](analysis/flight-2026-09-30/) | 🟢 Produced |
+| Preliminary and final reports | Final report submitted 2026-09-14 ([`final-report.md`](documentation/project/final-report.md), `.docx`, `.pdf`). **Post-flight final report with the results:** [`CanSat-2026-Final-Project-Report.pdf`](documentation/project/CanSat-2026-Final-Project-Report.pdf) | 🟢 Submitted; flight results now reported |
 | Google Docs submission with permissions | Submitted (reported by the team, 2026-09-14) | 🟢 Submitted |
-| Photos, video, social-media links | No submission evidence | ⬜ Not started |
+| Photos, video, social-media links | Photographs are in the final report; no video or social-media links on record | 🟡 Photos only |
 | Disqualification conditions avoided | No compliance evidence | ⬜ TBD |
 
 Full checklist with evidence columns and development gates:
@@ -602,7 +606,7 @@ below are now single-valued:
 | Was contradictory | Now stated |
 |---|---|
 | **Dimensions** | **21 cm (+7 cm max for the egg chamber) × 12 cm**, stated identically on page 4 and page 10 |
-| **Launch altitude** | **100 ft, released from a drone**, stated identically in the mission profile and the launch guidelines |
+| **Launch altitude** | **100 ft, released from a drone**, stated identically in the mission profile and the launch guidelines. (The 2026-09-30 launch threw the vehicle from a ≈ 29.5 m terrace instead.) |
 | **Mass** | **500 g (±10%)**; exceeding size or mass by more than 10% is a disqualification |
 
 The mechanical design is no longer blocked on the organizers.
@@ -642,10 +646,11 @@ avionics/              per-subsystem summaries against what was measured
 electrical/
   schematics/          machine-readable netlist, generated from the firmware
   PCB/                 board layout — perfboard today, nothing fabricated
-mechanical/            envelope, mass budget, canopy spec  (nothing built)
+mechanical/            envelope, mass budget, canopy spec, Fusion 360 studies
   CAD/  drawings/
 simulations/           descent model + tests
 analysis/              post-flight analysis: notebook, one-command CLI, synthetic flight, tests
+  flight-2026-09-30/   the real flight: organizers' log, scripts, figures, results.json
 tools/                 host build, Pico syntax check, LoRa link-budget calculator,
                        netlist and drawing generators, documentation-claim checker,
                        SD-card and flight-log utilities, SDK stubs
@@ -655,7 +660,8 @@ documentation/
   mission/             concept of operations — the flight, minute by minute
   design/              architecture, protocol, wiring, electrical, link budget
   hardware/            BOM, inspection, assembly, compatibility, GPIO map, datasheets
-  project/             timeline, phases, risks, scoring
+  project/             timeline, phases, risks, scoring, final reports
+    report-2026/       source of the post-flight final report (python build.py)
   testing/             test plan and the bring-up measurement record
   operations/          runbook and launch-day procedure
   audit/               repository audits
@@ -667,6 +673,8 @@ documentation/
 
 | Document | What it is for |
 |---|---|
+| **[Final Project Report (2026, PDF)](documentation/project/CanSat-2026-Final-Project-Report.pdf)** | **The post-flight report** (≈ 118 pages) — the whole project and the 2026-09-30 flight results, chapter 14. Built from [`report-2026/`](documentation/project/report-2026/). Supersedes the 14 Sep submission below |
+| **[Flight analysis 2026-09-30](analysis/flight-2026-09-30/)** | The two real descents: the organizers' log, every figure, and `results.json` holding every number quoted in this README |
 | [Concept of Operations](documentation/mission/concept-of-operations.md) | The mission from power-on to recovery: what happens, when, and what each part is doing |
 | [Software Architecture](documentation/design/software-architecture.md) | How the code is organised and why — flowcharts, fault model, timing budget |
 | [Wiring Diagrams](documentation/design/wiring.md) | Signal wiring, pin table, bus rules, power tree, bring-up order |
@@ -676,12 +684,12 @@ documentation/
 | [Project Timeline](documentation/project/timeline.md) | History, phase plan, critical path, risk register |
 | [Test Plan](documentation/testing/test-plan.md) | What is tested, what is not, and the hardware test plan |
 | [Bring-Up Record](documentation/testing/bring-up-record.md) | Every prediction paired with what was actually measured, and twenty-one findings |
-| **[Final Project Report](documentation/project/final-report.md)** | **The whole project in one document** — mission, requirements, architecture, components, electrical, mechanical, simulations, firmware, protocol, testing, timeline, findings and lessons learned. Also as [`.docx`](documentation/project/CanSat-2026-Final-Report.docx) and [`.pdf`](documentation/project/CanSat-2026-Final-Report.pdf) |
+| [Submission report (14 Sep)](documentation/project/final-report.md) | The report as submitted before the flight — mission, requirements, architecture, components, electrical, mechanical, simulations, firmware, protocol, testing, timeline, findings and lessons learned. Also as [`.docx`](documentation/project/CanSat-2026-Final-Report.docx) and [`.pdf`](documentation/project/CanSat-2026-Final-Report.pdf). Written before any flight; superseded by the report above |
 | [Scoring Assessment](documentation/project/scoring-assessment.md) | Where the project stands against the 200-point rulebook, and the cheapest points left |
 | [Operations Runbook](documentation/operations/runbook.md) | Configuration, builds, launch day, troubleshooting |
 | [Avionics](avionics/README.md) · [Electrical](electrical/README.md) · [Mechanical](mechanical/README.md) | Per-subsystem summaries: parts, measurements, open items |
 | [Simulations](simulations/README.md) | The descent model — canopy sizing, descent time, telemetry yield |
-| [Post-flight analysis](analysis/README.md) | **The four-hour analysis, ready before the launch** — a notebook and a one-command CLI that produce the mandatory graphs, the descent rate and drag coefficient, and a summary |
+| [Post-flight analysis](analysis/README.md) | **The four-hour analysis tooling** — a notebook and a one-command CLI that produce the mandatory graphs, the descent rate and drag coefficient, and a summary |
 | [Repository Audit](documentation/audit/2026-09-04-repository-audit.md) | File-by-file verification of every claim made here |
 | [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) | What changed; how to work on it |
 
@@ -689,11 +697,12 @@ documentation/
 
 <div align="center">
 
-**Submitted 2026-09-14. Nothing in this repository is claimed as flown.**
+**Submitted 2026-09-14. Flown 2026-09-30.**
 
-The software is built and tested. The board is built, and every device on it has answered on
-a bench. The structure is printed, the canopy and the switch are fitted, and the vehicle is
-in the mass band. **The launch is still ahead, and it will be the first time the vehicle
-descends under its canopy.**
+The software is built and tested. The board is built, and it flew twice: thrown from a
+terrace at 29.5 m, it came down under its 6 ft canopy at **2.27 and 1.88 m/s**, and the
+organizers' ground station received **102 distinct packets**. Results:
+[Flight results](#flight-results) · [final report](documentation/project/CanSat-2026-Final-Project-Report.pdf) ·
+[analysis](analysis/flight-2026-09-30/). Source: <https://github.com/KunjSorathiya/CanSat-Team-Singularity>
 
 </div>

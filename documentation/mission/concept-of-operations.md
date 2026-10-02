@@ -4,10 +4,14 @@ What happens, in order, from the moment the switch closes to the moment the vehi
 in someone's hands — and what the vehicle, the ground station and the operators are each
 doing at every point.
 
-**Status: 2026-09-14 — submitted, launch pending.** No lift has been flown. This document
-describes the **sealed flight image** that was submitted: a five-minute command window from
-power-on, then max rate, recalibration and arming by itself. Every timing below is either a firmware
-constant, a computed figure, or a bench measurement, and each says which it is.
+**Status: 2026-10-02 — flown.** The vehicle made two descents at the competition launch on
+30 September 2026. This document was written for the **sealed flight image** submitted on
+14 September: a five-minute command window from power-on, then max rate, recalibration and
+arming by itself. The sections below keep the **rulebook plan** — a drone lift and release —
+and the timings, each a firmware constant, a computed figure or a bench measurement as it
+says. **The launch itself was a terrace throw, not a drone flight**; how it went is in
+[How the launch actually went](#how-the-launch-actually-went), and the numbers are in
+[`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md).
 
 > [!IMPORTANT]
 > **This document found a defect, and it is fixed.** The vehicle declared a landing during a
@@ -26,6 +30,7 @@ constant, a computed figure, or a bench measurement, and each says which it is.
 - [The data budget](#the-data-budget)
 - [What is autonomous, and what is not](#what-is-autonomous-and-what-is-not)
 - [Failure behaviour, phase by phase](#failure-behaviour-phase-by-phase)
+- [How the launch actually went](#how-the-launch-actually-went)
 - [What is still unknown](#what-is-still-unknown)
 
 ---
@@ -149,8 +154,9 @@ tracking anything real.
 **Vehicle.** Free fall until the canopy takes load, then a terminal descent. Nothing in the
 firmware knows a release happened; it is already in `FLIGHT` and stays there.
 
-**Numbers**, from [`simulations/descent.py`](../../simulations/descent.py), for the 80 cm
-canopy that was fitted and a vehicle ballasted into the 450–550 g band:
+**Numbers**, from [`simulations/descent.py`](../../simulations/descent.py), for the **80 cm
+canopy — the model's guaranteed minimum**, not the canopy that flew (that was 6 ft, 1.83 m;
+see [below](#how-the-launch-actually-went)) — and a vehicle ballasted into the 450–550 g band:
 
 | Case | Rate | Descent time | Packets at 3.11 Hz |
 |---|---:|---:|---:|
@@ -158,9 +164,9 @@ canopy that was fitted and a vehicle ballasted into the 450–550 g band:
 | 500 g, ISA 15 °C | 4.61 m/s | 6.94 s | ~21 |
 | 550 g, 35 °C — the sizing case | 5.00 m/s | 6.45 s | ~20 |
 
-**The submitted mass is not recorded**, so the flight cannot be placed on one row until the
-vehicle is weighed. **And none of these is measured** — no drop test was made, so the drag
-coefficient under every row is assumed.
+**The submitted mass is not recorded** (reported by the team to be in the band), so the
+flight cannot be placed on one row. **These rows were not measured before launch** — the
+drag coefficient under every row was assumed; the flights' measured rates are below.
 
 **About twenty packets of descent go over the air**, one in three of them carrying GPS and
 sound. At the 1.43 Hz this document was first written against it would have been nine. The
@@ -359,17 +365,57 @@ and replays. It does not stop somebody who knows the password.
 
 ---
 
+## How the launch actually went
+
+**Added 2026-10-02.** The plan above is the rulebook's: a drone lifts the vehicle to 100 ft
+and releases it. **The competition launch on 30 September 2026 did not use a drone.** The
+vehicle was carried up a building and **thrown by hand like a projectile from a terrace** at
+about 29.4–29.6 m (96–97 ft — the rulebook's "100 ft ≈ an eight-storey building"), under a
+**6 ft (1.83 m) canopy**: the 80 cm figure above is the model's floor, and 6 ft is 2.3× the
+diameter and 5.2× the area. Two descents were recorded by the organizers' ground station
+([`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md), every number in
+`results.json`; final report chapter 14). Packets are counted as **received** only.
+
+**The drone logic still applied.** Carrying the vehicle up the building met the 15 m climb
+condition, and standing still at the terrace edge is the same condition as hovering under a
+drone, so the [descent gate](#the-fix-the-descent-gate) is what stopped a landing being
+declared there.
+
+| | Flight 1 | Flight 2 |
+|---|---|---|
+| Powered | 18:14:34 IST, ground floor; window closed and armed about 18:19, then carried up (`ST-F111` the whole record) | 18:44:07 IST, at the terrace; still in the 1.43 Hz command window (`ST-R003`), so its altitude zero is the terrace |
+| Throw | 18:25:51 (P-1599), 5.2 g impulse, apex 30.7 m, canopy loaded ~0.97 s after apex at 2.1 g | about 18:45:50, 29.6 m drop in 15.4 s, peak load 1.93 g |
+| Steady descent | **2.27 ± 0.05 m/s** (temperature-corrected; 2.16 m/s from the transmitted altitude) | **1.88 ± 0.02 m/s** |
+| Packets received | 41 (3.09 Hz, gaps 0.374 / 0.296 / 0.297 s) | 18 |
+| Swing | at most 18° | at most 46° |
+
+- **Descent rate.** The model for the 6 ft canopy predicted 1.97–2.18 m/s across 450–550 g
+  (2.07 at 500 g); the flights read +9 % and −9 % against that. The rulebook's 5 m/s limit
+  was met with a wide margin. Implied Cd 0.57–0.69 and 0.82–1.00 against the assumed 0.75.
+- **Post-impact.** After Flight 1 the vehicle restarted itself about 2 s after the end of
+  the record (consistent with the 2 s watchdog), calibrated in 5.5 s, re-armed and was heard
+  for **12.95 s / 41 packets**, against the 5 s required.
+- **Link.** RSSI −109 to −79 dBm; margin at least 14 dB (mean 31 dB) over the −123 dBm
+  sensitivity; packets at most 188 bytes.
+- **Not claimed.** No egg result; the submitted mass was not weighed on record.
+
+---
+
 ## What is still unknown
+
+**Update 2026-10-02:** several rows below were answered by the launch — the real descent
+rate, link performance at 30 m, and the lift profile (there was none: a terrace throw). The
+table is kept as written on 14 September, with the answers in the right-hand column.
 
 | Unknown | Why it matters | Where it gets answered |
 |---|---|---|
-| **The lift profile** — climb rate, hover duration, release method | Directly drives [F-20](#the-hover-problem-f-20), and the packet budget above assumes numbers nobody has confirmed | Organizers, or a rehearsal |
-| Link performance at 30 m under a swinging canopy | About twenty descent packets is a thin dataset to lose any of | The launch |
-| Real descent rate | The 4.37–5.00 m/s is a model with an unmeasured drag coefficient. No drop test was made before submission | The launch — time it from the SD log |
+| **The lift profile** — climb rate, hover duration, release method | Directly drives [F-20](#the-hover-problem-f-20), and the packet budget above assumes numbers nobody has confirmed | Organizers, or a rehearsal. **Answered 2026-09-30:** a carry up a building and a hand throw, no hover |
+| Link performance at 30 m under a swinging canopy | About twenty descent packets is a thin dataset to lose any of | The launch. **Answered:** margin at least 14 dB; 41 and 18 packets received |
+| Real descent rate | The 4.37–5.00 m/s is a model with an unmeasured drag coefficient. No drop test was made before submission | The launch — time it from the SD log. **Answered:** 2.27 and 1.88 m/s under a 6 ft canopy |
 | Barometric altitude drift over a multi-minute session | The ground reference is retaken when the command window closes, then held for the flight | Gate 9 endurance |
 | Yaw over a 3-minute mission | Measured drifting ~70° over 180 s. The delivered IMU is a six-axis **MPU-6500** with no magnetometer, so there is no absolute reference to catch it and every packet declares `YR-G` ([F-1](../hardware/receiving-inspection.md#findings)) | [F-13](../testing/bring-up-record.md#findings), [F-17](../testing/bring-up-record.md#findings) |
 | Whether a relative yaw is acceptable | Mandatory field, and the MPU-6500 cannot produce anything else | Organizers, open question 2 |
-| **The submitted mass** | Ballasted into the band, number not recorded. It decides which descent row the flight is compared against | Weigh it before the launch |
+| **The submitted mass** | Ballasted into the band, number not recorded. It decides which descent row the flight is compared against | Weigh it before the launch. **Not weighed on record**; reported by the team to be in the band |
 
 ---
 

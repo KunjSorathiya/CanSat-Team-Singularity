@@ -4,8 +4,8 @@ Complete map of the CanSat 2026 software: what each module does, how the layers 
 one another, and the exact control flow inside the flight loop and the ground pipeline.
 
 Everything described here exists in the repository and is exercised by the host test
-suites. Hardware behaviour (real sensors, real radio link, real SD card) is **not**
-verified — see [Verification status](#verification-status).
+suites, and the vehicle has since flown: two descents on 30 September 2026 (update 2026-10-02).
+See [Verification status](#verification-status) for what the flights did and did not exercise.
 
 ---
 
@@ -314,6 +314,18 @@ threshold at or below the at-rest threshold, since one sample could then mean bo
 is physical rather than threshold-tuned, which is the point — no hover, however long or
 however gentle the lift, can satisfy it.
 
+> **Update 2026-10-02 — what the flights showed.** The competition launch was not a drone
+> flight: the vehicle was carried up a building and thrown by hand from a terrace at about
+> 29.5 m. The logic above still applies. Carrying it up met the 15 m climb condition, and
+> standing still at the terrace edge for at least 4.3 s is the same condition as hovering
+> under a drone, which is the case the descent gate exists for. In Flight 1 the status field
+> read `ST-F111` (FLIGHT, armed, calibrated, 1 fault) for the whole record, through the stand-still,
+> the throw and the descent; the record ends 1.3 m above the landing surface, so the landing
+> transition itself was not exercised. The steady descent rates were 2.27 m/s (Flight 1) and
+> 1.88 m/s (Flight 2), against the 2 m/s gate threshold — a margin this document did not
+> anticipate when it sized the gate for a faster descent; see
+> [final report](../project/CanSat-2026-Final-Project-Report.pdf) chapter 14.
+
 Both failure directions are survivable and neither breaks rulebook compliance — telemetry
 continues in every state — but they are wrong in different ways. A missed landing leaves
 the mission reporting `FLIGHT` on the ground; a false landing starts the post-impact window
@@ -572,9 +584,10 @@ refactor.
 | Scope | Status |
 |---|---|
 | Flight core logic, telemetry format, parser, framing, GPS parsing, fix ageing and validation, state machine, attitude fusion, calibration, radio airtime, sensor timing, packet-size degradation, log recovery | **Verified on host** — 143 C++ suites with 4674 assertions, plus the LoRa driver (168) and the microSD driver (613) against simulated devices, 269 Python tests including an end-to-end trace, and 71 Node tests |
-| Pico HAL sources | **Compile-checked only** — `-fsyntax-only` against minimal SDK stubs |
-| Pico firmware image | **Not built here** — requires `PICO_SDK_PATH` and `pico_sdk_import.cmake` |
-| Sensors, radio link, SD card, power, antenna | **Verified on the soldered vehicle board, 2026-09-07.** Gates 3, 4, 5, 6 and 7 all pass: both I2C sensors on one bus, clean NMEA, airtime within 1.8 % of the model over 55 transmits, the card writing and sustaining ~300 writes/s, and the shared SPI0 bus clean across 200 interleaved rounds. See the [bring-up record](../testing/bring-up-record.md). **Not verified: the sound module, the battery divider, the switch and the antenna's range performance** |
+| Pico HAL sources | **Compile-checked only** on the host — `-fsyntax-only` against minimal SDK stubs; the real image ran on the vehicle (next rows) |
+| Pico firmware image | **Built and flown.** The host build needs `PICO_SDK_PATH` and `pico_sdk_import.cmake`; the image that flew on 2026-09-30 is the one these documents describe |
+| Sensors, radio link, SD card, power, antenna | **Verified on the soldered vehicle board, 2026-09-07.** Gates 3, 4, 5, 6 and 7 all pass: both I2C sensors on one bus, clean NMEA, airtime within 1.8 % of the model over 55 transmits, the card writing and sustaining ~300 writes/s, and the shared SPI0 bus clean across 200 interleaved rounds. See the [bring-up record](../testing/bring-up-record.md). Not verified at that date: the sound module, the battery divider, the switch and the antenna's range performance — the flights below settle the last |
+| **Flown, 2026-09-30** | **Verified in flight, update 2026-10-02.** Two descents recorded by the organizers' station ([`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/); final report chapter 14): 102 distinct packets received, RSSI −109…−79 dBm (link margin ≥ 14 dB), packets ≤ 188 B, the max-rate cadence at 3.09 Hz with gaps 0.374 / 0.296 / 0.297 s, sound present (the throw is the loudest packet of Flight 1, 36.3 mV p-p), GPS fixes in every rich packet. **The 2 s watchdog was observed to act:** after Flight 1 the vehicle restarted itself about 2 s after the end of the record, skipped the command window, resumed telemetry at packet 1 already in the max-rate pattern, calibrated in 5.5 s (`ST-R004` to `ST-R113`), re-armed, and was heard for 12.95 s (41 packets), against the rulebook's 5 s post-impact requirement. At rest afterwards: 1.000 g, altitude 0.0 ± 0.1 m after calibration. Not exercised: the landing transition (the log ends 1.3 m above the surface in Flight 1) and the egg payload, for which no result is claimed |
 
-Host tests prove logic, not flight readiness. See [test-plan.md](../testing/test-plan.md)
-for what is covered and what is still open.
+Host tests prove logic; the flights of 30 September 2026 are the hardware evidence. See
+[test-plan.md](../testing/test-plan.md) for what is covered and what is still open.

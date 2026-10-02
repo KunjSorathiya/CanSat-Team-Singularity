@@ -8,6 +8,10 @@
 It exists so the post-flight analysis can be written, tested and rehearsed before the launch, in
 the exact formats a real flight leaves behind.
 
+> **Update 2026-10-02.** The real flight has since happened; its data is in
+> [`analysis/flight-2026-09-30/data/`](../../analysis/flight-2026-09-30/data/), not here. This
+> directory stays synthetic.
+
 | File | Format | How it was made |
 |---|---|---|
 | [`sd-flight.csv`](sd-flight.csv) | The onboard log, as `tools/read_flight_log.py` extracts it — the firmware's column header, one row per transmitted packet | The generator, row by row in `TelemetryBuilder::sd_line()`'s layout |

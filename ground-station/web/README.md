@@ -7,7 +7,7 @@ for CanSat-2026 telemetry. Open it directly, or serve the folder.
 
 | Source | Use |
 |---|---|
-| **Demo** | replays a generated drone-lift mission (READY → FLIGHT → LANDED → RECOVERY) at 2 Hz (the demo generator paces itself; the flight radio runs at 1.43 Hz, see [link-budget.md](../../documentation/design/link-budget.md)); auto-starts, and deliberately injects one dropped packet and one duplicate so link health is exercised |
+| **Demo** | replays a generated drone-lift mission (the demo; the real launch was a hand throw from a terrace) (READY → FLIGHT → LANDED → RECOVERY) at 2 Hz (the demo generator paces itself; the flight radio runs at 1.43 Hz, see [link-budget.md](../../documentation/design/link-budget.md)); auto-starts, and deliberately injects one dropped packet and one duplicate so link health is exercised |
 | **File…** | replays a packet file — plain newline packets, a `raw_packets.tsv` from the Python logger, or a framed `.bin` |
 | **Web Serial** | connects to the ground-station bridge Pico over USB (Chrome/Edge, HTTPS or `localhost`), decoding the `$len,crc,payload` framing live |
 
@@ -32,6 +32,25 @@ for CanSat-2026 telemetry. Open it directly, or serve the folder.
 
 **Copy CSV** puts the accepted samples on the clipboard. **Pause** freezes the display
 while packets keep arriving and buffering. The theme toggle switches light and dark.
+
+## At the competition
+
+*Update 2026-10-02.* The console was used at the competition launch of 30 September 2026
+alongside the organizers' receiver. Three screenshots, copied here from the final report's
+figures:
+
+| Screenshot | View |
+|---|---|
+| [`gs-flight-profile.jpg`](gs-flight-profile.jpg) | Flight profile: altitude, vertical speed, pressure, temperature |
+| [`gs-attitude-gps.jpg`](gs-attitude-gps.jpg) | Attitude and GPS panels |
+| [`gs-track-3d.jpg`](gs-track-3d.jpg) | The 3D trajectory view |
+
+![Flight profile](gs-flight-profile.jpg)
+![Attitude and GPS](gs-attitude-gps.jpg)
+![3D track](gs-track-3d.jpg)
+
+The flight record analysed in the repository is the organizers' export, not this console's
+(see [`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md)).
 
 ## Ports
 

@@ -1,6 +1,6 @@
 # Simulations
 
-Models that answer a question the hardware cannot answer yet.
+Models that answer a question the hardware could not answer yet. As of 2026-10-02 the descent model has been compared with a real flight — see [model against flight](#model-against-flight-6-ft-canopy).
 
 Everything here is executable, runs in the host test suite, and is pinned to a value that
 can be checked by hand. A model whose numbers nobody can reproduce is a guess with a
@@ -104,6 +104,26 @@ smooth descent-rate curve out of the radio.
 between canopy types is larger than every other term in the model combined. The way to
 close it is a drop test with a known mass and a stopwatch, which then feeds a measured Cd
 back into this model — see [test-plan.md](../documentation/testing/test-plan.md).
+
+### Model against flight, 6 ft canopy
+
+*Added 2026-10-02.* The canopy that flew was **6 ft (1.83 m) in diameter**, not 80 cm: 80 cm
+is the model's guaranteed minimum (550 g, 35 °C, vented flat, Cd 0.75), 6 ft is 2.3× the
+diameter and 5.2× the area. The same model, run for the 6 ft canopy, against the descents
+measured from the organizers' log ([analysis/flight-2026-09-30/](../analysis/flight-2026-09-30/README.md)):
+
+| Quantity | Model (Cd 0.75) | Flight 1 | Flight 2 |
+|---|---|---|---|
+| Steady descent, 450–550 g | 1.97–2.18 m/s | **2.27 ± 0.05 m/s** | **1.88 ± 0.02 m/s** |
+| At 500 g, flight-day air | 2.07 m/s | +9 % | −9 % |
+| Descent time from 29.5 m | ≈ 14–15.6 s | — | 15.4 s (29.6 m) |
+| Cd implied for 450–550 g | 0.75 (assumed) | 0.57–0.69 | 0.82–1.00 |
+
+The model is within ±9 % of both flights, and the assumed Cd of 0.75 sits between their
+implied values. Finding 3 ("Cd is the dominant uncertainty") is borne out: two flights of the
+same canopy and vehicle differ by 19 % in rate. The descent was far slower than the 5 m/s
+cap, so finding 2 also holds in a different form: the descents are 14–15 s long, with 41 and
+18 packets received. The model was not re-fitted to the flights.
 
 [REC-005]: ../documentation/requirements/requirements.md
 [MIS-001]: ../documentation/requirements/requirements.md
