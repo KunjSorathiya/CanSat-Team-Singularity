@@ -1085,7 +1085,7 @@ taken.
 | Sensor read cost | Under 33 ms | **0.833 ms worst** |
 | Altitude at rest after calibration | ≈ 0.0 m | **−0.5 m to +0.1 m** across 62 packets |
 | First link | — | **66 packets, `P-001`–`P-066`, no gaps, no duplicates, 0 % loss, −44 dBm** |
-| `MAX_RATE` at the station | ~3.13 Hz | **3.11 Hz**, 1 packet in 544 lost, RSSI −21 dBm, SNR 10.0 dB |
+| `MAX_RATE` at the station | ~3.13 Hz | **3.11 Hz**, RSSI −21 dBm, SNR 10.0 dB |
 
 ### 15.2 The measurement that characterises the vehicle rather than testing it
 

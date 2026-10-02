@@ -4,7 +4,7 @@ One battery, one rail, and one part that never made it in.
 
 **Status: 2026-10-02 — flown.** *Update:* the vehicle flew on the LiPo through both competition
 descents and a self-restart (≈ 2 s after the end of the Flight 1 record, consistent with the 2 s
-watchdog) with no power fault recorded in the analysis, and it was powered by its switch (power at
+watchdog) and it was powered by its switch (power at
 the ground floor 18:14:34 for Flight 1, at the terrace 18:44:07 for Flight 2). No current or battery
 life was measured. *As written 2026-09-14:* the rail is measured and holds under every load tried.
 The **switch, the power LED and the battery divider are fitted**; the **Schottky diode is

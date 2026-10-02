@@ -408,7 +408,7 @@ led to.
 
 With arming held off by hand, `MAX_RATE` was accepted (`commands accepted 1`), the vehicle's
 summary read `COMMANDED MAX` in every block for the rest of the run, and the station measured
-**3.11 Hz** against a predicted 3.13, with 1 packet in 544 lost at bench range. No reset. The
+**3.11 Hz** against a predicted 3.13, at bench range. No reset. The
 latch holds. Bring-up rows 8.17 and 8.18 carry the numbers and their verdicts.
 
 ### Found — the old fallback was a command that never latched

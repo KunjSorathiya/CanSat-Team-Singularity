@@ -3,8 +3,8 @@
 The radio link, the packet, and the onboard log.
 
 **Status: 2026-10-02 — flown.** The link closed end to end on the bench on 2026-09-07, one range
-test was made on 2026-09-10, and the max-rate pattern was measured at **3.11 Hz with 1 packet in
-544 lost** (bench record, 2026-09-14). **Update 2026-10-02:** it was then transmitted from a
+test was made on 2026-09-10, and the max-rate pattern was measured at **3.11 Hz**
+(bench record, 2026-09-14). **Update 2026-10-02:** it was then transmitted from a
 descending vehicle. At the competition on 2026-09-30 the organizers' ground station received
 **102 distinct packets** on sync word `0xA5` — a pad capture (2), Flight 1 (41, plus 41 after
 the post-flight restart) and Flight 2 (18). Measured in flight: RSSI −109…−79 dBm (about 14 dB
@@ -146,7 +146,7 @@ Read it back with [`tools/read_flight_log.py`](../../tools/read_flight_log.py).
 | Item | Note |
 |---|---|
 | ~~**The official sync word `0xA5` has never been tried**~~ | **Closed 2026-09-30:** the organizers' station received the flight on `0xA5`. *As written 2026-09-14:* only `0xF3` has linked. Both Picos now fly `0xA5`, so the next bench run is its first try — and a run against the organizers' receiver code on an ESP32 is the test that matters |
-| **Range** | *Flight 2026-09-30 covered a few tens of metres' slant range only (terrace throw); no long-range test is on record.* Every RSSI row past bench range was empty: 10 m, 100 m, 500 m, 1 km, and the range at which loss reaches 5 % |
+| **Range** | *Flight 2026-09-30 was a terrace throw at about 30 m height; no long-range test is on record.* Every RSSI row past bench range was empty: 10 m, 100 m, 500 m, 1 km, and the range at which loss reaches 5 % |
 | **Loss over 500 packets** | The bench run was 66 |
 | **CRC errors on the USB link** | Row 8.3, never counted over a long run |
 | **SD log against received telemetry** | Row 8.15. The card should be complete where the radio has gaps; nobody has diffed them |
