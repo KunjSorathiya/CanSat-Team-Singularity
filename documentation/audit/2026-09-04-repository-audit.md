@@ -547,3 +547,5 @@ answer from the organisers.
 
 **Audit complete.** Re-run this audit after hardware bring-up, when the 🟡 rows can start
 becoming ✅.
+
+**Update 2026-10-02.** This audit is a record of its date and is unchanged. The vehicle has since been built and flown (competition launch, 30 September 2026); the hardware bring-up this note anticipates was completed. For the outcome see the [final report](../project/CanSat-2026-Final-Project-Report.pdf) and the [flight analysis](../../analysis/flight-2026-09-30/).

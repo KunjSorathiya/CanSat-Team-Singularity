@@ -309,7 +309,7 @@ def diagrams():
   rankdir=LR;
   a [label="Datasheet / rulebook\\nrequirement", {GREY}];
   b [label="Constant or rule in code\\n(source named in a comment)", {BLUE}];
-  c [label="Host test\\n(6131 checks)", {PURP}];
+  c [label="Host test\\n(6132 checks)", {PURP}];
   d [label="Bench measurement\\n(bring-up record)", {TEALN}];
   e [label="Flight\\n(30 Sep 2026)", {GREENN}, penwidth=2.2];
   f [label="Documentation checker\\n(numbers in prose = numbers in code)", {GOLDN}];
@@ -440,7 +440,7 @@ def safety_factors():
 
 def test_suites():
     fig, ax = plt.subplots(figsize=(7.2, 3.3))
-    rows = [("Flight core (143 suites)", 4674, F1C), ("microSD driver", 613, PURPLE), ("Documented claims", 306, GOLD), ("Ground station (Python)", 143, TEAL),
+    rows = [("Flight core (143 suites)", 4674, F1C), ("microSD driver", 613, PURPLE), ("Documented claims", 307, GOLD), ("Ground station (Python)", 143, TEAL),
             ("LoRa driver", 168, F2C), ("Web console (Node)", 71, GREEN), ("LoRa airtime (Python)", 49, NAVY), ("Descent model", 40, SKY),
             ("Post-flight analysis", 37, MUTED), ("FAT32 reader", 30, RED)]
     rows = rows[::-1]
@@ -449,7 +449,7 @@ def test_suites():
         ax.text(r[1] + 40, i, f"{r[1]:,}", va="center", fontsize=7.6, fontweight="bold")
     ax.set_xscale("symlog", linthresh=100); ax.set_xlim(0, 12000)
     ax.set_xlabel("automated checks passing (log scale)")
-    ax.set_title("6,131 automated checks, all passing"); ax.grid(axis="y", visible=False)
+    ax.set_title("6,132 automated checks, all passing"); ax.grid(axis="y", visible=False)
     _save(fig, FIG, "c06_test_suites.png")
 
 

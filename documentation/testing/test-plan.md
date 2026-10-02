@@ -3,12 +3,22 @@
 What is tested automatically today, what each test proves, and what remains untested
 because it needs hardware.
 
-**Last run: 2026-09-04 — all suites pass.**
+**Last run: 2026-09-04 — all suites pass.** **Update 2026-10-02:** the vehicle flew on
+30 September 2026. The documented claims now number **307 / 307** and the automated checks
+total **6,132** (4674 flight, 613 sd, 168 sx1278, 30 fat, 143 ground Python, 49 tooling, 40
+simulations, 37 analysis, 71 Node, 307 documented claims). The flight tests that need a
+vehicle are now answered from the launch record — see
+[Flight evidence, 30 September 2026](#flight-evidence-30-september-2026).
 
 > [!IMPORTANT]
-> Automated tests prove *logic*, not flight readiness. Nothing in this document
-> establishes that a sensor reads correctly, that the radio link closes, or that the
-> vehicle survives a flight. Those require hardware and are all still open.
+> Automated tests prove *logic*, not flight readiness. Nothing in the automated results
+> below establishes that a sensor reads correctly, that the radio link closes, or that the
+> vehicle survives a flight. Those required hardware. **They were answered on 30 September
+> 2026**, when the vehicle made two descents at the competition launch; the evidence is in
+> [Flight evidence](#flight-evidence-30-september-2026) and in
+> [`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md). The status
+> columns of the two hardware and mission tables further down were written before that and
+> are left as they were, with the flight outcome added beneath them.
 
 ---
 
@@ -23,6 +33,7 @@ because it needs hardware.
 - [Not covered by automated tests](#not-covered-by-automated-tests)
 - [Hardware test plan](#hardware-test-plan)
 - [Mission test plan](#mission-test-plan)
+- [Flight evidence, 30 September 2026](#flight-evidence-30-september-2026)
 
 ---
 
@@ -106,7 +117,7 @@ earlier version of this workflow discarded exactly the lines that named the erro
 | Python tooling | `tools/link_budget.py`, and `tools/cad_dimensions.py` — the STEP reader the mechanical documents take their dimensions from, tested against hand-built STEP files with known extents, the trailing-dot real literal that first defeated it, a circle bulging past every vertex, and the two files it must refuse rather than under-measure | ✅ **49 / 49 tests** |
 | Python simulations | `simulations/descent.py` — canopy sizing, the closed-form fall against both of its own limits, ISA air density, and the mass-tolerance argument | ✅ **40 / 40 tests** |
 | Python post-flight analysis | `analysis/` — recovers a synthetic flight's known release time, descent rate, drag coefficient, spin, pendulum, drift and lost packet; the ISA-altitude correction; columns and thresholds matched to the firmware; the notebook executed cell by cell | ✅ **37 / 37 tests** |
-| Documented claims | `tools/check_doc_claims.py` — pin numbers, rates, watchdogs, packet sizes, UART timing, rulebook constants, the test counts on this page, and every link and heading anchor in the documentation | ✅ **306 / 306 claims** |
+| Documented claims | `tools/check_doc_claims.py` — pin numbers, rates, watchdogs, packet sizes, UART timing, rulebook constants, the test counts on this page, and every link and heading anchor in the documentation | ✅ **307 / 307 claims** |
 | Web console (Node) | Framing, parser, validator, link health, extracted from `index.html` | ✅ **71 / 71 tests** |
 | Pico syntax check | 11 translation units | ✅ All OK |
 
@@ -590,6 +601,40 @@ Sequence follows the [bring-up order](../design/wiring.md#bring-up-order).
 | 6 | Continuous telemetry | Unbroken from power-on through recovery | ⬜ |
 | 7 | Full rehearsal | Complete [runbook](../operations/runbook.md) executed end to end | ⬜ |
 | 8 | Analysis workflow | Required graphs produced inside the four-hour window | ⬜ |
+
+---
+
+## Flight evidence, 30 September 2026
+
+**Added 2026-10-02.** The tables above record the plan as written before the launch; their
+status marks are history. The vehicle flew twice at the competition launch and the
+organizers' ground station recorded it. It was **thrown by hand from a terrace at about
+29.5 m** (96-97 ft), not lifted by a drone: the rulebook plans a drone release, the launch
+used a terrace throw, and the canopy flown was **6 ft (1.83 m)**. Every number is in
+[`results.json`](../../analysis/flight-2026-09-30/results.json), produced by
+[`launch_analysis.py`](../../analysis/flight-2026-09-30/launch_analysis.py), and discussed
+in chapter 14 of the final report. Packets are counted as **received** only.
+
+| Test | Pass criterion | Flight evidence |
+|---|---|---|
+| Hardware 8 · Bench link | Packets received end to end | 102 distinct packets received over two flights and a pad capture |
+| Hardware 9 · Range test | Link closes at the launch distance | RSSI -109 to -79 dBm; link margin at least 14 dB (mean 31 dB) over the -123 dBm SF7 sensitivity |
+| Hardware 12 · Packet rate | Rate and airtime as computed | 3.09 Hz with gaps of 0.374 / 0.296 / 0.297 s, the designed pattern; packets at most 188 bytes, under the 200 byte ceiling |
+| Hardware 15 · Watchdog recovery | Reboot and telemetry resumes | After Flight 1 the vehicle restarted about 2 s after the end of the record, recalibrated in 5.5 s, re-armed and was heard again |
+| Hardware 16 · Power-on behaviour | Telemetry with no manual trigger | Powered at 18:14:34 and transmitting; a second power-on at the terrace at 18:44:07 was in the 1.43 Hz command window |
+| Mission 2 · Parachute deployment | Deploys after release | Canopy loaded about 0.97 s after apex at 2.1 g (Flight 1) |
+| Mission 3 · Descent rate | No more than 5 m/s | **2.27 +/- 0.05 m/s** (Flight 1) and **1.88 +/- 0.02 m/s** (Flight 2); model 1.97-2.18 m/s for the 6 ft canopy |
+| Mission 4 · Stable descent | No tumbling; structure survives | Swing at most 18 degrees (Flight 1) and 46 degrees (Flight 2); peak load 2.1 g; the vehicle kept transmitting after landing |
+| Mission 5 · Post-impact telemetry | At least 5 s after landing | Heard for **12.95 s / 41 packets** after Flight 1 |
+| Mission 6 · Continuous telemetry | Unbroken power-on to recovery | Two powered, transmitting descents recorded by the organizers' ground station |
+| Mission 7 · Full rehearsal | Runbook end to end | The launch was the first full execution; see [runbook](../operations/runbook.md#the-30-september-2026-launch-day) |
+| Mission 8 · Analysis workflow | Graphs inside the four-hour window | The analysis in `analysis/flight-2026-09-30/` produced them from the organizers' export |
+| Mission 1 · Egg chamber drop | Egg intact | **No egg result is claimed.** The chamber is built and in the frame; the team decision on the egg payload stands |
+
+Hardware rows not listed above (sensor, GPS, storage and power gates) were not exercised
+separately by the launch and keep their bench status. The flight did not fail any
+predicted limit; the predicted-versus-measured figures are in the
+[bring-up record](bring-up-record.md#flight-results-30-sep-2026).
 
 ---
 

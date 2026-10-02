@@ -1,4 +1,4 @@
-@@chapter 13 | Verification and bring-up | 6,131 automated checks on the host, 94 recorded bench measurements — and the prediction written down before each one.@@
+@@chapter 13 | Verification and bring-up | 6,132 automated checks on the host, 94 recorded bench measurements — and the prediction written down before each one.@@
 
 ## 13.1 The host test suite
 
@@ -25,10 +25,10 @@ compiles and runs every C++ suite, the Python suites and the Node suite, then ch
 | Python — simulations | Descent model against closed-form limits, ISA density, mass-tolerance argument | **40 / 40** |
 | Python — post-flight analysis | Recovers a synthetic flight's known descent rate, drag coefficient, spin, drift and lost packet; the notebook executed cell by cell | **37 / 37** |
 | Node — web console | Framing, parser, validator, link health, bridge status | **71 / 71** |
-| Documented claims | Numbers in the documentation checked against the source that defines them | **306 / 306** |
+| Documented claims | Numbers in the documentation checked against the source that defines them | **307 / 307** |
 | Pico syntax | 11 translation units against SDK stubs | All OK |
 
-**Total: 6,131 automated checks.**
+**Total: 6,132 automated checks.**
 
 ### What the tests prove
 
@@ -73,4 +73,4 @@ The airtime model survived contact with hardware to within 1.8 %. Chapter 14 add
 
 ## 13.4 The documentation checker
 
-`tools/check_doc_claims.py` has caught real errors repeatedly, including two during the writing of this report. A documentation set that cannot be checked drifts from the code within days; this one fails the build instead. It checks 306 claims, including the numbers in this report's source documents.
+`tools/check_doc_claims.py` has caught real errors repeatedly, including two during the writing of this report. A documentation set that cannot be checked drifts from the code within days; this one fails the build instead. It checks 307 claims, including the numbers in this report's source documents.

@@ -330,10 +330,12 @@ Final state, re-run from a fresh `git clone` with no build directory:
 | Host build and tests | `bash tools/build_host.sh` | All pass, zero warnings |
 | Strict warning set | `CXXFLAGS="… -Werror" bash tools/build_host.sh` | Clean |
 | Firmware syntax | `bash tools/check_pico_syntax.sh` | 11 / 11 `OK` |
-| Documented claims | `python tools/check_doc_claims.py` | 306 / 306 |
+| Documented claims | `python tools/check_doc_claims.py` | 307 / 307 |
 | Documented commands | run as written, from the directory each document names | All pass |
 | Internal links | every relative Markdown link resolved | 0 broken |
 | Web console | driven in a browser, demo and injected packets | No console errors |
 | Fresh clone | `git clone`, then the whole suite and a documented command, with no prior build state | All pass — every fixture and sample this pass added is tracked, and nothing depends on a built artefact |
 
 Each fix was additionally verified by reverting the change and confirming its test fails.
+
+**Update 2026-10-02.** This audit is a record of its date and is unchanged, except that the "Documented claims" row of the verification table now reads the checker's current total (307 / 307; it read 306 / 306 on the day), which the checker requires. The vehicle has since been built and flown (competition launch, 30 September 2026); the hardware bring-up this note anticipates was completed. For the outcome see the [final report](../project/CanSat-2026-Final-Project-Report.pdf) and the [flight analysis](../../analysis/flight-2026-09-30/).

@@ -1,5 +1,7 @@
 # Purchase list
 
+**Update 2026-10-02.** This list is the 2026-09-05 snapshot and is kept as written. The vehicle has since been built and flown (30 September 2026); the switch and LEDs were obtained and fitted (rocker switch on short leads outside the frame, power LED fitted). See the [final report](../project/CanSat-2026-Final-Project-Report.pdf).
+
 Everything still to buy, as of 2026-09-05, with what each item is for and where the
 requirement comes from. Prices are rough Indian retail and are there to show relative cost,
 not to be quoted at anyone.

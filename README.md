@@ -2,10 +2,12 @@
 
 # CanSat 2026
 
-**A can-sized satellite that lifts to launch altitude, deploys a parachute, carries an egg
+**A can-sized satellite that is carried to launch altitude, deploys a parachute, carries an egg
 chamber, and streams telemetry from power-on through recovery.**
 
-**Submitted 2026-09-14 · launch pending**
+**Submitted 2026-09-14 · flown 2026-09-30 · two descents, 102 distinct packets received**
+
+Repository: <https://github.com/KunjSorathiya/CanSat-Team-Singularity> · Team Singularity · `CAN-Team-25` · SVNIT Physics Club CanSat Competition 2026
 
 [![CI](https://github.com/KunjSorathiya/CanSat-Team-Singularity/actions/workflows/ci.yml/badge.svg)](https://github.com/KunjSorathiya/CanSat-Team-Singularity/actions/workflows/ci.yml)
 [![C++ tests](https://img.shields.io/badge/C%2B%2B%20tests-5485%20assertions-1b5e20)](documentation/testing/test-plan.md)
@@ -13,10 +15,12 @@ chamber, and streams telemetry from power-on through recovery.**
 [![Firmware](https://img.shields.io/badge/firmware-C%2B%2B17%20%C2%B7%20RP2040-0d47a1)](firmware/)
 [![Ground station](https://img.shields.io/badge/ground%20station-Python%20%C2%B7%20stdlib%20only-00695c)](ground-station/)
 [![Link](https://img.shields.io/badge/telemetry-433%20MHz%20LoRa-4527a0)](documentation/design/telemetry-protocol.md)
-[![Status](https://img.shields.io/badge/status-submitted%20%C2%B7%20launch%20pending-1b5e20)](documentation/project/timeline.md)
+[![Status](https://img.shields.io/badge/status-flown%202026--09--30%20%C2%B7%20two%20descents-1b5e20)](analysis/flight-2026-09-30/)
 [![Hardware](https://img.shields.io/badge/hardware-board%20built%20%C2%B7%20link%20closed-1b5e20)](documentation/testing/bring-up-record.md)
-[![Mechanical](https://img.shields.io/badge/mechanical-built%20%C2%B7%20canopy%20fitted%20%C2%B7%20in%20mass%20band-1b5e20)](mechanical/README.md)
+[![Mechanical](https://img.shields.io/badge/mechanical-flown%20%C2%B7%206%20ft%20canopy%20%C2%B7%202.27%20m%2Fs-1b5e20)](mechanical/README.md)
 
+[**Final report (PDF)**](documentation/project/CanSat-2026-Final-Project-Report.pdf) ·
+[**Flight analysis**](analysis/flight-2026-09-30/) ·
 [Mission profile](documentation/mission/concept-of-operations.md) ·
 [Architecture](documentation/design/software-architecture.md) ·
 [Wiring](documentation/design/wiring.md) ·
@@ -33,16 +37,67 @@ chamber, and streams telemetry from power-on through recovery.**
 
 | Layer | State |
 |---|---|
-| 🟢 **Submission** | **The CanSat and the final report were submitted on 2026-09-14** (reported by the team). The launch has not happened, so no flight result exists anywhere in this repository |
-| 🟢 **Software** | Flight core, telemetry protocol, ground station and web console **implemented and passing 5825 automated checks on the host**, including an end-to-end trace from the flight controller through the ground pipeline |
+| 🟢 **Flight** | **The vehicle flew on 2026-09-30** — two descents at the competition launch, recorded by the organizers' ground station. Steady descent **2.27 ± 0.05 m/s** and **1.88 ± 0.02 m/s** under the 6 ft canopy, from 29.5 m. See [Flight results](#flight-results) and the [analysis](analysis/flight-2026-09-30/) |
+| 🟢 **Submission** | The CanSat and the first final report were submitted on 2026-09-14 (reported by the team). The report written **after** the flight, with the results, is [`CanSat-2026-Final-Project-Report.pdf`](documentation/project/CanSat-2026-Final-Project-Report.pdf) |
+| 🟢 **Software** | Flight core, telemetry protocol, ground station and web console **implemented and passing 5825 automated checks on the host** (6,132 counting the 307 documented-claim checks), **and flown** — the flight image ran through two descents. Includes an end-to-end trace from the flight controller through the ground pipeline |
 | 🟢 **Firmware drivers** | **Every driver has run on real silicon** and its numbers are recorded — IMU, barometer, GPS, radio and microSD. **The flight image itself runs**: it was flashed, it printed its startup summary, it wrote a card, and it produced [F-16](documentation/testing/bring-up-record.md#findings) and [F-19](documentation/testing/bring-up-record.md#findings), which are defects only a running image could have found |
-| 🟢 **Hardware** | **The vehicle board is built and every device on it works** — **34 of 94 recorded measurements taken.** **The radio link closed end to end on 2026-09-07** — 66 packets, `P-001` to `P-066`, no gaps, no duplicates, 1.0000 Hz, −44 dBm at bench range, so Gate 8 has a bench link. Gates 3, 4, 5, 6 and 7 all pass on the soldered board — the IMU and barometer share I2C0 (`0x68` and `0x76`, `0x0C` correctly absent), the GPS emits clean NMEA at 162 B/s, the radio sends 5/5, 5/5 and 45/45 with airtimes within 1.8 % of the model, the card writes 100/100 and sustains ~300 writes/s, and the shared SPI0 bus passes every row. **Power is answered:** the Pico's own 3.3 V rail held **3.28–3.29 V through 45 back-to-back transmits** and 3.28–3.30 V at 100 % write duty, so no separate rail is needed. Sensor read costs 0.833 ms worst against a 33 ms period. **Open:** [F-12](documentation/testing/bring-up-record.md#findings), a card intermittent that failed three of its first four runs and has passed twelve since with the supply measured innocent; and [F-17](documentation/testing/bring-up-record.md#findings), **yaw measured drifting more than a full revolution in a 36.8-minute stationary log** — and, more usefully, holding to ±0.8° for the first 15 minutes before switching to 0.4 dps, which is **70° over a 3-minute flight** on a vehicle with no magnetometer; and [F-18](documentation/testing/bring-up-record.md#findings), a stationary GPS jumping 55.6 m in one second because nothing gates a fix on satellite count or HDOP. **Fitted before submission:** the manual ON/OFF switch and the power LED (reported by the team, 2026-09-14) and the battery divider (33 kΩ / 33 kΩ, ratio 2.0, never measured). **Not fitted: the Schottky diode** — so USB and the battery must never be connected together. The microphone reaches the air as `SN-` |
-| 🟢 **Mechanical** | **Built and in the mass band.** `Cansat_D1` was printed in **white PETG** and assembled on 2026-09-12 — electronics mounted, egg chamber fitted, **280 g without a parachute** on the scale. Before submission the **80 cm canopy was sewn and fitted** and the vehicle was **ballasted into the 450–550 g band** (reported by the team, 2026-09-14; the final mass is not recorded). Designed at **118.5 × 115.0 × 110.0 mm**, inside a 12 cm sided box confirmed by the organizers with **2.5 and 5.0 mm of clearance per side**. Three static-stress studies report **minimum safety factor ≥ 15**, derated for a printed part to **6 to 13**. In the band the canopy gives **4.37–5.00 m/s** by model. **Never done: a drop test** — the launch is the first descent |
+| 🟢 **Hardware** | **The vehicle board is built and every device on it works** — **34 of 94 recorded measurements taken.** **The radio link closed end to end on 2026-09-07** — 66 packets, `P-001` to `P-066`, no gaps, no duplicates, 1.0000 Hz, −44 dBm at bench range, so Gate 8 has a bench link. Gates 3, 4, 5, 6 and 7 all pass on the soldered board — the IMU and barometer share I2C0 (`0x68` and `0x76`, `0x0C` correctly absent), the GPS emits clean NMEA at 162 B/s, the radio sends 5/5, 5/5 and 45/45 with airtimes within 1.8 % of the model, the card writes 100/100 and sustains ~300 writes/s, and the shared SPI0 bus passes every row. **Power is answered:** the Pico's own 3.3 V rail held **3.28–3.29 V through 45 back-to-back transmits** and 3.28–3.30 V at 100 % write duty, so no separate rail is needed. Sensor read costs 0.833 ms worst against a 33 ms period. **Open:** [F-12](documentation/testing/bring-up-record.md#findings), a card intermittent that failed three of its first four runs and has passed twelve since with the supply measured innocent; and [F-17](documentation/testing/bring-up-record.md#findings), **yaw measured drifting more than a full revolution in a 36.8-minute stationary log** — and, more usefully, holding to ±0.8° for the first 15 minutes before switching to 0.4 dps, which is **70° over a 3-minute flight** on a vehicle with no magnetometer; and [F-18](documentation/testing/bring-up-record.md#findings), a stationary GPS jumping 55.6 m in one second because nothing gates a fix on satellite count or HDOP. **Fitted before submission:** a rocker ON/OFF switch on short leads outside the frame, and the power LED (reported by the team, 2026-09-14), and the battery divider (33 kΩ / 33 kΩ, ratio 2.0, never measured). **Not fitted: the Schottky diode** — so USB and the battery must never be connected together. The microphone reaches the air as `SN-`. **Flown 2026-09-30:** the board ran two flights, the link held at **−109…−79 dBm** (margin ≥ 14 dB over the −123 dBm SF7 sensitivity), and after Flight 1 it restarted itself through the 2 s watchdog, recalibrated and kept transmitting |
+| 🟢 **Mechanical** | **Built and in the mass band.** `Cansat_D1` was printed in **white PETG** and assembled on 2026-09-12 — electronics mounted, egg chamber fitted, **280 g without a parachute** on the scale. Before submission a **6 ft (1.83 m) canopy was sewn and fitted** — the 80 cm figure in the earlier documents is the model's guaranteed *minimum*, not what flew — and the vehicle was **ballasted into the 450–550 g band** (reported by the team, 2026-09-14; the final mass is not recorded). Designed at **118.5 × 115.0 × 110.0 mm**, inside a 12 cm sided box confirmed by the organizers with **2.5 and 5.0 mm of clearance per side**. Three static-stress studies report **minimum safety factor ≥ 15**, derated for a printed part to **6 to 13**. The model puts the 6 ft canopy at **1.97–2.18 m/s** across the band (the 80 cm floor would give 4.37–5.00 m/s). **Flown:** 2.27 and 1.88 m/s measured; touchdown energy ≈ 0.8–1.4 J. There was no separate drop test — the launch was the first descent |
 
 > [!IMPORTANT]
 > This project does not claim compliance for anything it has not evidenced. Owning a
 > component is not integration, and a passing test suite is not flight verification. Every
-> status in this README is written against that rule.
+> status in this README is written against that rule — and the flight numbers below come
+> from the organizers' ground-station log, not from the vehicle's own claims.
+
+---
+
+## Flight results
+
+**30 September 2026, SVNIT Physics Club CanSat Competition.** Two descents, recorded by the
+organizers' ground station (`analysis/flight-2026-09-30/data/Team-25-ground-station-log.xlsx`).
+Every number below is computed in [`analysis/flight-2026-09-30/`](analysis/flight-2026-09-30/)
+(`results.json`) and discussed in chapter 14 of the
+[final project report (PDF)](documentation/project/CanSat-2026-Final-Project-Report.pdf),
+whose source is [`documentation/project/report-2026/`](documentation/project/report-2026/).
+
+> [!IMPORTANT]
+> **It was not a drone flight.** The vehicle was carried up a building and **thrown by hand,
+> like a projectile, from a terrace** at ≈ 29.4–29.6 m (96–97 ft — the rulebook's "100 ft ≈ an
+> eight-storey building"). The rulebook plans a drone release; the competition used a terrace
+> throw. The launch logic was written for a drone lift and still applied: carrying the vehicle
+> up the building met the 15 m climb condition, and standing still at the terrace edge is the
+> same condition as hovering under a drone.
+
+| | Flight 1 | Flight 2 |
+|---|---|---|
+| Powered | ground floor, 18:14:34 IST; armed ~18:19 after the five-minute command window | **at the terrace**, 18:44:07, still in the command window (altitude zero is the terrace) |
+| Thrown | 18:25:51 (`P-1599`) — **5.2 g impulse**, apex 30.7 m (100.8 ft) | ≈ 18:45:50 |
+| Drop | from 29.4 m | **29.6 m (97 ft) in 15.4 s** |
+| **Steady descent rate** | **2.27 ± 0.05 m/s** (temperature-corrected, R² 0.991) | **1.88 ± 0.02 m/s** (R² 0.9988) |
+| Canopy load | 2.1 g, ~0.97 s after apex; peak transient speed 7.0 m/s | peak 1.93 g; touchdown reading 1.57 g |
+| Swing under canopy | ≤ 18° from vertical | ≤ 46° |
+| Packets received | **41** at 3.09 Hz (gaps 0.374 / 0.296 / 0.297 s, the designed pattern) | **18** |
+| RSSI | −109…−79 dBm (improves ~14 dB at the throw) | −106…−87 dBm |
+
+- **Descent rate:** both well under the 5 m/s limit. The 6 ft model predicted 1.97–2.18 m/s
+  across 450–550 g (2.07 m/s at 500 g); the flights read +9 % and −9 % against that.
+  Implied Cd 0.57–0.69 (F1) and 0.82–1.00 (F2).
+- **Link:** 102 distinct packets over the session; **link margin ≥ 14 dB (mean 31 dB)** over
+  the −123 dBm SF7 sensitivity; every packet ≤ 188 bytes against the 200-byte ceiling.
+- **Landing:** touchdown kinetic energy ≈ 0.8–1.4 J (a fall of 18–26 cm); a 25 ms stop is
+  ≈ 34–50 N against the 100 N structural study load.
+- **After Flight 1:** the vehicle **restarted itself** ~2 s after the end of the record (the
+  2 s watchdog), calibrated in 5.5 s, re-armed, and was heard for **12.95 s / 41 packets** —
+  the rulebook needs at least 5 s after impact. At rest it read 1.000 g (|a| = 9.811 ± 0.015 m/s²).
+- **Altitude:** the transmitted altitude reproduces its own formula to ±0.03 m; it reads 5.7 %
+  small at 31 °C against the hypsometric equation, so descent rates are taken from
+  temperature-corrected height.
+- **GPS:** a fix in every rich packet; ~9.4 m drift at ~1.9 m/s toward 341° under canopy.
+- **Pad capture** at 17:55 IST: 2 packets received at 0 m.
+
+What the flight did **not** test: no egg result is claimed, and the final mass was not weighed
+on record (reported by the team as in the 450–550 g band).
 
 ---
 
@@ -50,6 +105,7 @@ chamber, and streams telemetry from power-on through recovery.**
 
 - [Mission](#mission)
 - [System architecture](#system-architecture)
+- [Flight results](#flight-results)
 - [Quick start](#quick-start)
 - [How the flight software works](#how-the-flight-software-works)
 - [Telemetry protocol](#telemetry-protocol)
@@ -65,7 +121,9 @@ chamber, and streams telemetry from power-on through recovery.**
 
 ## Mission
 
-The CanSat is lifted to launch altitude by a drone, released, and must then deploy its
+The rulebook has the CanSat lifted to launch altitude by a drone and released; at the
+competition launch it was carried up a building and thrown from a terrace instead (see
+[Flight results](#flight-results)). Either way it must then deploy its
 parachute, descend at no more than 5 m/s, protect an egg payload through landing, and
 transmit telemetry continuously — from the moment it is powered on at the ground floor,
 through the lift and descent, and for at least five seconds after impact, until it is

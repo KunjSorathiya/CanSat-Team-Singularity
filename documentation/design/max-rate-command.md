@@ -2,11 +2,13 @@
 
 **Status: revised and approved 2026-09-11 and implemented the same day, then revised again the
 same day for the organizers' ground station — a 200-byte packet limit and sync word `0xA5`.
-`MAX_RATE` was measured on the bench at 3.11 Hz on the previous slots; neither the command
-window nor the new slots have been measured.** This replaces the 2026-09-10 design of two max-rate commands. The packet
+`MAX_RATE` was measured on the bench at 3.11 Hz on the previous slots. Update 2026-10-02: the
+final slot pattern was then measured in flight on 30 September 2026 — 3.09 Hz on the vehicle
+clock, gaps 0.374 / 0.296 / 0.297 s — see [Measured in flight](#measured-in-flight).** This replaces the 2026-09-10 design of two max-rate commands. The packet
 widths were corrected by measurement the same day — see [where the numbers come
 from](#where-the-numbers-come-from). The bench rows under Gate 8 of the [bring-up
-record](../testing/bring-up-record.md) are what would make any of it real.
+record](../testing/bring-up-record.md) were what would make any of it real; the flight record
+below now does.
 
 > [!NOTE]
 > **Resolved on the bench, 2026-09-11.** The fallback to 1.43 Hz an earlier build showed was a
@@ -202,8 +204,9 @@ size limit would have bitten at the launch, on a wide packet carrying a fix. Nei
 now.
 
 **Their dead time per packet is an estimate, not a measurement** — the print volume over the
-line rate. The first bench run with an ESP32 on their code, counting gaps at 3.11 Hz, is what
-settles it.
+line rate. The 30 September flights were received by their station at the 50 ms guard and the
+max-rate pattern (see [Measured in flight](#measured-in-flight)); the dead time itself was
+not measured separately.
 
 ## The command window
 
@@ -224,9 +227,38 @@ the bench fallback turned out to be. The window is now its own phase:
    after power-on exactly as before. The password lives in that gitignored file; the build
    refuses the template's `SET-ME` and anything under eight characters. The team flies `change-me`.
 
+**What flew.** The vehicle was powered at the ground floor (Flight 1, 18:14:34 IST), the
+five-minute window closed and it armed at about 18:19, then it was carried up the building. A
+watchdog restart after Flight 1 skipped the window as designed (point 4): telemetry restarted
+at packet 1 already in the max-rate pattern. Flight 2 was powered at the terrace and was still
+in the 1.43 Hz command window (`ST-R003`) when thrown.
+
 **The operator sees arming in the `ST-` status field**, on every rich packet. The console also
 estimates the window from the mission clock in every packet, and labels that an estimate. **A launch inside
 the window is not detected**, so the drone waits for the vehicle to arm.
+
+## Measured in flight
+
+On 30 September 2026 the pattern ran on the real vehicle and was received by the organizers'
+station (analysis in [`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/); final
+report chapter 14).
+
+| Quantity | Designed | Measured, Flight 1 |
+|---|---|---|
+| Cadence | 966 ms cycle, 3.11 Hz nominal | **3.09 Hz** on the received packets |
+| Gaps | 374 + 296 + 296 ms | **0.374 / 0.296 / 0.297 s** — the pattern reproduced exactly |
+| Packet size | 200-byte budget; 209 / 147 widest | **≤ 188 B** (rich 136–188 B, lean 118–130 B) |
+| Packets received | — | 41 in Flight 1, 18 in Flight 2, 41 in the 12.95 s after Flight 1 |
+
+The 3.09 Hz figure is the one the bench note above anticipated ("about 3.09 if the station reads
+0.6 % low"); on the vehicle clock the gaps match the slots to the millisecond, so the pattern is
+the vehicle's and not the station's. The pattern ran under the real load of flight, with GPS
+fixes in every rich packet. No packet exceeded the organizers' 200-byte limit, and the
+`ST-` field showed the state live (`ST-F111`: FLIGHT, armed, calibrated, 1 fault, for the whole
+record of Flight 1). The window design behaved as written: it closed, the vehicle recalibrated and
+armed, and a watchdog reset skipped it. Flight 2 was thrown while still in the command window
+at 1.43 Hz, which is what the "a launch inside the window is not detected" warning above
+describes; it is not a pattern measurement.
 
 ## What latches
 
@@ -293,7 +325,7 @@ by the team's own bridge alone.
 | | Effect |
 |---|---|
 | **Live mission state on the console** | **Back since 2026-09-11, about once a second.** The `ST-` status field — state, armed, calibrated and active faults in nine bytes — rides on every rich packet it fits, and the console holds it through the lean ones. The full diagnostic tags stay off the air |
-| **The SD log** | Becomes the only in-flight record of mission state, faults and calibration. The bench vehicle currently reports **`SD card FAILED`**, which matters more under this design than before it |
+| **The SD log** | Becomes the only in-flight record of mission state, faults and calibration. The bench vehicle reported **`SD card FAILED`** when this was written (2026-09-11), which mattered more under this design than before it |
 | **Log capacity** | ~30 hours at 1.43 Hz; ~13.7 hours after `MAX_RATE` |
 | **Average current** | Normal flight moves ~41 → ~43 mA for the radio. After `MAX_RATE`, ~76 mA. Peaks unchanged — they are set by coincident TX, SD write and GPS acquisition, not by rate |
 | **Channel occupancy** | 46 % in normal flight; 84 % after `MAX_RATE`. Acceptable in a reserved launch slot. Both Picos are on `0xA5`, every team's launch word, so the vehicle must be off during other teams' launches — which the rulebook requires anyway |
@@ -317,8 +349,8 @@ accepts a tagged bench build.
 **Documented claims:** 200, 209, 147, both slots, the 966 ms cycle, 3.11 Hz and 1.04 Hz enter
 `check_doc_claims.py` derived from the shipped constants.
 
-**Bench, on hardware:** before anything else, the capture that settles the open fallback.
-Then: normal flight shows `GP-` and `SN-` in every packet at 1.43 Hz; `MAX_RATE` moves the
+**Bench, on hardware** (the open fallback was settled on 2026-09-11, and the pattern flew on
+2026-09-30, see [Measured in flight](#measured-in-flight)): normal flight shows `GP-` and `SN-` in every packet at 1.43 Hz; `MAX_RATE` moves the
 station to ~3.11 Hz (about 3.09 if the station reads 0.6 % low, as it did on the previous
 slots) with a rich packet every ~966 ms; the organizers' code on an ESP32 receives every packet; no gaps in numbering over two minutes;
 a power cycle restores 1.43 Hz.

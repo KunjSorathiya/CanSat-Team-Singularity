@@ -8,6 +8,57 @@ development cycle.
 
 ---
 
+## [Unreleased] — 2026-10-02 (cycle 56) — the flights, the analysis of them, and the final report
+
+The vehicle flew. At the competition launch on 30 September 2026 it made two descents from about
+29.5 m — **thrown by hand from a building terrace, not released from a drone — under a 6 ft
+(1.83 m) canopy** — and the organizers' ground station recorded them. This cycle analyses that
+log, writes the final project report, and brings every document in the repository up to the
+flown state.
+
+### Added — `analysis/flight-2026-09-30/`
+
+- **`launch_analysis.py`** — parses all 180 exported rows with the ground station's own
+  `parse_packet()`, removes the repeated exports (102 distinct packets), splits at every restart of
+  the mission clock (four power sessions), re-derives height with the hypsometric equation, and
+  computes every statistic into **`results.json`**.
+- **`launch_figures.py`** — 24 figures: the three mandatory graphs per flight, descent analysis,
+  acceleration, attitude and stability, correlation heat maps and pair plot, radio link, sound,
+  GPS, packet stream, ground noise, three-dimensional acceleration, load by phase.
+- **`make_chapter.py`** — writes the flight chapter of the report from `results.json`.
+- `data/Team-25-ground-station-log.xlsx` (the raw export), `flight_data_clean.csv`.
+
+### Added — `documentation/project/CanSat-2026-Final-Project-Report.pdf`
+
+- The final project report (≈ 118 pages), built from `documentation/project/report-2026/`
+  (`python build.py`): Markdown chapters, a print stylesheet, Graphviz flowcharts, matplotlib
+  charts, photographs of the built vehicle and board, the web console at the competition, and the
+  Fusion 360 stress / deformation / safety-factor plots. It supersedes the 14 September
+  `CanSat-2026-Final-Report.pdf`.
+
+### Results recorded
+
+- **Flight 1:** steady descent **2.27 ± 0.05 m/s**; release peak 30.7 m after a 5.2 g throw; canopy
+  loaded 0.97 s later (2.1 g); 41 packets received at 3.09 Hz, the designed 374 / 296 / 296 ms
+  cadence; link margin ≥ 14 dB; after landing the vehicle restarted itself, re-calibrated in 5.5 s,
+  re-armed and was heard for 12.95 s.
+- **Flight 2:** 29.6 m in 15.4 s, steady descent **1.88 ± 0.02 m/s**; 18 packets received.
+- The descent model predicted 1.97–2.18 m/s for the 6 ft canopy; the flights bracket it at +9 % and
+  −9 %, implying a canopy drag coefficient of 0.57–1.00 (0.75 assumed).
+- The transmitted altitude is the ISA formula to ±0.03 m and reads 5.7 % small at 31 °C; descent
+  rates are taken from temperature-corrected height.
+
+### Changed — documentation
+
+- Every README and document updated to the flown state: nothing-has-flown banners replaced by the
+  measured results; the canopy is stated as 6 ft flown against an 80 cm model floor; the launch
+  method is stated as a terrace throw; photographs and the Fusion 360 plots added; the documented
+  claim count corrected to **307** (6,132 automated checks in all).
+- Historical records (audits, bring-up rows, receiving inspection, earlier changelog entries) are
+  kept as written, with dated update notes where they are superseded.
+
+---
+
 ## [Unreleased] — 2026-09-14 (cycle 55) — the analysis, before the flight
 
 The rulebook allows four hours after the launch for data analysis, worth 20 points, and the

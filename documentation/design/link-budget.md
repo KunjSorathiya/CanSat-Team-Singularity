@@ -205,7 +205,8 @@ free.** A typical 180-byte rich packet costs about 287 ms, or 41 %.
 The 2 Hz option is real but conditional: SF7 at **250 kHz** gives 199.8 ms worst-case
 airtime and a comfortable 40 % duty at a 500 ms period. It costs about 3 dB of receiver sensitivity, which
 the range margin below can absorb. It is not the default because it has never been tested on
-hardware; promote it after a successful range test, not before.
+hardware — the 30 September flights ran SF7 at 125 kHz and measured a margin of at least 14 dB
+(see [Range margin](#range-margin)), which supports the argument but is not a 250 kHz test.
 
 ## Range margin
 
@@ -227,10 +228,22 @@ at 2 km with quarter-wave whips and no ground-plane assumptions, SF7 leaves roug
 of margin. Dropping from SF9 to SF7 costs about 6 dB of that margin and buys a 3× airtime
 reduction — a clearly favourable trade for this mission profile.
 
-These are datasheet and free-space figures. They are an argument that SF7 is *not*
-range-limited for a CanSat descent; they are **not** a measured link budget. Antenna gain,
-polarisation mismatch during tumbling, body blockage by the vehicle structure, and the
-ground station's own noise floor are all unmeasured.
+These are datasheet and free-space figures. They were the argument that SF7 is *not*
+range-limited for a CanSat descent; the flights of 30 September 2026 are now the measurement.
+
+**Measured on 30 September 2026.** The organizers' ground station recorded 102 distinct
+packets across the two descents (analysis in
+[`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/), every number in its
+`results.json`). RSSI ran from **−109 to −79 dBm**, which is a **link margin of at least 14 dB
+(mean 31 dB)** over the −123 dBm SF7 sensitivity figure used above. SNR saturated near
+**+10 dB**, which is the receiver's reporting ceiling rather than a property of the link, so
+RSSI is the usable margin figure. RSSI improved by about 14 dB at the throw of Flight 1, when
+the vehicle left the building's shadow. Packets were **at most 188 bytes** (rich 136–188 B,
+lean 118–130 B), under the 200-byte ceiling this budget is built on. The link was a
+building-height path of tens of metres, not the 2 km of the table, so the free-space figures
+above are not tested at range; what the flights show is that a real vehicle, antenna,
+tumble and ground station left a margin that never closed. Chapter 14 of the
+[final report](../project/CanSat-2026-Final-Project-Report.pdf) gives the full link analysis.
 
 ## The 1 Hz minimum is a floor this vehicle cannot be configured onto
 
@@ -289,6 +302,10 @@ Four layers, so an impossible or merely compliant-on-paper configuration cannot 
 > that way. The usual explanation is an image flashed before the period changed. The vehicle's
 > startup summary prints the rate in Hz for exactly this reason.
 
+On 30 September the packets that arrived did clear it: Flight 1's received packets came at
+**3.09 Hz** with gaps of 0.374 / 0.296 / 0.297 s, the designed 374 + 296 + 296 ms max-rate
+pattern reproduced exactly (see [max-rate-command.md](max-rate-command.md)).
+
 ## Changing the profile
 
 1. Edit the constants in `firmware/common/include/cansat/link_profile.hpp`.
@@ -300,15 +317,17 @@ Four layers, so an impossible or merely compliant-on-paper configuration cannot 
 
 ## What is not verified
 
-The airtime half is now measured. Everything about propagation still is not:
+The airtime half was measured on the bench in September; the 30 September flights measured the link margin. Status:
 
 | Claim | Status |
 |---|---|
 | Airtime formula | Verified against two published reference vectors, in two languages, **and against a radio on 2026-09-05** |
 | 399.6 ms worst-case airtime | **MEASURED: 406.9 ms** on the delivered RA-02, mean of five transmits — 1.8 % over prediction, in the direction the driver's overhead explains |
-| Sensitivity figures | Datasheet typicals, not measured for the RA-02 carrier |
-| Range margin | Free-space calculation; no field test has been run |
-| Packet loss at 1 Hz | Unknown — requires a range test |
+| Sensitivity figures | Datasheet typicals, not measured for the RA-02 carrier; the flights show the received signal stayed at least 14 dB above them |
+| Range margin | **MEASURED in flight, 30 Sep 2026:** RSSI −109…−79 dBm, margin ≥ 14 dB (mean 31 dB) at building-height distances; SNR saturated near +10 dB. The 500 m–2 km free-space rows remain calculation |
+| Max-rate cadence | **MEASURED in flight:** 3.09 Hz, gaps 0.374 / 0.296 / 0.297 s on the received packets |
+| Packet size | **MEASURED in flight:** every received packet ≤ 188 bytes (200-byte ceiling) |
+| Reception at 1 Hz and above | Packets were received at 3.09 Hz in the max-rate pattern; no reception percentage is stated, only packets received |
 | Regulatory duty-cycle limits at 433 MHz | **Open question**: local regulations and any competition-imposed limit are unconfirmed |
 | Exact channel frequency | **Open question for the organisers** |
 
@@ -325,9 +344,10 @@ cannot meet 1 Hz all rest on this one function.** It has now been checked agains
 Channel occupancy follows directly: **33.4 % typical and 40.7 % worst case**, against the
 ~33 % and 40 % predicted.
 
-The first field test to run is a static range test at the chosen profile, logging RSSI, SNR
-and packet loss against distance. Sensitivity, range margin and packet loss remain pure
-arithmetic until then — **airtime was the only part of this document a bench could settle.**
+The bench could settle only airtime. The link itself was settled by the 30 September flights:
+RSSI, SNR and cadence were logged by the organizers' station for both descents (above). What
+remains untested is range beyond the building-height paths flown, and the 250 kHz / 2 Hz
+option.
 
 ---
 

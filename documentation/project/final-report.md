@@ -6,6 +6,17 @@
 
 **Repository:** `github.com/KunjSorathiya/CanSat-Team-Singularity`
 
+> **Update 2026-10-02 — this file is the 14 September submission text.** It is kept as the
+> dated submission record and is **superseded by
+> [`CanSat-2026-Final-Project-Report.pdf`](CanSat-2026-Final-Project-Report.pdf)**, which
+> adds the competition flights of 30 September 2026 (two descents, thrown by hand from a
+> terrace at about 29.5 m, recorded by the organizers' ground station; analysis in
+> [`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/), report chapter 14).
+> Everything below is written as it stood on 14 September, **before any flight**; where a
+> statement is now factually wrong (the canopy size, the test count) it is corrected inline
+> or marked "Update 2026-10-02". The flown parachute is **6 ft (1.83 m)** in diameter; the
+> 80 cm figure below is the model's guaranteed minimum, not the canopy that flew.
+
 ---
 
 > **A note on what this report claims.**
@@ -21,8 +32,9 @@
 > the sections where that is unflattering.
 >
 > **The CanSat and this report were submitted on 14 September 2026. Nothing in this project
-> has flown yet** — the launch is still ahead, so this report has no results section, and says
-> so rather than implying one.
+> had flown at that point** — the launch was still ahead, so this report has no results
+> section, and says so rather than implying one. *(Update 2026-10-02: the vehicle flew on
+> 30 September 2026; the results are in the final project report, not here.)*
 
 ---
 
@@ -64,13 +76,13 @@ streams telemetry continuously from power-on through recovery.
 
 | Layer | State |
 |---|---|
-| **Submission** | **The CanSat and this report were submitted** (reported by the team, 2026-09-14). **The launch has not happened** |
-| **Software** | Complete and passing **6131 automated checks** on the host — flight core, telemetry protocol, ground station, web console, simulations and documentation claims |
+| **Submission** | **The CanSat and this report were submitted** (reported by the team, 2026-09-14). **The launch had not happened** (it took place on 30 September; see the update above) |
+| **Software** | Complete and passing **6131 automated checks** at submission (6,132 now, with 307 documented claims) on the host — flight core, telemetry protocol, ground station, web console, simulations and documentation claims |
 | **Firmware drivers** | Every driver has run on real silicon: IMU, barometer, GPS, radio and microSD. The sealed flight image has been flashed and run |
 | **Electronics** | Built, and **every device on it works**. The radio link has closed end to end. **Switch, power LED and battery divider fitted; the Schottky diode never was** |
 | **Structure** | **Printed in white PETG and assembled**, egg chamber fitted, **ballasted into the 450–550 g band** (reported by the team, 2026-09-14) |
-| **Recovery** | **80 cm canopy sewn and fitted** (reported by the team, 2026-09-14). **Never dropped, never deployed** |
-| **Flight** | **Nothing has flown.** The launch will be the first descent, the first deployment and the first measured descent rate |
+| **Recovery** | **Canopy sewn and fitted** (reported by the team, 2026-09-14), described here as 80 cm; **the canopy that flew measures 6 ft (1.83 m)**. **Never dropped, never deployed** at submission |
+| **Flight** | **Nothing had flown at submission.** *(Update 2026-10-02: two descents were recorded on 30 September, thrown by hand from a terrace at about 29.5 m, with steady descent 2.27 and 1.88 m/s under the 6 ft canopy; see the final project report, chapter 14.)* |
 
 ### The three numbers that matter most
 
@@ -95,7 +107,8 @@ build.
 
 **What was never done is a drop test.** The canopy has never opened and the structure has
 never absorbed an arrival, so the descent rate in this report is a model, and the launch is
-its first test.
+its first test. *(Update 2026-10-02: the launch has since been flown; the measured rates are in
+the final project report.)*
 
 ---
 
@@ -1014,10 +1027,10 @@ documentation against the source. **All of it runs without hardware.**
 | Python — simulations | Descent model against closed-form limits, ISA density, mass-tolerance argument | **40 / 40** |
 | Python — post-flight analysis | Recovers a synthetic flight's known descent rate, drag coefficient, spin, drift and lost packet; the notebook executed cell by cell | **37 / 37** |
 | Node — web console | Framing, parser, validator, link health, bridge status, extracted from `index.html` | **71 / 71** |
-| Documented claims | Numbers in the documentation checked against the source that defines them | **306 / 306** |
+| Documented claims | Numbers in the documentation checked against the source that defines them | **306 / 306** at submission (307 / 307 on 2026-10-02) |
 | Pico syntax | 11 translation units against SDK stubs | All OK |
 
-**Total: 6131 automated checks.**
+**Total: 6131 automated checks** at submission (6,132 on 2026-10-02).
 
 ### 14.1 What is actually proven
 
@@ -1413,13 +1426,16 @@ documentation/
 
 <div align="center">
 
-**Submitted 14 September 2026. Nothing in this project is claimed as flown.**
+**Submitted 14 September 2026. Nothing in this project was claimed as flown at that date.** *(Update 2026-10-02: it flew on 30 September; see the final project report.)*
 
 The software is built and tested. The board is built, and every device on it has answered on a
 bench. The structure is printed, the canopy and the switch are fitted, and the vehicle is in
 the mass band.
 
-**The launch is still ahead, and it will be the first time the vehicle descends under its
-canopy.**
+**The launch was still ahead, and it would be the first time the vehicle descended under its
+canopy.** *(Update 2026-10-02: it flew twice on 30 September 2026, thrown by hand from a
+terrace rather than lifted by a drone; the design logic applied unchanged. Measured descents
+2.27 ± 0.05 m/s and 1.88 ± 0.02 m/s, 41 and 18 packets received in the two descents. See
+`analysis/flight-2026-09-30/` and the final project report.)*
 
 </div>
