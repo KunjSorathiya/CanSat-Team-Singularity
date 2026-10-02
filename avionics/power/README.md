@@ -2,7 +2,11 @@
 
 One battery, one rail, and one part that never made it in.
 
-**Status: 2026-09-14 — submitted.** The rail is measured and holds under every load tried.
+**Status: 2026-10-02 — flown.** *Update:* the vehicle flew on the LiPo through both competition
+descents and a self-restart (≈ 2 s after the end of the Flight 1 record, consistent with the 2 s
+watchdog) with no power fault recorded in the analysis, and it was powered by its switch (power at
+the ground floor 18:14:34 for Flight 1, at the terrace 18:44:07 for Flight 2). No current or battery
+life was measured. *As written 2026-09-14:* the rail is measured and holds under every load tried.
 The **switch, the power LED and the battery divider are fitted**; the **Schottky diode is
 not** (reported by the team, 2026-09-14). The consequence of that last one is operational, not electrical:
 **never connect USB while the battery is connected.**
@@ -45,7 +49,7 @@ From [bring-up-record.md](../../documentation/testing/bring-up-record.md), gates
 | 45 back-to-back radio transmits, 15 s | **3.28–3.29 V** | 0.3 % | 45 sent, 0 failed |
 | 100 % microSD write duty, 10 s | **3.28–3.30 V** | 0.6 % | 297–367 writes/s, far beyond anything the mission asks |
 
-**The two together have never been run.** The radio draws ~120 mA transmitting and the GPS
+**The two together had not been run on the bench** *(2026-09-14)* — and they ran together in flight on 2026-09-30, transmitting and logging GPS and SD through both descents. The radio draws ~120 mA transmitting and the GPS
 ~67 mA, both from this same rail. Gate 7 is where that gets settled, and until it does this
 gate stays amber rather than green: the individual questions are closed, the total is not.
 
@@ -95,7 +99,7 @@ empty log or a radio that stops.
 | Item | Note |
 |---|---|
 | **Series current draw** | Four bench sessions have skipped it. The 3.3 V test link (`J1`) exists to make it a one-minute measurement |
-| **Radio and card drawing simultaneously** | Gate 7. Each holds alone; the sum is untested |
+| **Radio and card drawing simultaneously** | Gate 7. Each holds alone. *Update 2026-10-02:* the sum ran in flight, with telemetry throughout; the current was not measured |
 | **Battery life** | Needs the series current above. No estimate should be quoted until then |
 | **Write-transient current** | The rail *voltage* is measured under write load; the *current* is not |
 | **Charging and protection** | [PWR-008](../../documentation/requirements/requirements.md). A balance charger is held; the procedure is not written |

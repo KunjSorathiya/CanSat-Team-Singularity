@@ -2,6 +2,11 @@
 
 ## The vehicle flies on perfboard, and that costs points
 
+*Update 2026-10-02: the board flew on 2026-09-30 and survived two landings.* Photograph, component
+side: [`mechanical/photos/pcb-top.jpg`](../../mechanical/photos/pcb-top.jpg).
+
+![Vehicle board, component side](../../mechanical/photos/pcb-top.jpg)
+
 The vehicle board is a **100 × 100 mm single-sided universal perfboard**, hand-wired
 point to point. It is built, every device on it works, and the whole
 [bring-up record](../../documentation/testing/bring-up-record.md) was taken on it.

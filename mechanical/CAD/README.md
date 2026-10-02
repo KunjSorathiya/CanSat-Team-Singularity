@@ -7,6 +7,10 @@ The structure model, and what this repository can and cannot read of it.
 | [`Cansat_D1.f3d`](Cansat_D1.f3d) | Fusion 360 archive — the **native, editable** model, and the three simulation studies | **No.** See below |
 | [`Cansat_D1.step`](Cansat_D1.step) | STEP AP214 export of the same solid | **Yes**, and it is where every mechanical dimension in this repository comes from |
 
+*Update 2026-10-02:* the printed article was flown on 2026-09-30 and survived two arrivals; its
+photographs are in [`../photos/`](../photos/README.md). The rocker switch is on short leads
+outside the frame, not in the model's cut-out.
+
 Exported 2026-09-09 by Autodesk Translation Framework v15.15. One solid, `Body1`, 56 faces,
 millimetres.
 

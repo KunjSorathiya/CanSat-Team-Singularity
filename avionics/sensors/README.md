@@ -2,8 +2,16 @@
 
 Everything the vehicle measures, and what each one has actually read on hardware.
 
-**Status: 2026-09-14 — submitted.** All four sensors are fitted to the soldered board,
-answer, and reach both the SD log and the air.
+**Status: 2026-10-02 — flown.** All four sensors are fitted to the soldered board, answered, and
+reached the air; all four produced data in the 2026-09-30 flights (organizers' log,
+[`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md)). Measured in
+flight: barometer altitude reproduced to ±0.03 m by the ISA formula (it reads 5.7 % small at
+31 °C against the hypsometric equation, so descent rates use temperature-corrected height);
+IMU: 5.2 g throw impulse, 2.1 g canopy load, swing at most 18° (Flight 1) and 46° (Flight 2);
+GPS: a fix in every rich packet, about 9.4 m drift at 1.9 m/s toward 341° under the canopy;
+microphone: the throw was the loudest packet (36.3 mV p-p). At rest after Flight 1: |a| =
+9.811 ± 0.015 m/s², barometer σ 0.10 m, GPS scatter 2.3 m RMS. Yaw was still gyro-only
+(`YR-G`).
 
 ---
 
