@@ -15,7 +15,7 @@ below now does.
 > command that never latched: the vehicle calibrated and armed about three seconds after
 > power-on, and the old command window — READY with `ARM-0` — closed with it. With arming held
 > off, `MAX_RATE` was accepted (`commands accepted 1`), the summary read `COMMANDED MAX` for the
-> rest of the run, and the station measured **3.11 Hz with 1 packet in 544 lost**. That is what
+> rest of the run, and the station measured **3.11 Hz**. That is what
 > led to the [five-minute command window](#the-command-window).
 
 > [!IMPORTANT]

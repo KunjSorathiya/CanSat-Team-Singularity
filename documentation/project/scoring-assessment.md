@@ -416,7 +416,7 @@ worth 5 points in this section and feeds the 15 aesthetics points in section D.
 | 0b | Photograph the assembled vehicle | **Not recorded** in the repository |
 | 1 | Manual switch and power LED — 5 points | **Taken.** Both fitted |
 | 2 | Add a magnetometer | **Taken instead by the microphone**, 2026-09-05. Yaw stays relative |
-| 3 | Raise the packet rate past 1 Hz | **Taken, and beyond it.** 1.43 Hz, then **3.11 Hz** after the command window, measured with 1 packet in 544 lost |
+| 3 | Raise the packet rate past 1 Hz | **Taken, and beyond it.** 1.43 Hz, then **3.11 Hz** after the command window, measured at the bench |
 | 4 | A custom PCB — up to ~10 points | **Not done.** The vehicle flies on perfboard |
 | 4b | Sew the 80 cm canopy | **Taken.** Sewn and fitted |
 | 5 | Data analysis preparation — up to 20 points | **Taken 2026-09-14.** [`analysis/`](../../analysis/README.md): a notebook and a one-command CLI, tested against a synthetic flight with known answers |

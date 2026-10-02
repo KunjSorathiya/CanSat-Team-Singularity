@@ -24,7 +24,7 @@ The structure, the egg chamber, the parachute and the recovery system.
 > that the model guarantees under 5 m/s at 550 g and 35 °C; the 6 ft canopy that flew is 2.3×
 > the diameter and 5.2× the area.
 
-**Status: 2026-10-02 — flown.** Gate 7 (mechanical and recovery verified) is **met by flight**:
+**Status: 2026-10-02 — flown.** Gate 7 (mechanical and recovery verified) has **flight evidence** (descent and swing measured; see the flight analysis):
 two descents, both under the 5 m/s cap, structure intact, telemetry continuing after impact.
 See [scoring-assessment.md](../documentation/project/scoring-assessment.md).
 

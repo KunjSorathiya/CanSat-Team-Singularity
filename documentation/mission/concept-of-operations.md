@@ -318,9 +318,9 @@ air at the slower rate and `FLIGHT` is never declared:
    same ~20 descent rows — but none are lost to the link, and each carries satellite count and
    HDOP that never go on the air. *It does not run at the 30 Hz sensor rate, which this page
    said until 2026-09-14; the append is in `emit_telemetry()`.*
-2. **A single lost packet is 5 % of the descent.** The max-rate pattern lost 1 packet in 544
-   at bench range (row 8.18); nothing is known about loss at 30 m with the vehicle swinging
-   under a canopy.
+2. **A single lost packet is 5 % of the descent.** The max-rate pattern was measured at 3.11 Hz
+   at bench range (row 8.18); at the 30 m flights the station received the packets analysed in
+   `analysis/flight-2026-09-30/`.
 
 ---
 
