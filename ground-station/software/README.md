@@ -16,6 +16,9 @@ serial link and the dashboard plots.
 | `dashboard.py` | Tk UI; drains the event queue on `after()`, never blocks; live altitude/pressure/temperature plots when matplotlib is present |
 | `main.py` | `replay` (offline) and `live` (serial or paced file, with/without dashboard) |
 
+*Update 2026-10-02:* the packet identity of the flown vehicle was `CAN-Team-25` (the `--team`
+value in the live example below); the `CAN-Team-01` examples use the sample mission.
+
 ## Usage
 
 ```

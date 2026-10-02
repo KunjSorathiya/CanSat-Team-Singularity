@@ -14,6 +14,23 @@ Safety factors read from Fusion 2026-09-09.
 
 **The structure is not close to failing in any of the three cases.**
 
+**Fusion 360 composites (2026-10-02).** The result plots are also shown, one composite image
+per study, in the [final report](../../documentation/project/CanSat-2026-Final-Project-Report.pdf)
+§8.4:
+
+| Composite | Study |
+|---|---|
+| [`fusion-study-1.jpg`](fusion-study-1.jpg) | 1 · horizontal force — von Mises 2.885 MPa |
+| [`fusion-study-2.jpg`](fusion-study-2.jpg) | 2 · tearing force — von Mises 1.330 MPa, displacement 0.026 mm |
+| [`fusion-study-3.jpg`](fusion-study-3.jpg) | 3 · impact force — von Mises 2.345 MPa, displacement 0.209 mm |
+
+Studies 1 and 2 show nothing below the safety-factor target (the plot is uncoloured); study 3
+shows blue, above target.
+
+![Study 1 composite](fusion-study-1.jpg)
+![Study 2 composite](fusion-study-2.jpg)
+![Study 3 composite](fusion-study-3.jpg)
+
 ---
 
 ## Four things to know before quoting these numbers
@@ -117,7 +134,7 @@ concrete is several times worse. Neither is wrong; the assumption just has to be
 down beside the result, which is what this section is for.
 
 **The mass band brackets the assumption.** The vehicle was ballasted into 450–550 g before
-submission (reported by the team, 2026-09-14), and under the fitted 80 cm canopy its landing
+submission (reported by the team, 2026-09-14), and under the model's 80 cm floor canopy (the flown canopy was 6 ft, so the real landings were far gentler — see below) its landing
 momentum sits either side of the studied case:
 
 | Case | Mass | Rate | Momentum | Force at 25 ms | at 10 ms |
@@ -139,6 +156,11 @@ under a canopy lands base-first, along the print's weak axis. A similar force in
 direction is still the wrong direction.
 
 **A drop test settles it**, and it is also what section C actually scores.
+
+**Update 2026-10-02.** The vehicle was thrown twice at the competition and landed under a
+6 ft canopy at 2.27 and 1.88 m/s. From the log, touchdown kinetic energy was about 0.8–1.4 J
+(a fall of 18–26 cm) and a 25 ms stop implies about 34–50 N, against the 100 N used in study 3.
+The structure survived; the vertical case was not studied by simulation.
 
 ---
 
@@ -163,7 +185,7 @@ element order, material properties, constraints and loads.
 | **A vertical impact case** | All three studies load horizontally. **A vehicle hanging under a parachute lands base-first**, so the impact that matters is along the build axis — which is also the print's weak direction. The one load case not yet run, and **the part is now printed**, so the answer arrives from a drop test rather than a re-run if nobody re-runs it |
 | **Total displacement, per study** | The displacement legend is cropped out of the exported plot in study 1 |
 | **A PETG material definition** | See above — the current one is 21 % too dense and somewhat too strong. It would lower every stress figure and raise every safety factor's honesty |
-| **A drop test** | The only thing that answers what a real landing does, and the only thing section C scores |
+| **A dedicated drop test** | Two competition throws were made on 2026-09-30 (both survived, ≈ 34–50 N at a 25 ms stop), but no instrumented drop-test campaign is on record |
 
 Related: [mechanical/README.md](../README.md) · [CAD/](../CAD/README.md) ·
 [photos/](../photos/README.md)

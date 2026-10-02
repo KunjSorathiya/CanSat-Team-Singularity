@@ -15,15 +15,20 @@ descent figures were revised 2026-09-08; sections C, D and F on 2026-09-12, when
 structure was printed; and the whole page on 2026-09-14, at submission.**
 
 > [!IMPORTANT]
-> **This is the assessment at submission, before the launch.** Every point that depends on a
-> flight — descent, stability, landing, data analysis, most of telemetry — is still
-> *achievable*, not *secured*, and cannot be anything else until the vehicle flies.
+> **The tables below are the assessment at submission, 2026-09-14, before the launch**, kept
+> as the record. **The vehicle then flew on 2026-09-30** (two descents, thrown by hand from a
+> terrace at about 29.5 m). The organizers' scores are not in this repository, so **no score is
+> stated after the flights** — what changed is the *evidence*, set out in
+> [After the flights](#after-the-flights-2026-10-02) below. Points that depend on a flight are
+> now *evidenced by measurement*, but how the organizers scored them, and the comparative
+> descent scoring against other teams, is not known here.
 
 ---
 
 ## Contents
 
 - [Summary](#summary)
+- [After the flights](#after-the-flights-2026-10-02)
 - [Section by section](#section-by-section)
 - [The cheapest points remaining](#the-cheapest-points-remaining)
 - [What would lose points](#what-would-lose-points)
@@ -59,6 +64,32 @@ nothing in this repository can predict the comparative descent scoring against o
 
 ---
 
+## After the flights (2026-10-02)
+
+Update 2026-10-02. The vehicle flew twice on 2026-09-30 at the competition launch, recorded by
+the organizers' ground station. Every number is from
+[`analysis/flight-2026-09-30/results.json`](../../analysis/flight-2026-09-30/) and is
+discussed in chapter 14 of the [final project report](CanSat-2026-Final-Project-Report.pdf).
+**The flights were a hand throw from a terrace at 29.4–29.6 m, not a drone release** from
+100 ft (30.48 m); the rulebook's own "100 ft is about an eight-storey building" was the
+reference the team used. Whether the organizers accepted that as the release altitude is not
+recorded here. These are the measurements; this page does not convert them to points.
+
+| Section | What the flights measured | What stays unknown |
+|---|---|---|
+| A · Safety | Canopy opened both times (loaded about 0.97 s after apex in Flight 1, 2.1 g); no egg flown, no egg result claimed | Egg points remain forgone by team decision |
+| B · Telemetry | 102 distinct packets received over the link; 41 and 18 in the two descents, 41 in the 12.95 s after Flight 1's impact; 3.09 Hz in Flight 1; link margin at least 14 dB (mean 31 dB) over the SF7 sensitivity; packets at most 188 bytes, under the 200-byte ceiling; GPS fix in every rich packet; sound in packets (the throw was the loudest) | The organizers' own packet accounting and scoring |
+| C · Descent, stability, integrity | Steady descent **2.27 ± 0.05 m/s** (Flight 1) and **1.88 ± 0.02 m/s** (Flight 2), both under the 5 m/s cap; swing at most 18° and 46° from vertical; touchdown about 0.8–1.4 J by model; the vehicle kept transmitting after impact (it restarted itself after Flight 1 within about 2 s, recalibrated in 5.5 s and was heard 12.95 s) | Comparative ranking against other teams; the post-landing condition of the structure is not on record |
+| E · Data analysis | The analysis tool was run on the real export; results recovered throw impulse, apex, descent rate, implied drag coefficient (0.57–0.69 and 0.82–1.00 over 450–550 g), swing and GPS drift | How the organizers judged it |
+| F · Report | The 14 September report is superseded by the new final project report, with photographs of the vehicle, board and web console | Whether video and social posts were made |
+
+Two lessons the model got wrong in useful ways: the descent model's 0.75 Cd predicted
+1.97–2.18 m/s for the 6 ft canopy, and the flights landed +9 % and −9 % about the 500 g
+prediction; and the altitude formula the vehicle transmits reads 5.7 % small at 31 °C against
+the hypsometric equation, which is why the rates were taken from temperature-corrected height.
+
+---
+
 ## Section by section
 
 ### A · Payload Safety — 25 points
@@ -66,7 +97,7 @@ nothing in this repository can predict the comparative descent scoring against o
 | Item | Points | Status |
 |---|---:|---|
 | Egg recovered unbroken | 20 | **Forgone by team decision.** Scored as 0 |
-| Parachute deployment | 5 | **Canopy sewn and fitted** (reported by the team, 2026-09-14). Scored when it deploys at the launch |
+| Parachute deployment | 5 | **Canopy sewn and fitted** (reported by the team, 2026-09-14). *Update 2026-10-02: it deployed in both flights on 2026-09-30.* Organizer score not on record |
 
 **Omitting the egg is not a disqualification.** The rulebook's disqualification list is
 closed and specific: exceeding size or mass by more than 10 %, unsafe deployment, no attempt
@@ -137,9 +168,9 @@ launch-day judgement about the site, not a scoring one.
 
 | Item | Points | Assessment |
 |---|---:|---|
-| Descent rate & stability | 6 | **Canopy built, never dropped.** 4.37–5.00 m/s by model across the mass band; scored *comparatively against other teams* |
+| Descent rate & stability | 6 | **Canopy built, never dropped at submission** (*update 2026-10-02: measured 2.27 and 1.88 m/s on 2026-09-30, see above*). 4.37–5.00 m/s by model for the 80 cm canopy across the mass band; scored *comparatively against other teams* |
 | Sensor data continuity | 9 | **7–9 achievable.** The firmware's strongest area |
-| Structural integrity & post-landing transmission | 5 | Post-landing transmission is enforced in firmware; the structure has never been dropped |
+| Structural integrity & post-landing transmission | 5 | Post-landing transmission is enforced in firmware; the structure had never been dropped at submission (two landings on 2026-09-30; see above) |
 | Bare minimum: manual switch + power LED | 5 | **~5. Both fitted** (reported by the team, 2026-09-14) |
 
 Sensor continuity is where the software earns its keep: faults are classified rather than
@@ -208,7 +239,7 @@ says what the studies do and do not establish about a printed part.
 | PCB design | 15 | ~0 | Perfboard, not a custom PCB |
 | Code originality | 10 | **~9** | The strongest single area in the project |
 | Sensor integration | 25 | **25** | 15 mandatory + 5 GPS + 5 microphone — **at the cap**, and a further sensor adds nothing here |
-| Data analysis | 20 | ~0 | **Analysis written and tested before the launch**; scored on the flight's data |
+| Data analysis | 20 | ~0 | **Analysis written and tested before the launch**; scored on the flight's data. *Update 2026-10-02: run on the real export, see above* |
 
 **Code originality — 9 or 10 of 10.** Self-written, no third-party libraries anywhere in the
 flight path, heavily commented, and held by 4879 assertions across 229 Python and 62 Node
@@ -354,7 +385,7 @@ the telemetry.
 | Item | Points | Assessment |
 |---|---:|---|
 | Structure & documentation | 20 | **~20. Written 2026-09-12, submitted 2026-09-14** — [final-report.md](final-report.md), with `.docx` and `.pdf` beside it. Design approach, architecture, mission procedure, simulations, code, flowcharts, components, timeline and lessons learned |
-| Imaging & media | 5 | **Not recorded.** No photograph of the built vehicle is in the repository; whether the submission carried the required set is not recorded here |
+| Imaging & media | 5 | **Not recorded at submission.** *Update 2026-10-02: photographs of the vehicle, board and console are now in the final project report.* Whether the submission carried the required set is not recorded here |
 
 The report asks for design approach, system architecture, mission procedure, results and
 lessons learned, with schematics, wiring diagrams and CAD attached, and proper citations.

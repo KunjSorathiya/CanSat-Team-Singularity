@@ -4,22 +4,30 @@
 |---|---|
 | [`cansat-d1-render-1.png`](cansat-d1-render-1.png) | `Cansat_D1` render, three-quarter view from above |
 | [`cansat-d1-render-2.png`](cansat-d1-render-2.png) | `Cansat_D1` render, second view |
+| [`cansat-assembled.jpg`](cansat-assembled.jpg) | **Photograph** of the assembled vehicle |
+| [`pcb-top.jpg`](pcb-top.jpg) | **Photograph** of the vehicle board, component side |
 
-> [!IMPORTANT]
-> **The article exists, and there is still no photograph of it in this directory.** The
-> structure was printed in white PETG, assembled with the electronics and egg chamber, and
-> weighed at 280 g on 2026-09-12 — but the only images here are renders of the CAD.
+> [!NOTE]
+> **Update 2026-10-02 — photographs now exist.** The two JPEGs above are photographs of the
+> built hardware (copied from the final report's figures,
+> `documentation/project/report-2026/figures/photos/`). They replace the earlier note here
+> that no photograph of the vehicle existed; that note is kept in the history of the file,
+> not repeated.
 >
-> **This is the cheapest outstanding item in the project.** Section D awards **15 of its 30
-> points for aesthetics and build quality**, judged from what the vehicle looks like, and
-> section F separately requires top, side and bottom views, PCB views, a team photo and a
-> photo with mentors. All of it is one afternoon with the vehicle that is already built.
+> **Still not in the repository:** side and bottom views, the board's second face, the open egg
+> chamber, and the team and mentor photographs listed in the shot list below.
 
-**The two files below are renders of the CAD, not photographs of hardware.** A render shows
-the design; it is not evidence about the article. When the photographs are taken they belong
-here, named for what they show, and this note should be replaced by them.
+![The assembled CanSat](cansat-assembled.jpg)
+
+![The vehicle board, component side](pcb-top.jpg)
+
+**The two PNG files are renders of the CAD, not photographs of hardware.** A render shows
+the design; it is not evidence about the article. Anything claimed about the built vehicle is
+evidenced by the JPEGs.
 
 ### The shot list
+
+The first two photographs above cover the three-quarter whole-vehicle row and one face of the board; the rest are still open.
 
 | Shot | Why |
 |---|---|

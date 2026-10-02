@@ -1,8 +1,21 @@
 # Post-flight analysis
 
 The rulebook allows **four hours** after the launch to analyse the data. This directory is that
-analysis, written and tested before there is a flight, so that on the day it only has to be
+analysis, written and tested before there was a flight, so that on the day it only had to be
 pointed at the real logs.
+
+> [!NOTE]
+> **Update 2026-10-02 — the real flight has been analysed.** The competition launch of
+> 30 September 2026 was analysed from the organizers' ground-station export, and that run lives
+> in [`flight-2026-09-30/`](flight-2026-09-30/README.md) (every number in its `results.json`,
+> the log in its `data/`). It was run **on the real log, not on the synthetic flight**: the
+> descents measured 2.27 ± 0.05 m/s (Flight 1) and 1.88 ± 0.02 m/s (Flight 2). The tooling in
+> *this* directory is the pre-flight pipeline, still tested against the synthetic flight; the
+> flown-flight analysis is a separate, later set of scripts. The "launch-day" instructions below
+> are the plan as written before the flight, including the drone-release assumption — the flight
+> was a hand throw from a terrace, and the SD-log comparison below was not available because
+> the analysis used the organizers' receiver log. The result is in chapter 14 of the
+> [final report](../documentation/project/CanSat-2026-Final-Project-Report.pdf).
 
 | File | What it is |
 |---|---|
@@ -33,7 +46,7 @@ python analysis/flight_analysis.py analysis-input/flight-1.csv --compare logs/te
 ```
 
 `--mass` is the flight mass in kg and is only needed for the drag coefficient. **The submitted
-mass was not recorded — weigh the vehicle.**
+mass was not recorded; the flights were analysed over the 450–550 g band.**
 
 **3 · Read `analysis-output/summary.md` before any graph.** Its first table says whether the log
 is what you think it is: how many packets, how many missing, whether it holds more than one

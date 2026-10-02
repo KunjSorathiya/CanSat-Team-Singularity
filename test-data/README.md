@@ -14,6 +14,13 @@ implementation on purpose.
 | [`sample-mission.txt`](sample-mission.txt) | anyone following the documentation | A replayable mission, so every documented `replay` command runs against a file that exists |
 | [`synthetic-flight/`](synthetic-flight/README.md) | the **post-flight analysis** and its tests | A **SYNTHETIC** flight with known answers, in the SD-log, raw-packet and ground-CSV formats. Not flight data |
 
+> [!NOTE]
+> **Update 2026-10-02.** Everything in this directory is fixtures and **synthetic** data. The
+> real flight data — the organizers' ground-station log of the 30 September 2026 launch — lives
+> in [`analysis/flight-2026-09-30/data/`](../analysis/flight-2026-09-30/data/)
+> (`Team-25-ground-station-log.xlsx`), analysed in
+> [`analysis/flight-2026-09-30/`](../analysis/flight-2026-09-30/README.md).
+
 ## `sample-mission.txt`
 
 Thirty packets, and not hand-written: they are the output of `build/host/emit_mission`,

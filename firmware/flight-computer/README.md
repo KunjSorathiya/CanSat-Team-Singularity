@@ -40,7 +40,11 @@ bash tools/check_pico_syntax.sh # -fsyntax-only of the PICO_BUILD branches again
 
 Requires the standard Raspberry Pi Pico SDK setup (`PICO_SDK_PATH`, `pico_sdk_import.cmake`,
 `pico_sdk_init()` in a top-level CMake). Then the `cansat_pico_firmware` target builds a
-UF2. Hardware has not been integrated; treat the image as unverified until bench-tested.
+UF2. *Written before the flight:* hardware had not been integrated and the image was unverified
+until bench-tested. **Update 2026-10-02:** the sealed image flew on 2026-09-30 — two descents,
+launch detection, calibration, arming and telemetry all ran on the vehicle, and after Flight 1
+it restarted itself (consistent with the 2 s watchdog), recalibrated in 5.5 s and re-armed. See
+[`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md).
 
 ## Startup calibration & safeguards
 
@@ -78,4 +82,6 @@ Safeguards in the flight loop:
 
 `config.hpp` marks every value the rulebook or hardware has not fixed: launch/landing
 thresholds, LoRa RF parameters (only the sync words 0xF3/0xA5 are fixed), battery divider
-ratio (0 = report raw pin voltage), barometric reference pressure.
+ratio (0 = report raw pin voltage), barometric reference pressure. *Update 2026-10-02:* the
+launch and descent logic was written for a drone lift; the competition launch was a hand throw from a
+terrace, which met the same conditions (carried up 15 m or more, then held still at the edge).

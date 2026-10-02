@@ -300,7 +300,8 @@ delays one acquisition instead of triggering several back to back.
 | I2C bus utilisation | Computed from bus speed and transaction length, **never measured** |
 | CPU headroom at 30 Hz | **Partly measured 2026-09-05.** A barometer read costs 0.282 ms mean, 0.347 ms worst — under 1 % of the 33 ms period. Not yet measured with the IMU sharing the bus, and not profiled beyond sensor reads |
 | Actual achieved loop rate | **MEASURED 2026-09-05: 30.04 Hz**, 33.289 ms mean interval with 0.453 ms standard deviation, over 150 ticks. Taken on the bring-up diagnostic's loop, which bounds `controller.cpp`'s scheduler rather than describing it |
-| Vibration spectrum during flight | Unknown; the DLPF choice is a datasheet-informed estimate |
+| Vibration spectrum during flight | Still not measured: the ground station receives telemetry at 1.43–3.09 Hz, not the 30 Hz stream, so no in-flight spectrum exists; the DLPF choice remains a datasheet-informed estimate. What the flights do show: the 5.2 g throw impulse (Flight 1, P-1599) and the 2.1 g canopy load (P-1603) were reported as ordinary readings, and the vehicle swung at most 18° (Flight 1) and 46° (Flight 2) from vertical |
+| Barometer in flight (update 2026-10-02) | **Flown 2026-09-30.** At rest after Flight 1 the barometer scatter was 1.15 Pa (0.10 m) and altitude read 0.0 ± 0.1 m after calibration. The transmitted altitude is reproduced to ±0.03 m by the ISA formula with the ground baseline, and reads 5.7 % small at 31 °C against the hypsometric equation, so descent rates were taken from temperature-corrected height (2.27 ± 0.05 m/s Flight 1, 1.88 ± 0.02 m/s Flight 2; 2.16 m/s from the transmitted altitude in Flight 1). The 30 Hz internal rate itself is invisible in the received stream |
 
 The barometer's real output rate and the achieved loop rate have both now been taken, on
 hardware, and both matched their predictions — **83.0 Hz against 83.3 predicted, and 30.04 Hz
@@ -315,7 +316,9 @@ reading moves rather than how often the part converts. Count falling edges of
 regardless of whether the value changed.
 
 What remains unmeasured is the bus utilisation, which needs a scope, and CPU headroom beyond
-the sensor-read cost.
+the sensor-read cost. The flights of 30 September 2026 did not change that, but they showed the
+configured sensors delivering usable data through a throw, a canopy opening and a descent; see
+[`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/) and final report chapter 14.
 
 ---
 

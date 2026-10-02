@@ -3,11 +3,14 @@
 Step-by-step procedures for building the firmware, configuring the vehicle, running the
 ground station, operating on launch day, and analysing the flight afterwards.
 
-> [!WARNING]
-> This runbook describes the procedure the software is designed for. **No step has been
-> executed on real hardware.** Treat every hardware action as first-time bring-up and
-> follow the [bring-up order](../design/wiring.md#bring-up-order) before attempting a
-> full mission rehearsal.
+> [!NOTE]
+> **Update 2026-10-02.** This runbook was written as the procedure the software is designed
+> for, before any flight. The vehicle then flew at the competition launch on 30 September
+> 2026; [what that day looked like and what it taught](#the-30-september-2026-launch-day)
+> is below, and the procedures are unchanged. The launch used a **terrace throw**, not the
+> drone lift the launch-day steps are phrased around; the steps still hold. For a new
+> vehicle or a changed board, still treat hardware actions as bring-up and follow the
+> [bring-up order](../design/wiring.md#bring-up-order).
 
 ---
 
@@ -22,6 +25,7 @@ ground station, operating on launch day, and analysing the flight afterwards.
 - [Launch-day procedure](#launch-day-procedure)
 - [If the link reads 1 Hz](#if-the-link-reads-1-hz)
 - [Reading telemetry in flight](#reading-telemetry-in-flight)
+- [The 30 September 2026 launch day](#the-30-september-2026-launch-day)
 - [Post-flight analysis](#post-flight-analysis)
 - [Troubleshooting](#troubleshooting)
 - [Emergency actions](#emergency-actions)
@@ -570,6 +574,13 @@ without it has no uplink and no window, and arms three seconds after power-on as
 > forces a best-effort result in which gyro and accelerometer bias are not applied, and
 > raises a `calibration` warning.
 
+> [!NOTE]
+> **How the launch was actually flown (2026-09-30):** the vehicle was carried up a building
+> and thrown by hand from a terrace at about 29.5 m, not released from a drone. The steps
+> below apply unchanged: carrying it up meets the 15 m climb condition, and standing still
+> at the terrace edge is the same state as hovering under a drone. Details in
+> [the launch-day section](#the-30-september-2026-launch-day).
+
 ### T-0 — Launch
 
 - [ ] Other teams' CanSats powered off during your launch, and yours off during theirs
@@ -661,6 +672,62 @@ Link health on the ground station:
 
 ---
 
+## The 30 September 2026 launch day
+
+**Added 2026-10-02.** What the competition launch looked like, from the organizers' ground
+station export and the team's account. Numbers are in
+[`analysis/flight-2026-09-30/results.json`](../../analysis/flight-2026-09-30/results.json)
+and chapter 14 of the final report. Packets are counted as **received** only.
+
+**What was flown.** The vehicle was carried up a building and **thrown by hand from a
+terrace** at about 29.4-29.6 m (96-97 ft; the rulebook's "100 ft is about an eight-storey
+building"), under a **6 ft (1.83 m)** canopy. The rulebook plans a drone release; this
+launch did not use one.
+
+**The day, in order (IST).**
+
+| Time | Event |
+|---|---|
+| 17:55 | Pad capture: 2 packets received at 0 m |
+| 18:14:34 | Flight 1: vehicle powered at the ground floor |
+| about 18:19 | Five-minute command window closed; vehicle armed |
+| then | Carried up the building (`ST-F111` for the whole record), held still at the terrace edge for at least 4.3 s, on its side |
+| 18:25:51 | Thrown (P-1599), 5.2 g impulse; canopy loaded about 0.97 s after apex, 2.1 g |
+| after landing | Vehicle restarted itself about 2 s after the record ended, calibrated, re-armed, and was heard for 12.95 s / 41 packets |
+| 18:44:07 | Flight 2: vehicle powered at the terrace, still in the command window (`ST-R003`) |
+| about 18:45:50 | Thrown: 29.6 m in 15.4 s, 18 packets received |
+
+**Results in one line each.** Steady descent 2.27 m/s (Flight 1) and 1.88 m/s (Flight 2),
+against the rulebook's 5 m/s; link margin at least 14 dB; packets at most 188 bytes;
+at least 5 s of post-impact telemetry (12.95 s heard). The predicted-versus-measured table
+is in the [bring-up record](../testing/bring-up-record.md#flight-results-30-sep-2026).
+
+**Lessons.**
+
+- **The design logic held for a throw.** Launch detection is a 15 m climb held 300 ms, so
+  carrying the vehicle up the building armed-and-flying it, and the descent gate (a landing
+  needs an observed descent first) is the same protection against a vehicle standing still
+  at the terrace edge as it is against a hovering drone.
+- **Arm before the climb.** Flight 1 was armed on the ground floor before it was carried
+  up. Flight 2 was powered at the terrace and was still in the 1.43 Hz command window at the
+  throw, so it flew at the slow rate and its altitude zero was the terrace (the descent
+  reads -26.9 m): fewer packets (18) and a different baseline. Power on and wait for
+  `ST-R11…` before the climb whenever the rate and the ground baseline matter.
+- **The vehicle restarted itself after Flight 1.** The timing is consistent with the 2 s watchdog (the cause is not established). A watchdog reset skips the command window, so the
+  vehicle came back already at max rate and re-armed within seconds. Expect `P-001`
+  restarting mid-record and split the analysis at each restart of the mission clock.
+- **Expect repeated, out-of-order rows in the organizers' export.** The export held 180
+  rows from 10 files for 102 distinct packets; the analysis removes the repeats.
+- **Quote descent rate from temperature-corrected height.** The transmitted altitude read
+  5.7 % small at 31 degrees C ([F-21](../testing/bring-up-record.md#findings)); the rate
+  from it was 2.16 m/s against 2.27 m/s corrected.
+- **The switch.** The ON/OFF rocker is on short leads outside the frame (not in the CAD
+  cut-out), with a power LED fitted.
+- **Weigh it.** The submitted mass was reported by the team to be in the 450-550 g band and
+  was not weighed on record, so the descent could not be placed on one model row.
+
+---
+
 ## Post-flight analysis
 
 Four hours are allowed after launch. The three mandatory graphs are altitude, temperature
@@ -681,7 +748,12 @@ and pressure, each against time or packet number.
    The summary line it prints (`received=… accepted=… rejected=…`) is worth reading before
    the graphs: `received=0` means the file is not what the command thinks it is.
 3. **Run the analysis** — written and tested before the launch, in
-   [`analysis/`](../../analysis/README.md). Extract the SD log, then one command writes the
+   [`analysis/`](../../analysis/README.md). **For the real launch, the analysis is in
+   [`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md):** the
+   organizers' ground station gave an `.xlsx` export, which
+   [`launch_analysis.py`](../../analysis/flight-2026-09-30/launch_analysis.py) reads
+   directly (it removes repeated exports and splits the record at each restart of the
+   mission clock); every number it produces is in `results.json`. The generic route follows. Extract the SD log, then one command writes the
    three mandatory graphs, the optional analysis and a `summary.md`:
    ```bash
    python tools/read_flight_log.py FLIGHT.CSV --out-dir analysis-input

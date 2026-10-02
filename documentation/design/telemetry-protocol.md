@@ -4,6 +4,8 @@ This document defines the CanSat-to-ground-station telemetry contract for softwa
 
 This is a protocol specification only. It does not implement firmware, ground-station software, radio configuration, or SD logging.
 
+> **Update 2026-10-02.** The protocol has now been flown. The organizers' station received 102 distinct packets from this vehicle (identity `CAN-Team-25`) in two descents on 30 September 2026, every one at most 188 bytes; real packets are shown in [Packets from the 30 September flights](#packets-from-the-30-september-flights). The sections below are the design as written before the flights, kept intact; statements of what was "open" are marked where the flights or the build settled them.
+
 ## Protocol Version
 
 **Telemetry Protocol v0.1**
@@ -16,7 +18,7 @@ The team identifier is a configuration item and is not a protocol version:
 CAN-Team-XX
 ```
 
-The actual team number is **TBD - organizer/team number confirmation required**. It must not be invented or left ambiguous in launch configuration.
+The actual team number was **TBD - organizer/team number confirmation required** when this was written. It must not be invented or left ambiguous in launch configuration. *(Update 2026-10-02: the packet identity that flew was `CAN-Team-25`.)*
 
 ## Mandatory Packet
 
@@ -422,6 +424,36 @@ The following representation decisions remain open:
 
 The SD logger must not create a representation that loses packet number, timestamp, mandatory measurements, or validity state.
 
+## Packets from the 30 September flights
+
+Both descents on 30 September 2026 were received by the organizers' ground station; the export is `analysis/flight-2026-09-30/data/Team-25-ground-station-log.xlsx` and the analysis, with every number in `results.json`, is in [`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/) (final report chapter 14). The packet text below is rebuilt from the station's decoded columns, in the field order and precision of this protocol; its length matches the byte count the station recorded.
+
+A rich packet, Flight 1, P-1585 (187 bytes recorded) — twelve mandatory fields, GPS position, sound and the status field:
+
+```text
+CAN-Team-25; P-1585; Ti-00:11:12:929; A-27.6; Pr-100884.95; T-31.4; Ro-62.2; Pi-16.0; Ya-153.1; AX--2.66; AY-10.51; AZ-4.48; GP-Lat-21.15994; GP-Lon-72.78813; GP-Alt-42; SN-10.5; ST-F111;
+```
+
+The lean packet that followed, P-1586 (124 bytes recorded) — mandatory fields only, the second slot of the max-rate pattern:
+
+```text
+CAN-Team-25; P-1586; Ti-00:11:13:305; A-27.7; Pr-100884.28; T-31.4; Ro-88.5; Pi-20.3; Ya-175.4; AX--3.82; AY-10.03; AZ-1.37;
+```
+
+What the record confirms of this specification:
+
+| Protocol statement | Flight evidence |
+|---|---|
+| Fixed field order, prefixes, `; ` separator, trailing semicolon | The organizers' station decoded the received packets into the twelve mandatory fields (the analysis reads them from its export) |
+| Doubled dash for a negative value (`AX--2.66`) | Present in the flight packets (negative `AX` and `AY` values) |
+| `GP-` and `SN-` appended after the mandatory block, only when valid | GPS fixes in every rich packet; sound in the rich packets (the throw of Flight 1 is the loudest, 36.3 mV p-p) |
+| 200-byte budget; rich widest 209 by construction, `SN-` shed first | Received packets 136–188 B (rich) and 118–130 B (lean); none above 188 |
+| `ST-` status field on every rich packet it fits | `ST-F111` for the whole of Flight 1 (FLIGHT, armed, calibrated, 1 fault); `ST-R003` in the Flight 2 command window; `ST-R004` to `ST-R113` across the post-flight restart |
+| Sequential numbering from `P-001` at start | The restart after Flight 1 resumed at `P-001`; the flight packets carry consecutive numbers in the export (P-1585, P-1586, ...) |
+| Rate above 1 Hz | 3.09 Hz on the received packets in the max-rate pattern, gaps 0.374 / 0.296 / 0.297 s |
+
+Two properties the flights make visible. The mission timestamp `Ti-` runs from the vehicle's power-on, so Flight 2, powered at the terrace, and Flight 1, powered at the ground floor, have separate clocks; and the altitude `A-` is relative to the ground baseline taken at calibration, so the Flight 2 descent reads about −26.9 m (zero is the terrace). 
+
 ## Test Requirements
 
 Each test record must contain a requirement reference, method, expected result, and evidence location.
@@ -444,12 +476,12 @@ Each test record must contain a requirement reference, method, expected result, 
 
 ## Open Decisions
 
-- Team number for `CAN-Team-XX`
+- Team number for `CAN-Team-XX` — *settled: `CAN-Team-25`, as flown on 2026-09-30*
 - Whether the Pico timer timestamp is accepted as the final mission timestamp and the exact epoch/rollover policy
 - Roll, pitch, and yaw sign convention and body-frame mounting definition
 - Yaw method and whether the current MPU-9250-only hardware provides an acceptable field
-- Final packet rate; 1 Hz is the selected default and the airtime-supported choice
-- Spreading factor, bandwidth, coding rate, frequency, transmit power, preamble, CRC, and retry behavior
+- Final packet rate; 1 Hz is the selected default and the airtime-supported choice — *since built as 1.43 Hz normal flight and the 3.09 Hz max-rate pattern, the latter measured in flight*
+- Spreading factor, bandwidth, coding rate, frequency, transmit power, preamble, CRC, and retry behavior — *SF7 / 125 kHz / CR 4/5 / 17 dBm flew and was received; see [link-budget.md](link-budget.md)*
 - Packet counter policy when sensor data is invalid
 - Line termination and character encoding
 - SD logging representation and validity-event format
@@ -485,7 +517,7 @@ Future ground-station software will need to implement:
 - Live display of telemetry and faults
 - Data analysis input and required graph generation
 
-No implementation is claimed by this document.
+This document claims no implementation of its own; the firmware, ground station and parsers that implement it are described in [software-architecture.md](software-architecture.md), and flew on 2026-09-30.
 
 ## Protocol Consistency Review
 
