@@ -2,6 +2,11 @@
 
 ## There is no schematic file, and that is deliberate
 
+*Update 2026-10-02:* the built board is photographed in
+[`mechanical/photos/pcb-top.jpg`](../../mechanical/photos/pcb-top.jpg); the board flew on
+2026-09-30. The switch is a rocker on short leads outside the frame. The "not yet fitted"
+rows below are as of 2026-09-14.
+
 The vehicle is a **point-to-point perfboard build**. Drawing it in an EDA package would
 produce a schematic symbol set, a footprint library and a netlist — of which only the
 netlist describes anything real about a board with no copper traces on it. So the netlist is

@@ -4,8 +4,15 @@ Everything needed to go from an empty desk to a CanSat transmitting telemetry to
 station, in the order you actually do it.
 
 **Read this first:** the software in this repository is complete and tested on a host
-machine. The vehicle is not built. Nothing here has been run on real hardware. Steps below
-are marked so you always know which is which:
+machine, and this guide was written while the vehicle was still being built. The vehicle has
+since been built and **flown** (2026-09-30: two descents, thrown by hand from a ≈ 29.5 m
+terrace, 2.27 and 1.88 m/s under a 6 ft canopy; see the
+[root README](../README.md#flight-results) and the
+[flight analysis](../analysis/flight-2026-09-30/)). The marks below record the state of each
+step when the guide was written, so you always know which is which — several 🔴 items (the
+regulator, the switch and LED, the parachute, the structure) were resolved during the build;
+the [root README](../README.md) and [bring-up record](testing/bring-up-record.md) hold the
+current answers:
 
 | Mark | Meaning |
 |---|---|
@@ -69,7 +76,9 @@ are marked so you always know which is which:
 ## 1. What this project is
 
 A CanSat: a soda-can-sized satellite that is carried up by a rocket or drone, released, and
-transmits sensor telemetry to the ground while it descends under a parachute.
+transmits sensor telemetry to the ground while it descends under a parachute. (This one was
+flown by being carried up a building and thrown by hand from the terrace, at the 2026
+competition.)
 
 This one uses two Raspberry Pi Picos — one flying, one on the ground as a radio bridge —
 connected by a 433 MHz LoRa link, with a PC application and a browser console displaying
@@ -186,8 +195,8 @@ The confirmed BOM, with supplier SKUs, is in
 | 11 | Universal prototype PCB, 10×10 cm | 1–2 | Mounting |
 | 12 | Regulator | 1 | 🔴 **Not selected — see [step 10](#10-the-power-problem--read-before-wiring)** |
 | 13 | Power switch + power LED | 1 each | 🔴 Required by the rulebook, not yet in the BOM |
-| 14 | Parachute / descent system | 1 | 🔴 Not designed |
-| 15 | Structure and egg chamber | 1 | 🔴 Not designed |
+| 14 | Parachute / descent system | 1 | 🔴 Not designed when this guide was written. **Built since:** a 6 ft (1.83 m) sewn canopy, flown twice; the model's guaranteed minimum is 80 cm |
+| 15 | Structure and egg chamber | 1 | 🔴 Not designed when written. **Built since:** `Cansat_D1`, printed in PETG ([mechanical/README.md](../mechanical/README.md)) |
 
 Also needed but not part of the electronics: an egg (the rulebook payload), wire, headers,
 and whatever your structure is made from.
@@ -538,7 +547,9 @@ the full checklist. The items people forget:
 
 ## 22. Launch day
 
-Follow the [runbook](operations/runbook.md#launch-day-procedure) — it is sequenced by
+At the 2026-09-30 competition the vehicle was powered at the ground floor, left through the
+five-minute command window until it armed, carried up the building and thrown from the terrace
+(see [Flight results](../README.md#flight-results)). Follow the [runbook](operations/runbook.md#launch-day-procedure) — it is sequenced by
 countdown time, from T-60 to recovery, and tells you what each telemetry field should look
 like at each stage.
 
@@ -549,7 +560,9 @@ like at each stage.
 2. Pull the microSD card and read the raw block log.
 3. Export the received telemetry to CSV from the ground-station application.
 4. Compare the two: the SD log is complete, the radio log has gaps. The difference is your
-   measured packet loss.
+   measured packet loss. (For the 2026-09-30 flight the ground-station export is analysed in
+   [`analysis/flight-2026-09-30/`](../analysis/flight-2026-09-30/), which reports packets
+   received.)
 5. Record the results in [test-plan.md](testing/test-plan.md) — the hardware test table
    exists to be filled in.
 
@@ -641,4 +654,5 @@ will hit first:
 | Measure the vehicle on hardware day | [bring-up-record.md](testing/bring-up-record.md) |
 | Know what the competition requires | [requirements.md](requirements/requirements.md) |
 | Know what is done and what is not | [timeline.md](project/timeline.md) |
+| See what the flight measured | [Final Project Report](project/CanSat-2026-Final-Project-Report.pdf) · [flight analysis](../analysis/flight-2026-09-30/) |
 | Check the project against its own claims | [repository audit](audit/2026-09-04-repository-audit.md) |

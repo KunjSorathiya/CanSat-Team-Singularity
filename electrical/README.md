@@ -2,7 +2,17 @@
 
 The vehicle's electrical design: what is connected to what, and what carries the current.
 
-**Status: 2026-09-14 — submitted.** The board is **built and working**, every device on it
+**Status: 2026-10-02 — flown.** The board is **built and working**, every device on it
+answers, the 3.3 V rail has been measured under load, and the board flew in both competition
+descents on 2026-09-30 and survived both landings (see
+[`analysis/flight-2026-09-30/`](../analysis/flight-2026-09-30/README.md)). A photograph of the
+vehicle board, component side, is [`mechanical/photos/pcb-top.jpg`](../mechanical/photos/pcb-top.jpg):
+
+![Vehicle board, component side](../mechanical/photos/pcb-top.jpg)
+
+The switch is a rocker ON/OFF on short leads outside the frame, not in the CAD cut-out.
+
+*As written 2026-09-14:* the board is built and working, every device on it
 answers, and the 3.3 V rail has been measured under load. The switch, the power LED and the
 battery divider were fitted before submission; **the Schottky diode was not** (reported by the team, 2026-09-14).
 

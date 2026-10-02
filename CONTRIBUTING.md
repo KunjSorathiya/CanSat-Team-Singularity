@@ -40,6 +40,7 @@ firmware/ground-station/    bridge firmware + USB framing (ground::)
 ground-station/software/    Python receive pipeline
 ground-station/web/         single-file browser console + its Node test harness
 simulations/                mission analysis that runs: the descent model + its tests
+analysis/                   post-flight analysis tooling + flight-2026-09-30/, the real flight
 avionics/                   per-subsystem status summaries (power, sensors, telemetry)
 electrical/                 netlist, PCB notes
 mechanical/                 envelope, mass budget, drawings, CAD
@@ -56,16 +57,22 @@ and `mechanical/drawings/envelope-and-board-fit.svg` are written by scripts in `
 `check_doc_claims.py` fails the build if the committed file no longer matches its generator.
 Edit the generator, run it, and commit both.
 
-The third is the final report. `documentation/project/final-report.md` is the **source**;
-its figures, `.docx` and `.pdf` are generated beside it and committed so a submission does
-not depend on anybody's toolchain:
+The third is the final report. The post-flight report,
+`documentation/project/CanSat-2026-Final-Project-Report.pdf`, is built from the source in
+`documentation/project/report-2026/` with `python build.py`; edit the source, never the PDF.
+The 14 September submission report is older: `documentation/project/final-report.md` is its
+**source**, and its figures, `.docx` and `.pdf` are generated beside it:
 
 ```bash
 bash tools/build_report.sh
 ```
 
 **Never edit the `.docx`.** It is overwritten on the next build, and the Markdown is what
-`check_doc_claims.py` can police.
+`check_doc_claims.py` can police. Both reports are historical records of their moment; correct
+them with a dated note rather than rewriting what was submitted.
+
+`analysis/flight-2026-09-30/` is also generated (from the organizers' log, by
+`launch_analysis.py`); every flight number quoted anywhere comes from its `results.json`.
 
 ---
 
@@ -111,7 +118,7 @@ Three guards make this enforceable rather than a promise:
 - **[`test-data/protocol-fixtures.tsv`](test-data/protocol-fixtures.tsv)** — 32 packets with
   a recorded verdict each, read by the C++, Python **and** JavaScript parsers. A parser that
   disagrees fails the build.
-- **`tools/check_doc_claims.py`** — 306 documented claims compared against the source that
+- **`tools/check_doc_claims.py`** — 307 documented claims compared against the source that
   defines them: every pin in the wiring table, every test count, every relative link and
   heading anchor, the generated netlist and drawing, and the canopy diameter the mechanical
   build takes out of a simulation. **When you state a number in a document, add a check for
@@ -200,7 +207,8 @@ Documentation is part of the change, not a follow-up.
 | A measurement taken on hardware | `testing/bring-up-record.md` — and a finding row if it disagreed with the prediction |
 | Operating procedure | `runbook.md` |
 | A subsystem's state | the relevant `avionics/*/README.md`, `electrical/README.md` or `mechanical/README.md` |
-| A number the final report quotes | `documentation/project/final-report.md`, then `bash tools/build_report.sh` |
+| A number the final report quotes | `documentation/project/report-2026/` (post-flight) or `final-report.md` (submission), then rebuild |
+| A flight measurement | `analysis/flight-2026-09-30/` — regenerate `results.json`, never type a flight number by hand |
 | Anything notable | `CHANGELOG.md` |
 
 Follow the [documentation rules](documentation/README.md#documentation-rules): evidence

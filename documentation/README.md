@@ -2,9 +2,14 @@
 
 Every engineering document for CanSat 2026, grouped by what you are trying to do.
 
-> **Status: submitted 2026-09-14, launch pending.** The CanSat and the
-> [final report](project/final-report.md) are handed in. Every document here describes the
-> vehicle as submitted; nothing in this directory describes a flight yet.
+> **Status: submitted 2026-09-14, flown 2026-09-30.** The CanSat and the first
+> [final report](project/final-report.md) were handed in on 14 September. The vehicle then
+> flew twice at the competition launch (thrown by hand from a ≈ 29.5 m terrace, not released
+> from a drone), and the flight is reported in the
+> [Final Project Report (PDF)](project/CanSat-2026-Final-Project-Report.pdf) and
+> [`analysis/flight-2026-09-30/`](../analysis/flight-2026-09-30/). Documents written before
+> 30 September describe the vehicle as submitted and carry a dated update note where the
+> flight superseded them. Repository: <https://github.com/KunjSorathiya/CanSat-Team-Singularity>.
 
 ---
 
@@ -12,8 +17,9 @@ Every engineering document for CanSat 2026, grouped by what you are trying to do
 
 | I want to… | Read |
 |---|---|
-| **Prepare for the launch** | **[Launch-day procedure](operations/runbook.md#launch-day-procedure)** |
-| **Analyse the flight inside the four hours** | **[Post-flight analysis](../analysis/README.md)** — notebook and one-command CLI |
+| **See what the flight measured** | **[Flight analysis 2026-09-30](../analysis/flight-2026-09-30/)** — the organizers' log, figures and `results.json`; report chapter 14 |
+| **Run a launch** | **[Launch-day procedure](operations/runbook.md#launch-day-procedure)** |
+| **Analyse a flight inside the four hours** | **[Post-flight analysis](../analysis/README.md)** — notebook and one-command CLI |
 | **Build one of these from nothing** | **[Quick Start Guide](quick-start.md)** |
 | **Record the parts that just arrived** | **[Receiving Inspection Record](hardware/receiving-inspection.md)** |
 | **Solder the vehicle board** | **[Assembly Procedure](hardware/assembly-procedure.md)** |
@@ -29,7 +35,7 @@ Every engineering document for CanSat 2026, grouped by what you are trying to do
 | Know what is tested | [Test Plan](testing/test-plan.md) |
 | Measure the vehicle on hardware day | [Bring-Up Record](testing/bring-up-record.md) |
 | Know what one subsystem's state is | [Avionics](../avionics/README.md) · [Electrical](../electrical/README.md) · [Mechanical](../mechanical/README.md) |
-| **Read the whole project in one document** | **[Final Project Report](project/final-report.md)** — also as [`.docx`](project/CanSat-2026-Final-Report.docx) and [`.pdf`](project/CanSat-2026-Final-Report.pdf) |
+| **Read the whole project in one document** | **[Final Project Report (PDF, post-flight)](project/CanSat-2026-Final-Project-Report.pdf)** — source in [`project/report-2026/`](project/report-2026/). The 14 Sep submission is [final-report.md](project/final-report.md), also as [`.docx`](project/CanSat-2026-Final-Report.docx) and [`.pdf`](project/CanSat-2026-Final-Report.pdf) |
 | Know where the points are | [Scoring Assessment](project/scoring-assessment.md) |
 | Know what is still to buy | [Purchase List](hardware/purchase-list.md) |
 | Understand why telemetry runs at 1.43 Hz | [Link Budget](design/link-budget.md) |
@@ -61,9 +67,11 @@ Every engineering document for CanSat 2026, grouped by what you are trying to do
 |---|---|
 | [concept-of-operations.md](mission/concept-of-operations.md) | The mission from power-on to recovery: the profile, phase by phase, the data budget, what is autonomous, failure behaviour, and what is still unknown. **It is also where [F-20](testing/bring-up-record.md#findings) was found** |
 
-**Launch logs, flight records and post-flight reports belong in this directory too.** There
-are none yet: the vehicle was submitted on 2026-09-14 and the launch is still ahead. When it
-happens, copy the SD card and the ground-station logs here first, then follow
+**Flight records.** The vehicle flew on 2026-09-30. The organizers' ground-station export, the
+analysis scripts, the figures and `results.json` are in
+[`analysis/flight-2026-09-30/`](../analysis/flight-2026-09-30/); the write-up is chapter 14 of
+the [final report](project/CanSat-2026-Final-Project-Report.pdf). For a next flight, copy the SD
+card and the ground-station logs first, then follow
 [post-flight analysis](operations/runbook.md#post-flight-analysis).
 
 ---
@@ -129,6 +137,7 @@ documents above rather than competing with them.
 
 | Document | Contents |
 |---|---|
+| [CanSat-2026-Final-Project-Report.pdf](project/CanSat-2026-Final-Project-Report.pdf) | The post-flight final report (≈ 118 pages), built from [`report-2026/`](project/report-2026/) with `python build.py`; supersedes the 14 Sep report |
 | [timeline.md](project/timeline.md) | History, phase plan, gate status, critical path, blocked work, risk register |
 | [scoring-assessment.md](project/scoring-assessment.md) | Where the project stands against the 200-point rulebook, section by section, and the cheapest points left |
 | [../CHANGELOG.md](../CHANGELOG.md) | What changed, when, and why |
@@ -201,7 +210,7 @@ documentation is useful rather than optimistic.
 5. **Documentation and code must agree.** Pin maps, timing values and thresholds appear in
    both; when they diverge, the code is the truth and the document is the bug.
 6. **A number a document states should be checked by something.**
-   [`tools/check_doc_claims.py`](../tools/check_doc_claims.py) holds 233 documented claims to
+   [`tools/check_doc_claims.py`](../tools/check_doc_claims.py) holds 307 documented claims to
    the source that defines them, and it runs in the same build as the tests. When a document
    states a figure that matters, add a check for it rather than trusting the next reader to
    notice.

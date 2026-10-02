@@ -19,6 +19,19 @@ source of truth in code; this page and
 > `VBUS` reaches `VSYS` through the Pico's own `D1` and charges the pack with nothing
 > controlling it ([D-6](../hardware/assembly-procedure.md#d-6-a-schottky-goes-between-the-switch-and-vsys)).
 
+> [!NOTE]
+> **Update 2026-10-02 — the wired vehicle has flown.** Two descents on 30 September 2026
+> ([`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/), final report chapter 14)
+> exercised this wiring in flight: the radio link, the barometer and IMU (altitude, attitude and
+> acceleration through a 5.2 g throw), the GPS (a fix in every rich packet) and the sound
+> input (`SN-` in the rich packets) all delivered data, and the vehicle survived the landings.
+> The switch is now fitted — a rocker ON/OFF switch on short leads outside the frame — with the
+> power LED. Photographs: `documentation/project/report-2026/figures/photos/pcb-top.jpg` (vehicle
+> board, component side) and `cansat-assembled.jpg`. The battery divider and the Schottky are
+> not covered by the flight evidence (no battery voltage is transmitted), and no record here
+> says the Schottky was fitted. The text below is the design as built up to the bring-up, left
+> as written.
+
 ---
 
 ## Contents
@@ -627,8 +640,8 @@ microSD's supply pair.
 - [ ] microSD write-transient current measured against the regulator's capability
 - [ ] microSD MISO tri-state behaviour confirmed on the shared SPI bus
 - [ ] Peripheral regulator selected, with a documented load budget
-- [ ] Manual ON/OFF switch selected and placed in the main battery feed
-- [ ] Power-LED branch designed so it lights immediately at power-on
+- [x] **Manual ON/OFF switch selected and fitted** — a rocker switch on short leads outside the frame (update 2026-10-02)
+- [x] **Power-LED branch designed and fitted** — lit at power-on (update 2026-10-02)
 - [ ] Battery divider designed, built and measured before `battery_divider_ratio` is set
 - [x] **Battery polarity confirmed with a meter** — red is positive, 3.92 V open-circuit, 2026-09-05
 - [x] **A mating connector for the battery obtained** — JST-RCY pigtail, 2026-09-05

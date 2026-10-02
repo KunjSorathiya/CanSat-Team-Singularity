@@ -18,8 +18,8 @@ The architecture is based on the confirmed hardware list and the current require
 | Micro SD card reader | 1 | Onboard data storage | Confirmed hardware; breakout variant and documentation TBD |
 | Orange 3.7 V 1500 mAh 25C 1S LiPo | 1 | Primary power source | Confirmed hardware |
 | ~~AMS1117-3.3 regulator module~~ | 0 | Previously planned 3.3 V peripheral rail | **Not used, and none is needed.** Rejected on dropout, then made unnecessary: every load runs from the Pico's own `3V3(OUT)`, measured holding 3.28–3.29 V under the harshest load the vehicle can produce |
-| Manual power switch | 1 required | Main power control | **Held** — an I/O switch, obtained 2026-09-06. Goes in the battery positive lead, ahead of everything. Not yet fitted |
-| Power LED | 1 required | Visible power indication | **Held** — one red and one green 5 mm LED plus 1 kΩ resistors, obtained 2026-09-06, colours recorded 2026-09-09. **Red is the power LED**, on the regulated `+3V3` rail rather than a GPIO — see [the indicator LEDs](#the-indicator-leds). Not yet fitted |
+| Manual power switch | 1 required | Main power control | **Held** — an I/O switch, obtained 2026-09-06. Goes in the battery positive lead, ahead of everything. ~~Not yet fitted~~ — **fitted (update 2026-10-02):** a rocker ON/OFF switch on short leads, mounted outside the frame (it is not in the CAD cut-out), and used to power the vehicle at the competition |
+| Power LED | 1 required | Visible power indication | **Held** — one red and one green 5 mm LED plus 1 kΩ resistors, obtained 2026-09-06, colours recorded 2026-09-09. **Red is the power LED**, on the regulated `+3V3` rail rather than a GPIO — see [the indicator LEDs](#the-indicator-leds). ~~Not yet fitted~~ — **fitted (update 2026-10-02)**; the power LED is on the finished vehicle |
 | **Schottky diode, 1 A** | 1 required | Stops USB back-powering the pack | **Not held — the only outstanding purchase.** See [D-6](../hardware/assembly-procedure.md#d-6-a-schottky-goes-between-the-switch-and-vsys) |
 | Universal single-sided prototype PCB | 1 | Onboard prototype assembly | Confirmed hardware |
 
@@ -100,7 +100,7 @@ The switch design must support:
 - No accidental interruption from vibration or impact
 - Safe access before launch
 
-The switch is not yet present in the confirmed hardware BOM.
+*Update 2026-10-02:* the switch was selected and fitted — a rocker ON/OFF switch on short leads outside the frame — and the vehicle was powered with it at the ground floor (Flight 1) and at the terrace (Flight 2) on 30 September 2026. Photographs of the assembled vehicle and board are in the final report (`documentation/project/report-2026/figures/photos/`: `cansat-assembled.jpg`, `pcb-top.jpg`). The paragraphs above are the design reasoning that led to it.
 
 ## Voltage Regulation
 
@@ -508,7 +508,7 @@ can sit in the supply track.
 | Connector and wiring problems | Incorrect IPEX/SMA, loose connections, polarity errors, or vibration can interrupt power or RF. | Verify connector compatibility, polarity, strain relief, and retention. |
 | **USB back-powering the battery** | With the pack wired straight to `VSYS`, plugging in USB puts ~4.7 V on a ~3.9 V cell and charges it with no CC/CV, no termination and no current limit. The pack carries no visible protection ([D.4](../hardware/receiving-inspection.md#d4--battery)), and the Pico datasheet §4.5 exists to prevent exactly this. | Fit a Schottky between the switch and `VSYS` ([D-6](../hardware/assembly-procedure.md#d-6-a-schottky-goes-between-the-switch-and-vsys)). Until then, battery OFF whenever USB is connected. |
 | **GPS desense from the onboard transmitter** | A 433 MHz PA at **+17 dBm** sits on the same 100 mm board as a GPS receiver working near **−130 dBm** behind an active patch antenna. 433 MHz has no low-order harmonic on L1 (1575.42 MHz; 3rd = 1299, 4th = 1732), so the mechanism is **front-end overload** rather than in-band interference — the LNA driven toward compression, costing sensitivity. **Nothing in this repository had recorded this until 2026-09-07.** | Measure it: bring-up rows 4.5 and 4.5a. Mitigations are physical and free — maximum separation between the two antennas, patch skyward and the LoRa antenna perpendicular, pigtail routed away from the GPS. **Decide the placement before the structure is designed around it.** |
-| Power loss during impact | Impact can open a switch, connector, solder joint, or battery connection. | Secure the power path and perform impact and post-impact telemetry tests. |
+| Power loss during impact | Impact can open a switch, connector, solder joint, or battery connection. | Secure the power path and perform impact and post-impact telemetry tests. **Flown 2026-09-30:** after Flight 1 the vehicle restarted itself about 2 s after the end of the record (consistent with the 2 s watchdog), calibrated in 5.5 s, re-armed and was heard for 12.95 s (41 packets), so power and telemetry returned within seconds of the landing. The cause of the reset was not recorded; no brownout is claimed |
 | Unverified SD breakout | A module label does not establish its input voltage, signal levels, or interface. | Obtain exact documentation and test the reader independently. |
 | Inadequate Pico supply path | The Pico is intended to use VSYS, but battery protection and the switched path remain unresolved. | Verify VSYS implementation, protection, startup, and brownout behavior. |
 
