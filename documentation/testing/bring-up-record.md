@@ -27,6 +27,7 @@ guessing — a blank row is honest, a guessed one is worse than nothing.
 - [Gate 8 · End to end](#gate-8--end-to-end)
 - [Gate 9 · Endurance and recovery](#gate-9--endurance-and-recovery)
 - [Findings](#findings)
+- [Flight results, 30 Sep 2026](#flight-results-30-sep-2026)
 - [Sign-off](#sign-off)
 
 ---
@@ -699,6 +700,37 @@ measured, what you did about it.
 When a finding changes a constant, change it in the source, re-run
 `bash tools/build_host.sh` — which will tell you if a document now contradicts it — and add
 a row to [CHANGELOG.md](../../CHANGELOG.md).
+
+---
+
+## Flight results, 30 Sep 2026
+
+**Appended 2026-10-02. The rows above are not rewritten**: they record what was predicted
+and what the bench gave before the launch. This section sets the flight quantities beside
+what the launch measured. The vehicle was **thrown by hand from a terrace at about 29.5 m**
+(96-97 ft), not lifted by a drone, under a **6 ft (1.83 m)** canopy; the 80 cm figure used
+in the predictions is the model's guaranteed minimum, not what flew. Source: the organizers'
+ground station export, analysed in
+[`analysis/flight-2026-09-30/`](../../analysis/flight-2026-09-30/README.md) with every number
+in `results.json`. Packets are counted as **received** only. Measured by the analysis, not
+signed off row by row, so the verdict column is left for the team.
+
+| Quantity | Predicted | Measured in flight | Reading |
+|---|---|---|---|
+| Descent rate | 4.37-5.00 m/s for the 80 cm minimum canopy ([concept of operations](../mission/concept-of-operations.md#phase-by-phase)); 1.97-2.18 m/s for the 6 ft canopy over 450-550 g (2.07 at 500 g) | Flight 1 **2.27 +/- 0.05 m/s** (temperature-corrected, R2 0.991; 2.16 m/s from the transmitted altitude). Flight 2 **1.88 +/- 0.02 m/s** (R2 0.9988) | Far below the rulebook's 5 m/s. Against the 500 g prediction: +9 % and -9 %. Implied Cd 0.57-0.69 (F1), 0.82-1.00 (F2), against the 0.75 assumed |
+| Descent time | 14-15.6 s from 29.5 m (6 ft canopy model) | Flight 2: 29.6 m in 15.4 s | Inside the predicted range |
+| Link margin | Positive over the -123 dBm SF7 sensitivity ([link budget](../design/link-budget.md)) | RSSI -109 to -79 dBm; **margin at least 14 dB, mean 31 dB**; RSSI rose about 14 dB at the throw | Link closed at the terrace distance, with margin |
+| Max-rate cadence | Rich, lean, lean in 374 / 296 / 296 ms slots, 3.11 Hz (row 8.x bench) | **3.09 Hz**, gaps 0.374 / 0.296 / 0.297 s | The designed pattern, reproduced |
+| Command-window cadence | 1.43 Hz | Flight 2 powered at the terrace was in the 1.43 Hz window (`ST-R003`) | As designed |
+| Packet size | Under the 200 byte ceiling | At most **188 bytes**; rich 136-188 B, lean 118-130 B | Under the ceiling |
+| Post-impact transmission | At least 5 s (REC-008) | **12.95 s / 41 packets** after Flight 1; the vehicle restarted about 2 s after the end of the record (consistent with the 2 s watchdog), calibrated in 5.5 s and re-armed | Requirement met. At rest 1.000 g (9.811 +/- 0.015 m/s2), altitude 0.0 +/- 0.1 m, GPS fix kept |
+| Structural load | 100 N study load; Fusion 360 peaks 2.885 / 1.330 / 2.345 MPa | Throw impulse 5.2 g; canopy load 2.1 g (F1) and 1.93 g (F2); touchdown kinetic energy about 0.8-1.4 J; a 25 ms stop is about 34-50 N | Well inside the study load; the vehicle kept transmitting |
+| Altitude formula | ISA formula plus ground baseline reproduces itself; reads low on a hot day ([F-21](#findings)) | Transmitted altitude reproduced to +/- 0.03 m; **5.7 % small at 31 degrees C** against the hypsometric equation | Confirms F-21 in flight; rates were taken from temperature-corrected height |
+| Launch detection | Carry past 15 m, held 300 ms, arms first | Armed about 18:19; state `ST-F111` for the whole record after the carry up the building; throw at 18:25:51 (P-1599) | Worked as designed for a carried-up, thrown vehicle |
+
+Not predicted, and now known: the throw is the loudest packet of Flight 1 (36.3 mV p-p);
+under canopy the GPS drifted about 9.4 m at about 1.9 m/s toward 341 degrees, with fixes in
+every rich packet.
 
 ---
 

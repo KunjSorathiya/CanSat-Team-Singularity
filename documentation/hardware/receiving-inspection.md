@@ -1,5 +1,7 @@
 # Receiving Inspection Record
 
+**Update 2026-10-02.** The inspection findings below are unchanged and remain the bench record. The parts were later assembled into the flown vehicle (photographs: [assembled vehicle](photos/cansat-assembled.jpg), [vehicle board](photos/pcb-top.jpg)), which worked in flight on 30 September 2026 (IMU, barometer, GPS, microphone, microSD log, LoRa link). See the [flight analysis](../../analysis/flight-2026-09-30/) and the [final report](../project/CanSat-2026-Final-Project-Report.pdf).
+
 The parts have arrived. This is where what was *ordered* becomes what is *held*, and it is
 the only document in this project allowed to say a board-level fact was verified on the
 bench.

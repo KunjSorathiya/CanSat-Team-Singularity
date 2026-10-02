@@ -4,6 +4,10 @@ Photographs of the delivered boards. These are evidence, not illustration: every
 fact promoted from `TBD` in [hardware.md](../hardware.md) to a real value should be traceable
 to a photograph here.
 
+**Update 2026-10-02.** Two photographs of the finished hardware now exist, copied from the final report's figures
+(`documentation/project/report-2026/figures/photos/`): `cansat-assembled.jpg`, the assembled vehicle, and `pcb-top.jpg`, the vehicle board seen from
+the component side. The vehicle flew on 30 September 2026. They are listed at the end of the index below; the 2026-09-04 delivery photographs are unchanged.
+
 ## Index
 
 Taken 2026-09-04, on delivery. Transcribed in
@@ -28,6 +32,8 @@ Taken 2026-09-04, on delivery. Transcribed in
 | `resistors-100k-5pct.jpg` | Resistor group 1 | **100 kΩ ±5 %.** Carbon film, beige body, four bands: brown‑black‑yellow‑gold |
 | `resistors-33k-1pct.jpg` | Resistor group 2 | **33 kΩ ±1 %.** Metal film, blue body, five bands: orange‑orange‑black‑red‑brown |
 | `resistors-1k-5pct.jpg` | Resistor group 3 | **1 kΩ ±5 %.** Mint body, four bands: brown‑black‑red‑gold |
+| `cansat-assembled.jpg` | The assembled vehicle (added 2026-10-02) | The finished build as flown, with the rocker switch on short leads outside the frame |
+| `pcb-top.jpg` | The vehicle board, component side (added 2026-10-02) | The built board with the power LED fitted |
 
 Outstanding re-shoots, all macro:
 

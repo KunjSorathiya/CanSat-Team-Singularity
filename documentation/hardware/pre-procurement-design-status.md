@@ -1,5 +1,7 @@
 # Pre-Procurement Electrical Design Status
 
+**Update 2026-10-02.** This document is a historical record and is kept as written. Since it was written the vehicle has been built and flown: at the competition launch on 30 September 2026 it made two descents, thrown by hand from a terrace at about 29.5 m (not lifted by a drone), under a 6 ft (1.83 m) parachute. The IMU, barometer, GPS (fixes in every rich packet), microphone, microSD log and LoRa link all worked in flight; the ground station received 102 distinct packets. Results: [flight analysis](../../analysis/flight-2026-09-30/) and chapter 14 of the [final report](../project/CanSat-2026-Final-Project-Report.pdf).
+
 This document records the CanSat electrical design baseline before the purchased hardware arrives. It consolidates the current hardware reference, compatibility analysis, electrical architecture, logical resource map, and preliminary GPIO map.
 
 No component is physically verified. Exact Robu SKU selection is treated as procurement identity, not as proof of the delivered board's circuit. Chip-level manufacturer specifications are not silently promoted to breakout-board specifications.

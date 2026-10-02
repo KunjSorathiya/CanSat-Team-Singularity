@@ -3,19 +3,30 @@
 The structure, the egg chamber, the parachute and the recovery system.
 
 > [!IMPORTANT]
-> **Built and submitted.** `Cansat_D1` was printed in **white PETG** and assembled on
+> **Built, submitted and flown.** `Cansat_D1` was printed in **white PETG** and assembled on
 > 2026-09-12 — electronics mounted, egg chamber fitted, **280 g without a parachute** on the
-> scale. Before submission on 2026-09-14 the **80 cm canopy was sewn and fitted** and the
-> vehicle was **ballasted into the 450–550 g band** (both reported by the team).
+> scale. Before submission on 2026-09-14 the vehicle was **ballasted into the 450–550 g band**
+> (reported by the team). The canopy it flew is **6 ft (1.83 m) in diameter**, sewn.
 >
-> **What was never done: a drop test.** No descent rate has been measured, the structure has
-> never been dropped, and the canopy has never opened. The launch will be the first time any
-> of it happens.
+> **Update 2026-10-02 — it flew.** At the competition launch on 30 September 2026 the vehicle
+> was **thrown by hand from a terrace at about 29.5 m (97 ft)**, twice, and descended under the
+> 6 ft canopy at **2.27 m/s (Flight 1)** and **1.88 m/s (Flight 2)**, measured from the
+> organizers' ground-station log. The structure survived both arrivals and the vehicle
+> transmitted after impact. The numbers and method are in
+> [`analysis/flight-2026-09-30/`](../analysis/flight-2026-09-30/README.md) and chapter 14 of the
+> [final report](../documentation/project/CanSat-2026-Final-Project-Report.pdf).
+>
+> **A drop was made — the competition throws — but a dedicated drop-test campaign is not part
+> of the record.** There was no instrumented rig, no repeated drops and no vertical impact
+> case before the launch; the two flights are the only descents on record.
+>
+> **The "80 cm" below is the model's floor, not the canopy.** 80 cm is the smallest canopy
+> that the model guarantees under 5 m/s at 550 g and 35 °C; the 6 ft canopy that flew is 2.3×
+> the diameter and 5.2× the area.
 
-**Status: 2026-09-14 — submitted, launch pending.** Gate 7 (mechanical and recovery
-verified) is **built but not verified**: structure, egg chamber and canopy all exist, and
-nothing about recovery has been tested. See
-[scoring-assessment.md](../documentation/project/scoring-assessment.md).
+**Status: 2026-10-02 — flown.** Gate 7 (mechanical and recovery verified) is **met by flight**:
+two descents, both under the 5 m/s cap, structure intact, telemetry continuing after impact.
+See [scoring-assessment.md](../documentation/project/scoring-assessment.md).
 
 **Every dimension on this page is read from
 [`CAD/Cansat_D1.step`](CAD/Cansat_D1.step)** by
@@ -49,7 +60,7 @@ guidelines carried, so these are now single-valued.
 | Body envelope | **21 cm × 12 cm** | [GEN-004](../documentation/requirements/requirements.md) |
 | Egg chamber allowance | **+7 cm**, so 28 cm overall | GEN-004 |
 | Mass | **500 g ± 10 %** — 450 g to 550 g | [GEN-005](../documentation/requirements/requirements.md) |
-| Release altitude | **100 ft / 30.48 m**, from a drone | [MIS-001](../documentation/requirements/requirements.md) |
+| Release altitude | **100 ft / 30.48 m**, from a drone (rulebook) — flown as a hand throw from a terrace at ≈ 29.5 m | [MIS-001](../documentation/requirements/requirements.md) |
 | Descent rate | **≤ 5 m/s** | [REC-005](../documentation/requirements/requirements.md) |
 
 **Exceeding size or mass by more than 10 % is a disqualification.** It is not a scored
@@ -201,10 +212,15 @@ where to look; the drop test says whether it was right.
 
 ## The parachute
 
-**Sewn and fitted before submission** (reported by the team, 2026-09-14), to the 80.0 cm
-flat-diameter specification below. **Not recorded here, and worth recording:** the canopy
-type actually sewn (vented, cruciform or plain flat), its measured diameter, and where it is
-stowed on the vehicle — the last two decide REC-003, REC-004 and REC-006.
+**Flown: a sewn 6 ft (1.83 m) diameter canopy.** The 80.0 cm flat diameter in the sizing
+below is the **model's guaranteed minimum** (sized for 550 g at 35 °C, vented flat, Cd 0.75):
+80 cm is the floor, 6 ft is what was flown. **Not recorded here:** the canopy type actually
+sewn (vented, cruciform or plain flat) and where it is stowed on the vehicle.
+
+**Model against flight, for the 6 ft canopy:** 1.97–2.18 m/s across 450–550 g (2.07 m/s at
+500 g in flight-day air), 14–15.6 s from 29.5 m. Measured: **2.27 ± 0.05 m/s** (Flight 1) and
+**1.88 ± 0.02 m/s** (Flight 2) — +9 % and −9 % on the 500 g prediction. See
+[simulations/README.md](../simulations/README.md#model-against-flight-6-ft-canopy).
 
 Sized by [`simulations/descent.py`](../simulations/descent.py), which is run by the host
 test suite and pinned to closed-form limits — see [simulations/README.md](../simulations/README.md).
@@ -236,9 +252,10 @@ the top is compliant across the whole band and costs 6 cm of cloth.
   means the antenna and the battery connection have to survive the arrival.
 
 **The uncertainty that paper cannot close.** Drag coefficient is the dominant term and the
-spread between canopy types is larger than everything else combined. **No drop test was made
-before submission**, so the launch itself is the measurement: time the descent from the
-release to the landing transient in the SD log, and feed the rate back into the model.
+spread between canopy types is larger than everything else combined. **No dedicated drop test
+was made before submission**; the launch was the measurement. It has now been taken: the
+6 ft canopy implies Cd 0.57–0.69 (Flight 1) and 0.82–1.00 (Flight 2) for 450–550 g, against the
+0.75 the model assumed.
 
 ---
 
@@ -246,7 +263,8 @@ release to the landing transient in the SD log, and feed the rate back into the 
 
 > [!NOTE]
 > **Closed before submission: the vehicle was ballasted into the 450–550 g band** (reported
-> by the team, 2026-09-14). **The final all-up mass was not recorded in this repository** —
+> by the team, 2026-09-14); it flew in that band on 2026-09-30 and was not weighed on record.
+> **The final all-up mass was not recorded in this repository** —
 > the last scale reading here is the 280 g below. If the submitted mass is known, add it to
 > the table as its own row rather than editing the history beneath it.
 >
@@ -338,6 +356,9 @@ also helps descent stability under REC-006.
 
 ### What the new mass does to the descent
 
+> **Update 2026-10-02.** The rows below are for the 80 cm **floor** canopy. The vehicle flew a
+> 6 ft canopy, which is much slower (model 1.97–2.18 m/s; measured 2.27 and 1.88 m/s).
+
 **Nothing that needs a new canopy.** The 80.0 cm flat diameter was sized at 550 g on a hot
 day and is compliant across the whole range this vehicle could occupy.
 
@@ -372,8 +393,8 @@ Figures from [`simulations/descent.py`](../simulations/descent.py); reproduce wi
 the 280 g reading, and the team reports the result inside the band without a number on
 record.
 
-**Weigh it before the launch if a scale is available**, rather than adding figures to a
-measured base. This page has now been wrong twice by tens of grams in the same direction — the
+**It flew unweighed on record** (the band is reported by the team). Any future weighing
+should be added to a measured base rather than to this history. This page has now been wrong twice by tens of grams in the same direction — the
 electronics estimate by 31 g high, the structure estimate by 64 g high — and both times the
 scale settled it in one minute.
 
@@ -392,20 +413,20 @@ the repository say so.
 | ~~Print orientation~~ | **As modelled, printed on its base.** Layers stack vertically, so the weak direction is vertical tension and interlayer shear |
 | ~~Egg chamber~~ | **Built and fitted 2026-09-12**, inside the 280 g. No egg flies — PAY-001, team decision |
 | ~~Mass~~ | **Ballasted into the 450–550 g band** before submission (reported). Final mass not recorded |
-| ~~Canopy~~ | **80 cm canopy sewn and fitted** (reported). Type and stowage not recorded |
+| ~~Canopy~~ | **6 ft (1.83 m) canopy sewn and flown** (the 80 cm figure is the model's floor). Type and stowage not recorded |
 | ~~Switch and LED placement~~ | **Fitted** (reported), in the rectangular cutout and the two holes beside it |
 
 ## What was never done
 
-Not decisions — tests. None of them happened before submission, and each is now answered, if
-at all, by the launch.
+Not decisions — tests. None of them happened before submission. The launch has answered the
+first row in part, and the others stand as written.
 
 | Item | Why it matters |
 |---|---|
-| **A drop test** | The only measurement of the drag coefficient the canopy is sized against, and the only check that the structure survives an arrival |
+| **A dedicated drop-test campaign** | A drop *was* made — the competition throws on 2026-09-30, two descents, 2.27 and 1.88 m/s — but no instrumented, repeated drop-test programme is part of the record, and the structure's arrival loads were estimated, not measured (touchdown reading 1.57 g in Flight 2) |
 | **A vertical impact case** | All three stress studies load horizontally; a vehicle under a canopy lands base-first, along the print's weak axis |
 | **Calipers on the printed envelope** | Every dimension here is read from the STEP. A printed part is not its model, and the clearance is 2.5 mm per side |
-| **Photographs of the built vehicle** | Mandatory media, and section D's 15 build-quality points are judged from them. [photos/](photos/README.md) still holds only CAD renders |
+| ~~Photographs of the built vehicle~~ | **Now exist:** [`photos/cansat-assembled.jpg`](photos/cansat-assembled.jpg) and [`photos/pcb-top.jpg`](photos/pcb-top.jpg), listed in [photos/](photos/README.md). Side, bottom, team and mentor photographs are not in the repository |
 
 ---
 
@@ -414,8 +435,8 @@ at all, by the launch.
 | Path | Contents |
 |---|---|
 | [`CAD/`](CAD/README.md) | `Cansat_D1.f3d` (Fusion, native) and `Cansat_D1.step` (neutral export, and the one this repository can read) |
-| [`simulation/`](simulation/README.md) | The three static-stress reports, and what they do and do not establish |
-| [`photos/`](photos/README.md) | CAD renders now; photographs of the printed article when there is one |
+| [`simulation/`](simulation/README.md) | The three static-stress reports, the Fusion 360 composites, and what they do and do not establish |
+| [`photos/`](photos/README.md) | CAD renders, and photographs of the assembled vehicle and its board |
 | [`drawings/`](drawings/README.md) | Dimensioned drawings. Generated from the requirement **and from the CAD**, so they cannot drift from either |
 
 Related: [simulations/descent.py](../simulations/descent.py) ·

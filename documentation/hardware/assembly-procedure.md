@@ -1,5 +1,7 @@
 # Assembly Procedure
 
+**Update 2026-10-02.** The vehicle was built from this procedure and flew on 30 September 2026. As built, the power switch is a rocker ON/OFF switch on short leads outside the frame (not in the CAD cut-out), and the power LED is fitted, so the "no LED yet" status in the table below is superseded. Photographs: [assembled vehicle](photos/cansat-assembled.jpg), [vehicle board, component side](photos/pcb-top.jpg). The steps and gates below stay as the record of how the build was planned; the flight results are in the [flight analysis](../../analysis/flight-2026-09-30/) and the [final report](../project/CanSat-2026-Final-Project-Report.pdf).
+
 The order in which this vehicle is soldered, and the checks that gate each step.
 
 Everything here traces to a fact already recorded in this repository. Where two documents

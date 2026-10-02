@@ -1,5 +1,7 @@
 # Robu Product References
 
+**Update 2026-10-02.** The listed parts were assembled into the vehicle that flew on 30 September 2026 and worked in flight; see the [final report](../../project/CanSat-2026-Final-Project-Report.pdf).
+
 These entries identify the purchased items by the supplied Robu SKU. Robu is the source for exact product identity; manufacturer documents are used for component-level electrical specifications only when the product identity and document scope are clear.
 
 The Status column now records the **delivered** board where receiving inspection on 2026-09-04 disagreed with the listing. Three entries did. Photographs are in [`../photos/`](../photos/); the transcription is in [receiving-inspection.md](../receiving-inspection.md).
