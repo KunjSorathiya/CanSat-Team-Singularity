@@ -19,6 +19,7 @@
 | **12 Sep** | The structure is printed; the vehicle becomes a physical object: 280 g on a scale |
 | **13 – 14 Sep** | Canopy, switch and power LED fitted; mass trimmed into the 450–550 g band; vehicle and report submitted |
 | **30 Sep** | **Two flights**, hand-thrown from a building terrace at 29–30 m under the 6 ft canopy. Both descents at 38–45 % of the 5 m/s limit; the analysis in Chapter 14 |
+| **21 Oct** | **First prize** at the SVNIT Physics Club CanSat Competition 2026 (reported by the team). The project is complete and the repository is frozen |
 
 ## 17.2 The flight-day analysis was ready before the flights
 

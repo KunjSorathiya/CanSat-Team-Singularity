@@ -5,7 +5,9 @@
 **A can-sized satellite that is carried to launch altitude, deploys a parachute, carries an egg
 chamber, and streams telemetry from power-on through recovery.**
 
-**Submitted 2026-09-14 · flown 2026-09-30 · two descents, 102 distinct packets received**
+**🏆 First prize — SVNIT Physics Club CanSat Competition 2026**
+
+**Submitted 2026-09-14 · flown 2026-09-30 · two descents, 102 distinct packets received · project complete and frozen 2026-10-21**
 
 Repository: <https://github.com/KunjSorathiya/CanSat-Team-Singularity> · Team Singularity · `CAN-Team-25` · SVNIT Physics Club CanSat Competition 2026
 
@@ -34,6 +36,9 @@ Repository: <https://github.com/KunjSorathiya/CanSat-Team-Singularity> · Team S
 ---
 
 ## Where the project stands
+
+> [!NOTE]
+> **Final state — frozen 2026-10-21.** Team Singularity (`CAN-Team-25`) won **first prize** at the SVNIT Physics Club CanSat Competition 2026 (reported by the team, 2026-10-21; the organizers' scoresheet is not in this repository). The project is finished: the vehicle is built and flown, the analysis and the final report are written, and the repository is a closed record. No further changes are planned; see [Freeze policy](CONTRIBUTING.md#freeze-policy).
 
 | Layer | State |
 |---|---|

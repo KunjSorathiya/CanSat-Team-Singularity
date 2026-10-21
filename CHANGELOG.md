@@ -8,7 +8,23 @@ development cycle.
 
 ---
 
-## [Unreleased] — 2026-10-02 (cycle 56) — the flights, the analysis of them, and the final report
+## [Final] — 2026-10-21 (cycle 57) — first prize, and the repository is frozen
+
+Team Singularity won **first prize** at the SVNIT Physics Club CanSat Competition 2026 (reported by
+the team; the organizers' scoresheet is not in the repository). The project is complete.
+
+### Changed — documentation
+
+- Recorded the result in `README.md`, `documentation/README.md`, `documentation/project/timeline.md`,
+  `documentation/project/scoring-assessment.md` and the report source (chapters 17 and 18).
+- Added the **Freeze policy** to `CONTRIBUTING.md`: the repository is a closed record of the vehicle
+  that flew; only dated factual corrections are permitted.
+- Re-verified the frozen tree: `bash tools/build_host.sh` passes, including 307/307 documented claims.
+- No firmware, ground-station, analysis or mechanical file was changed.
+
+---
+
+## [Unreleased → closed] — 2026-10-02 (cycle 56) — the flights, the analysis of them, and the final report
 
 The vehicle flew. At the competition launch on 30 September 2026 it made two descents from about
 29.5 m — **thrown by hand from a building terrace, not released from a drone — under a 6 ft

@@ -2,7 +2,7 @@
 
 Where the project has been, where it stood at submission, how the competition flights went, and what is left.
 
-**Status date: 2026-10-02 — submitted 2026-09-14; flown 2026-09-30 (two descents); post-flight analysis and the new final report done.**
+**Status date: 2026-10-21 — submitted 2026-09-14; flown 2026-09-30 (two descents); post-flight analysis and the new final report done; first prize won (reported by the team); project complete and frozen.**
 
 > [!IMPORTANT]
 > **The CanSat and the final report were submitted on 2026-09-14** (reported by the team, 2026-09-14). Before

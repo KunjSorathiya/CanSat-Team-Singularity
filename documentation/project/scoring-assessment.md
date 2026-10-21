@@ -1,5 +1,9 @@
 # Scoring Assessment — CanSat 2026, 200 Points
 
+> **Update, 2026-10-21 — outcome.** The team won **first prize** (reported by the team; the organizers'
+> scoresheet is not in this repository). This assessment is a pre-competition estimate written on
+> 2026-09-05 and is kept unchanged below as the record of what was expected.
+
 Where this project stands against
 [the 2026 rulebook](../requirements/updated%20CanSat%20Final%20Guidelines%202026.pdf), what
 it would score today, and what the cheapest remaining points are.

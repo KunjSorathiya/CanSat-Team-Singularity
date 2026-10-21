@@ -1,5 +1,9 @@
 # Contributing
 
+> **This repository is frozen (2026-10-21).** The competition is over and the project is complete,
+> so the rules below are kept as the record of how the work was done, not as an invitation to
+> change it. See the [Freeze policy](#freeze-policy).
+
 How to work on this repository without breaking flight-critical behaviour or the
 documentation discipline the project depends on.
 
@@ -245,3 +249,20 @@ Anything that touches wiring, power or a pin assignment additionally requires:
    [bring-up order](documentation/design/wiring.md#bring-up-order).
 
 Never mark a hardware item verified because the code compiles.
+
+---
+
+## Freeze policy
+
+Team Singularity (`CAN-Team-25`) won first prize at the SVNIT Physics Club CanSat Competition 2026
+(reported by the team, 2026-10-21), and the project was closed that day.
+
+- **The record is final.** Firmware, ground station, analysis, mechanical files and the final
+  report describe the vehicle that flew on 2026-09-30. Do not "improve" them — a changed file
+  would no longer describe what flew.
+- **Everything is verified as frozen.** `bash tools/build_host.sh` passes on the frozen tree
+  (C++ and Python suites, the 71 web-console tests, and 307/307 documented claims).
+- **Permitted changes:** correcting a factual error in documentation (add a dated note, keep the
+  original wording in the history), or a security fix to a published credential. Nothing else.
+- **Reuse:** to build on this work, fork the repository rather than editing it.
+

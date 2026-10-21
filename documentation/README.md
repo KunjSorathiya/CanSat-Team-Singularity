@@ -2,7 +2,7 @@
 
 Every engineering document for CanSat 2026, grouped by what you are trying to do.
 
-> **Status: submitted 2026-09-14, flown 2026-09-30.** The CanSat and the first
+> **Status: complete and frozen 2026-10-21 — first prize at the SVNIT Physics Club CanSat Competition 2026 (reported by the team).** Submitted 2026-09-14, flown 2026-09-30. The CanSat and the first
 > [final report](project/final-report.md) were handed in on 14 September. The vehicle then
 > flew twice at the competition launch (thrown by hand from a ≈ 29.5 m terrace, not released
 > from a drone), and the flight is reported in the
